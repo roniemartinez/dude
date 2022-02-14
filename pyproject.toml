@@ -1,0 +1,31 @@
+[tool.poetry]
+name = "dude"
+version = "0.1.0"
+description = "dude uncomplicated data extraction"
+authors = ["Ronie Martinez <ronmarti18@gmail.com>"]
+license = "AGPL-3.0-or-later"
+readme = "README.md"
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "License :: OSI Approved :: GNU Affero General Public License v3 or later (AGPLv3+)",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: Implementation :: CPython",
+]
+
+[tool.poetry.urls]
+"Donate" = "https://github.com/sponsors/roniemartinez"
+
+[tool.poetry.dependencies]
+python = "^3.7"
+playwright = "^1.18.2"
+
+[tool.poetry.dev-dependencies]
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
