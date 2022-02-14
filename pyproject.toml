@@ -6,7 +6,7 @@ authors = ["Ronie Martinez <ronmarti18@gmail.com>"]
 license = "AGPL-3.0-or-later"
 readme = "README.md"
 classifiers = [
-    "Development Status :: 3 - Alpha",
+    "Development Status :: 2 - Pre-Alpha",
     "License :: OSI Approved :: GNU Affero General Public License v3 or later (AGPLv3+)",
     "Topic :: Software Development :: Libraries :: Python Modules",
     "Programming Language :: Python :: 3",
