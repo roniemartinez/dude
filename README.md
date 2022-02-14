@@ -1,8 +1,8 @@
 # dude uncomplicated data extraction
 
-Simple way to write a web scraper using Python decorators.
+Dude, this is a simple way to write a web scraper using Python decorators.
 
-## Dude, why name this project "dude"?
+## Why name this project "dude"?
 
 Inspired by `ufw`, I wanted to add "uncomplicated" into the name with something related to web scraping.
 
@@ -26,7 +26,7 @@ If you like `dude` or if it is useful to you, show your support by sponsoring my
 
 ### Example
 
-You can run [example.py](example.py) in your terminal using the command `python example.py`.
+The included [example.py](example.py) code was written to scrape Google Search results ("dude"). You can run the example in your terminal using the command `python example.py`.
 
 #### Basics
 
@@ -62,6 +62,36 @@ To run your handlers, simply call `dude.run(url=<url-you-want-to-scrape>)`.
 
 ```python
 dude.run(url="https://www.google.com/search?q=dude&hl=en")
+```
+
+#### Advanced
+
+##### Setup
+
+Some websites might require you to click on dialog buttons. You can pass `setup=True` parameter to declare the setup actions.
+
+```python
+@dude.selector("text=I agree", setup=True)
+def agree(element, page):
+    """
+    Clicks "I agree" in order to use the website.
+    """
+    with page.expect_navigation():
+        element.click()
+```
+
+##### Navigate
+
+To navigate to another page, you can pass `navigate=True` parameter to declare the navigate actions.
+
+```python
+@dude.selector("text=Next", navigate=True)
+def next_page(element, page):
+    """
+    Clicks the Next button/link to navigate to the next page.
+    """
+    with page.expect_navigation():
+        element.click()
 ```
 
 ## Author
