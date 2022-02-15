@@ -9,15 +9,23 @@ SETUP_ACTION_MAP = {}
 NAVIGATE_ACTION_MAP = {}
 
 
-def selector(sel: str, setup: bool = False, navigate: bool = False):
+def select(selector: str, setup: bool = False, navigate: bool = False):
+    """
+    Decorator to register a handler function with given selector.
+
+    :param selector: Element selector (CSS, XPath, text, regex)
+    :param setup: Flag to register a setup handler.
+    :param navigate: Flag to register a navigate handler.
+    :return: Returns the same function, technically.
+    """
+
     def _selector(func):
         if setup:
-            SETUP_ACTION_MAP[sel] = func
-            return func
-        if navigate:
-            NAVIGATE_ACTION_MAP[sel] = func
-            return func
-        SELECTOR_MAP[sel].append(func)
+            SETUP_ACTION_MAP[selector] = func
+        elif navigate:
+            NAVIGATE_ACTION_MAP[selector] = func
+        else:
+            SELECTOR_MAP[selector].append(func)
         return func
 
     return _selector

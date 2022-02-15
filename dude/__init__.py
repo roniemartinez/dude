@@ -1,17 +1,39 @@
+import logging
+import sys
 from collections import defaultdict
 
 from playwright.sync_api import Page, sync_playwright
 
-from .decorators import NAVIGATE_ACTION_MAP, SELECTOR_MAP, SETUP_ACTION_MAP, selector
+from .decorators import NAVIGATE_ACTION_MAP, SELECTOR_MAP, SETUP_ACTION_MAP, select
 
-__all__ = ["run", "selector"]
+__all__ = ["run", "select"]
+
+
+logging.basicConfig(stream=sys.stdout, level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
+logger = logging.getLogger(__name__)
+
+
+def collect_elements(page: Page):
+    """
+    Collects all the elements and returns a generator of element-handler pair.
+
+    :param page: Page object.
+    """
+    for sel, funcs in SELECTOR_MAP.items():
+        for element in page.query_selector_all(sel):
+            for func in funcs:
+                yield element, func
 
 
 def extract_all(page: Page):
-    for sel, funcs in SELECTOR_MAP.items():
-        for handle in page.query_selector_all(sel):
-            for func in funcs:
-                yield func(handle)
+    """
+    Extracts all the data using the registered handler functions.
+
+    :param page: Page object.
+    """
+
+    for element, func in collect_elements(page):
+        yield func(element)
 
 
 def setup(page: Page):
@@ -27,6 +49,9 @@ def navigate(page: Page):
     for sel, func in NAVIGATE_ACTION_MAP.items():
         for handle in page.query_selector_all(sel):
             func(handle, page)
+
+    logger.info("Navigated to %s", page.url)
+
     return True
 
 
@@ -35,8 +60,8 @@ def run(url: str, headless: bool = True, pages: int = 1) -> None:
     Dude, run!
 
     Runs Playwright and queries all the registered selectors.
-    The resulting list of ElementHandle will be passed to the registered callback functions which should handle data
-    extraction.
+    The resulting list of ElementHandle will be passed to the registered handler functions where data extraction
+    is defined and performed.
 
     :param url: Website URL.
     :param headless: Enables headless browser. (default=True)
@@ -48,11 +73,12 @@ def run(url: str, headless: bool = True, pages: int = 1) -> None:
         browser = p.chromium.launch(headless=headless)
         page = browser.new_page()
         page.goto(url)
+        logger.info("Loaded page %s", page.url)
         setup(page)
-        for _ in range(pages):
+        for i in range(1, pages + 1):
             current_page = page.url
             data[current_page].extend(extract_all(page))
-            if not navigate(page) or current_page == page.url:
+            if i == pages or not navigate(page) or current_page == page.url:
                 break
         browser.close()
 
