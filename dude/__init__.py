@@ -19,10 +19,12 @@ def collect_elements(page: Page):
 
     :param page: Page object.
     """
-    for sel, funcs in SELECTOR_MAP.items():
-        for element in page.query_selector_all(sel):
-            for func in funcs:
-                yield element, func
+    for group_selector, selectors in SELECTOR_MAP.items():
+        for group_index, group in enumerate(page.query_selector_all(group_selector)):
+            for selector, funcs in selectors.items():
+                for element_index, element in enumerate(group.query_selector_all(selector)):
+                    for func in funcs:
+                        yield group_index, id(group), element_index, selector, element, func
 
 
 def extract_all(page: Page):
@@ -32,8 +34,13 @@ def extract_all(page: Page):
     :param page: Page object.
     """
 
-    for element, func in collect_elements(page):
-        yield func(element)
+    for group_index, group_id, element_index, selector, element, func in collect_elements(page):
+        yield group_id, {
+            "group": group_index,
+            "element": element_index,
+            "selector": selector,
+            **func(element),
+        }
 
 
 def setup(page: Page):
@@ -68,7 +75,7 @@ def run(url: str, headless: bool = True, pages: int = 1) -> None:
     :param pages: Number of pages to visit before exiting.
     :return:
     """
-    data = defaultdict(list)
+    collected_data = defaultdict(lambda: defaultdict(list))
     with sync_playwright() as p:
         browser = p.chromium.launch(headless=headless)
         page = browser.new_page()
@@ -77,7 +84,8 @@ def run(url: str, headless: bool = True, pages: int = 1) -> None:
         setup(page)
         for i in range(1, pages + 1):
             current_page = page.url
-            data[current_page].extend(extract_all(page))
+            for group, data in extract_all(page):
+                collected_data[current_page][group].append(data)
             if i == pages or not navigate(page) or current_page == page.url:
                 break
         browser.close()
@@ -85,4 +93,4 @@ def run(url: str, headless: bool = True, pages: int = 1) -> None:
     # TODO: Store the data somewhere
     import json
 
-    print(json.dumps(data, indent=4))
+    print(json.dumps(collected_data, indent=4))
