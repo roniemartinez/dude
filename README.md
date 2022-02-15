@@ -26,7 +26,7 @@ If you like `dude` or if it is useful to you, show your support by sponsoring my
 
 ### Example
 
-The included [example.py](example.py) code was written to scrape Google Search results ("dude"). You can run the example in your terminal using the command `python example.py`.
+The included [examples/flat.py](examples/flat.py) code was written to scrape Google Search results ("dude"). You can run the example in your terminal using the command `python example.py`.
 
 #### Basics
 
@@ -94,6 +94,23 @@ def next_page(element, page):
     """
     with page.expect_navigation():
         element.click()
+```
+
+##### Grouping results
+
+When scraping a page containing a list of information, for example, a Search Engine Results Page (SERP) can have URLs, titles and descriptions,
+it is important to know how data can be grouped. By default, all scraped results are grouped by `:root` which is the root document, creating a flat list.
+To specify grouping, pass `group=<selector-for-grouping>` to `@select()` decorator.
+
+In the example below, the results are grouped by an element with class `g`. The matched selectors should be children of this element.
+
+```python
+@select(selector="css=h3:nth-child(2)", group="css=.g")
+def result_title(element):
+    """
+    Result title.
+    """
+    return {"title": element.text_content()}
 ```
 
 ## Author
