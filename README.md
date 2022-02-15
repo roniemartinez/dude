@@ -4,7 +4,7 @@ Dude, this is a simple way to write a web scraper using Python decorators.
 
 ## Why name this project "dude"?
 
-Inspired by `ufw`, I wanted to add "uncomplicated" into the name with something related to web scraping.
+I wanted to add "uncomplicated" (like `ufw`) into the name together with something related to web scraping.
 
 I also think that if you want to do web scraping, there's probably some random dude who can make it very easy for you to start with. 😊
 
@@ -19,7 +19,7 @@ If you like `dude` or if it is useful to you, show your support by sponsoring my
 ### Requirements
 
 1. Any dude should know how to work with selectors (CSS or XPath).
-2. This library was built on top of [Playwright](https://github.com/microsoft/playwright-python). Any dude should be at least familiar with the basics of Playwright - they also extended the selectors to support text, regular expressions, etc. See https://playwright.dev/python/docs/selectors.
+2. This library was built on top of [Playwright](https://github.com/microsoft/playwright-python). Any dude should be at least familiar with the basics of Playwright - they also extended the selectors to support text, regular expressions, etc. See [Selectors | Playwright Python](https://playwright.dev/python/docs/selectors).
 3. Python decorators... you'll live, dude!
 
 ### Installation
@@ -33,13 +33,13 @@ The included [example.py](example.py) code was written to scrape Google Search r
 To use `dude`, start by importing the library.
 
 ```python
-import dude
+from dude import select
 ```
 
-A basic handler function consists of the structure below. A handler function should accept 1 argument (element) and should be decorated with `@selector()`. The handler should return a dictionary. 
+A basic handler function consists of the structure below. A handler function should accept 1 argument (element) and should be decorated with `@select()`. The handler should return a dictionary.
 
 ```python
-@dude.selector("<put-your-selector-here>")
+@select(selector="<put-your-selector-here>")
 def handler(element):
     ...
     # This dictionary can contain multiple items
@@ -50,7 +50,7 @@ def handler(element):
 The example handler below extracts the text content of any element that matches the selector `css=div#rso h3:nth-child(2)`.
 
 ```python
-@dude.selector("css=div#rso h3:nth-child(2)")
+@select(selector="css=div#rso h3:nth-child(2)")
 def result_title(element):
     """
     Result title.
@@ -58,9 +58,11 @@ def result_title(element):
     return {"title": element.text_content()}
 ```
 
-To run your handlers, simply call `dude.run(url=<url-you-want-to-scrape>)`.
+To run your handler functions, simply call `dude.run(url=<url-you-want-to-scrape>)`.
 
 ```python
+import dude
+
 dude.run(url="https://www.google.com/search?q=dude&hl=en")
 ```
 
@@ -71,7 +73,7 @@ dude.run(url="https://www.google.com/search?q=dude&hl=en")
 Some websites might require you to click on dialog buttons. You can pass `setup=True` parameter to declare the setup actions.
 
 ```python
-@dude.selector("text=I agree", setup=True)
+@select(selector="text=I agree", setup=True)
 def agree(element, page):
     """
     Clicks "I agree" in order to use the website.
@@ -85,7 +87,7 @@ def agree(element, page):
 To navigate to another page, you can pass `navigate=True` parameter to declare the navigate actions.
 
 ```python
-@dude.selector("text=Next", navigate=True)
+@select(selector="text=Next", navigate=True)
 def next_page(element, page):
     """
     Clicks the Next button/link to navigate to the next page.
