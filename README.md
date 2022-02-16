@@ -2,9 +2,29 @@
 
 Dude, this is a simple way to write a web scraper using Python decorators.
 
+## Minimal web scraper
+
+The simplest web scraper will look like this:
+
+```python
+from dude import select
+
+
+@select(selector="a")
+def get_links(element):
+    return {"url": element.get_attribute("href")}
+```
+
+To start scraping, just simply run:
+
+```bash
+dude scrape --url "<url>" path/to/file.py
+```
+
 ## Why name this project "dude"?
 
-I wanted to add "uncomplicated" (like `ufw`) into the name together with something related to web scraping.
+I wanted to add "uncomplicated" (like [`ufw`](https://wiki.ubuntu.com/UncomplicatedFirewall)) into the name together with something related to web scraping.
+The design, inspired by [Flask](https://github.com/pallets/flask), was to easily build a web scraper in just a few lines of code.
 
 I also think that if you want to do web scraping, there's probably some random dude who can make it very easy for you to start with. 😊
 
@@ -26,7 +46,7 @@ If you like `dude` or if it is useful to you, show your support by sponsoring my
 
 ### Example
 
-The included [examples/flat.py](examples/flat.py) code was written to scrape Google Search results ("dude"). You can run the example in your terminal using the command `python example.py`.
+The included [examples/flat.py](examples/flat.py) code was written to scrape Google Search results ("q=dude"). You can run the example in your terminal using the command `python example.py`.
 
 #### Basics
 
@@ -112,6 +132,8 @@ def result_title(element):
     """
     return {"title": element.text_content()}
 ```
+
+A more extensive example can be found at [examples/grouped.py](examples/grouped.py).
 
 ## Author
 

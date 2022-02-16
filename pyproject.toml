@@ -20,6 +20,9 @@ classifiers = [
 [tool.poetry.urls]
 "Donate" = "https://github.com/sponsors/roniemartinez"
 
+[tool.poetry.scripts]
+dude = "dude:cli"
+
 [tool.poetry.dependencies]
 python = "^3.7"
 playwright = "^1.19.0"

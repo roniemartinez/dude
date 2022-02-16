@@ -6,7 +6,7 @@ from playwright.sync_api import Page, sync_playwright
 
 from .decorators import NAVIGATE_ACTION_MAP, SELECTOR_MAP, SETUP_ACTION_MAP, select
 
-__all__ = ["run", "select"]
+__all__ = ["cli", "run", "select"]
 
 
 logging.basicConfig(stream=sys.stdout, level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
@@ -62,7 +62,7 @@ def navigate(page: Page):
     return True
 
 
-def run(url: str, headless: bool = True, pages: int = 1) -> None:
+def run(url: str, headless: bool = True, pages: int = 1, browser_type: str = "chromium") -> None:
     """
     Dude, run!
 
@@ -73,11 +73,11 @@ def run(url: str, headless: bool = True, pages: int = 1) -> None:
     :param url: Website URL.
     :param headless: Enables headless browser. (default=True)
     :param pages: Number of pages to visit before exiting.
-    :return:
+    :param browser_type: Playwright supported browser types ("chromium", "webkit" or "firefox").
     """
     collected_data = defaultdict(lambda: defaultdict(list))
     with sync_playwright() as p:
-        browser = p.chromium.launch(headless=headless)
+        browser = p[browser_type].launch(headless=headless)
         page = browser.new_page()
         page.goto(url)
         logger.info("Loaded page %s", page.url)
@@ -94,3 +94,54 @@ def run(url: str, headless: bool = True, pages: int = 1) -> None:
     import json
 
     print(json.dumps(collected_data, indent=4))
+
+
+def cli():
+    import argparse
+    import importlib.util
+    from pathlib import Path
+
+    parser = argparse.ArgumentParser(description="dude uncomplicated data extraction")
+    subparsers = parser.add_subparsers(title="subcommands")
+    scrape = subparsers.add_parser("scrape", help="Run the scraper.")
+    # required parameters
+    required = scrape.add_argument_group("required arguments")
+    required.add_argument(
+        "paths",
+        metavar="path",
+        nargs="+",
+        type=str,
+        help="Path to python files containing the handler functions.",
+    )
+    required.add_argument(
+        "--url",
+        dest="url",
+        type=str,
+        required=True,
+        help="URL to scrape.",
+    )
+    # optional parameters
+    optional = scrape.add_argument_group("optional arguments")
+    optional.add_argument(
+        "--headed",
+        dest="headed",
+        default=False,
+        action="store_true",
+        help="Run headed browser.",
+    )
+    optional.add_argument(
+        "--browser",
+        dest="browser",
+        default="chromium",
+        choices=["chromium", "webkit", "firefox"],
+        help='Browser type to use ("chromium", "webkit", "firefox").',
+    )
+    arguments = parser.parse_args()
+
+    for path in arguments.paths:
+        module_name = Path(path).stem
+        spec = importlib.util.spec_from_file_location(module_name, path)
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+
+    run(url=arguments.url, headless=not arguments.headed, browser_type=arguments.browser)
