@@ -1,16 +1,55 @@
 # dude uncomplicated data extraction
 
-Dude, this is a simple way to write a web scraper using Python decorators.
+Dude is a simple way to write a web scraper using Python decorators.
+The design, inspired by [Flask](https://github.com/pallets/flask), was to easily build a web scraper in just a few lines of code.
+
+## Minimal web scraper
+
+The simplest web scraper will look like this:
+
+```python
+from dude import select
+
+
+@select(selector="a")
+def get_links(element):
+    return {"url": element.get_attribute("href")}
+```
+
+To start scraping, just simply run in your terminal:
+
+```bash
+dude scrape --url "<url>" path/to/file.py
+```
+
+Another option is to run from python code by calling `dude.run()` like below and running `python path/to/file.py`:
+
+```python
+from dude import select
+
+
+@select(selector="a")
+def get_links(element):
+    return {"url": element.get_attribute("href")}
+
+
+if __name__ == "__main__":
+    import dude
+
+    dude.run(url="https://www.google.com/search?q=dude&hl=en")
+```
 
 ## Why name this project "dude"?
 
-I wanted to add "uncomplicated" (like `ufw`) into the name together with something related to web scraping.
-
-I also think that if you want to do web scraping, there's probably some random dude who can make it very easy for you to start with. 😊
+- [X] A [Recursive acronym](https://en.wikipedia.org/wiki/Recursive_acronym).
+- [X] Add "uncomplicated" (like [`ufw`](https://wiki.ubuntu.com/UncomplicatedFirewall)) into the name.
+- [X] Puns! I also think that if you want to do web scraping, there's probably some random dude around the corner who can make it very easy for you to start with it. 😊
 
 ## Support
 
-If you like `dude` or if it is useful to you, show your support by sponsoring my projects.
+This project is at a very early stage. This dude needs some love! ❤️
+
+Contribute to this project by feature requests, idea discussions, reporting bugs, opening pull requests, or through Github Sponsors. Your help is highly appreciated.
 
 [![Github Sponsors](https://img.shields.io/github/sponsors/roniemartinez?label=github%20sponsors&logo=github%20sponsors&style=for-the-badge)](https://github.com/sponsors/roniemartinez)
 
@@ -18,15 +57,15 @@ If you like `dude` or if it is useful to you, show your support by sponsoring my
 
 ### Requirements
 
-1. Any dude should know how to work with selectors (CSS or XPath).
-2. This library was built on top of [Playwright](https://github.com/microsoft/playwright-python). Any dude should be at least familiar with the basics of Playwright - they also extended the selectors to support text, regular expressions, etc. See [Selectors | Playwright Python](https://playwright.dev/python/docs/selectors).
-3. Python decorators... you'll live, dude!
+- [X] Any dude should know how to work with selectors (CSS or XPath).
+- [X] This library was built on top of [Playwright](https://github.com/microsoft/playwright-python). Any dude should be at least familiar with the basics of Playwright - they also extended the selectors to support text, regular expressions, etc. See [Selectors | Playwright Python](https://playwright.dev/python/docs/selectors).
+- [X] Python decorators... you'll live, dude!
 
 ### Installation
 
 ### Example
 
-The included [examples/flat.py](examples/flat.py) code was written to scrape Google Search results ("dude"). You can run the example in your terminal using the command `python example.py`.
+The included [examples/flat.py](examples/flat.py) code was written to scrape Google Search results ("q=dude"). You can run the example in your terminal using the command `python example.py`.
 
 #### Basics
 
@@ -112,6 +151,8 @@ def result_title(element):
     """
     return {"title": element.text_content()}
 ```
+
+A more extensive example can be found at [examples/grouped.py](examples/grouped.py).
 
 ## Author
 
