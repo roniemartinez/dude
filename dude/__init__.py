@@ -1,16 +1,21 @@
 import logging
 import sys
 from collections import defaultdict
+from pathlib import Path
+from typing import Optional
 
 from playwright.sync_api import Page, ProxySettings, sync_playwright
 
 from .decorators import NAVIGATE_ACTION_MAP, SELECTOR_MAP, SETUP_ACTION_MAP, select
 
-__all__ = ["cli", "run", "select"]
+__all__ = ["run", "select"]
 
 
 logging.basicConfig(stream=sys.stdout, level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
 logger = logging.getLogger(__name__)
+
+
+SUPPORTED_FORMATS = ("json", "csv", "yaml", "yml")
 
 
 def collect_elements(page: Page):
@@ -36,8 +41,8 @@ def extract_all(page: Page):
 
     for group_index, group_id, element_index, element, func in collect_elements(page):
         yield group_id, {
-            "group": group_index,
-            "element": element_index,
+            "group_index": group_index,
+            "element_index": element_index,
             **func(element),
         }
 
@@ -67,6 +72,8 @@ def run(
     pages: int = 1,
     browser_type: str = "chromium",
     proxy: ProxySettings = None,
+    output: Optional[str] = None,
+    format: str = "json",
 ) -> None:
     """
     Dude, run!
@@ -79,9 +86,14 @@ def run(
     :param headless: Enables headless browser. (default=True)
     :param pages: Number of pages to visit before exiting.
     :param browser_type: Playwright supported browser types ("chromium", "webkit" or "firefox").
-    :param proxy: Proxy settings. (see https://playwright.dev/python/docs/api/class-apirequest#api-request-new-context-option-proxy)
+    :param output: Output file. If not provided, prints in the terminal.
+    :param format: Output file format. If not provided, uses the extension of the output file or defaults to JSON.
+    :param proxy: Proxy settings. (see https://playwright.dev/python/docs/api/class-apirequest#api-request-new-context-option-proxy)  # noqa
     """
+    logger.info("Scraper started...")
+
     collected_data = defaultdict(lambda: defaultdict(list))
+
     with sync_playwright() as p:
         browser = p[browser_type].launch(headless=headless, proxy=proxy)
         page = browser.new_page()
@@ -96,16 +108,75 @@ def run(
                 break
         browser.close()
 
-    # TODO: Store the data somewhere
-    import json
+    if output:
+        extension = Path(output).suffix.lower()[1:]
+        if extension in SUPPORTED_FORMATS:
+            format = extension
 
-    print(json.dumps(collected_data, indent=4))
+    if format == "csv":
+        if output is not None:
+            import csv
+
+            headers = set()
+            rows = []
+            for data in flatten(collected_data):
+                headers.update(data.keys())
+                rows.append(data)
+
+            with open(output, "w") as f:
+                writer = csv.DictWriter(f, fieldnames=headers)
+                writer.writeheader()
+                writer.writerows(rows)
+
+            logger.info("Data saved to %s", output)
+        else:
+            # TODO: find a better way to present a table if output is not None
+            import json
+
+            logger.warning("Printing CSV to terminal is currently not supported. Defaulting to json.")
+            json.dump(list(flatten(collected_data)), sys.stdout, indent=2)
+
+    elif format in ("yaml", "yml"):
+        import yaml
+
+        if output is not None:
+            with open(output, "w") as f:
+                yaml.safe_dump(list(flatten(collected_data)), f)
+
+            logger.info("Data saved to %s", output)
+
+        else:
+            yaml.safe_dump(list(flatten(collected_data)), sys.stdout)
+    else:
+        if output is not None:
+            import json
+
+            with open(output, "w") as f:
+                json.dump(list(flatten(collected_data)), f, indent=2)
+
+            logger.info("Data saved to %s", output)
+        else:
+            import json
+
+            json.dump(list(flatten(collected_data)), sys.stdout, indent=2)
+
+
+def key(x):
+    return x["group_index"], x["element_index"]
+
+
+def flatten(data):
+    import itertools
+
+    for page_url, group in data.items():
+        for group_id, items in group.items():
+            for k, g in itertools.groupby(sorted(items, key=key), lambda x: (x["group_index"], x["element_index"])):
+                yield {"page_url": page_url, "group_id": group_id, **{k: v for item in g for k, v in item.items()}}
 
 
 def cli():
     import argparse
     import importlib.util
-    from pathlib import Path
 
     parser = argparse.ArgumentParser(description="dude uncomplicated data extraction")
     subparsers = parser.add_subparsers(title="subcommands")
@@ -139,8 +210,24 @@ def cli():
         "--browser",
         dest="browser",
         default="chromium",
-        choices=["chromium", "webkit", "firefox"],
+        choices=("chromium", "webkit", "firefox"),
         help="Browser type to use.",
+    )
+    optional.add_argument(
+        "-o",
+        "--output",
+        dest="output",
+        type=str,
+        help="Output file. If not provided, prints into the terminal.",
+    )
+    optional.add_argument(
+        "-f",
+        "--format",
+        dest="format",
+        type=str,
+        default="json",
+        choices=SUPPORTED_FORMATS,
+        help='Output file format. If not provided, uses the extension of the output file or defaults to "json".',
     )
     optional.add_argument(
         "--proxy-server",
@@ -178,4 +265,11 @@ def cli():
             password=arguments.proxy_pass or "",
         )
 
-    run(url=arguments.url, headless=not arguments.headed, browser_type=arguments.browser, proxy=proxy)
+    run(
+        url=arguments.url,
+        headless=not arguments.headed,
+        browser_type=arguments.browser,
+        proxy=proxy,
+        output=arguments.output,
+        format=arguments.format,
+    )
