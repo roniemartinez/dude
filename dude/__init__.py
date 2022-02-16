@@ -133,8 +133,8 @@ def run(
             # TODO: find a better way to present a table if output is not None
             import json
 
-            logger.info("Printing CSV to terminal is not supported. Defaulting to json")
-            print(json.dumps(list(flatten(collected_data)), indent=2))
+            logger.warning("Printing CSV to terminal is currently not supported. Defaulting to json.")
+            json.dump(list(flatten(collected_data)), sys.stdout, indent=2)
 
     elif format in ("yaml", "yml"):
         import yaml
@@ -158,7 +158,7 @@ def run(
         else:
             import json
 
-            print(json.dumps(list(flatten(collected_data)), indent=2))
+            json.dump(list(flatten(collected_data)), sys.stdout, indent=2)
 
 
 def key(x):
