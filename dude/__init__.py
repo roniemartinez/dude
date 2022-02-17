@@ -2,7 +2,7 @@ import logging
 import sys
 from collections import defaultdict
 from pathlib import Path
-from typing import Optional
+from typing import Optional, Pattern
 
 from playwright.sync_api import Page, ProxySettings, sync_playwright
 
@@ -24,12 +24,17 @@ def collect_elements(page: Page):
 
     :param page: Page object.
     """
-    for group_selector, selectors in SELECTOR_MAP.items():
-        for group_index, group in enumerate(page.query_selector_all(group_selector)):
-            for selector, funcs in selectors.items():
-                for element_index, element in enumerate(group.query_selector_all(selector)):
-                    for func in funcs:
-                        yield group_index, id(group), element_index, element, func
+    url_pattern: Pattern
+    for url_pattern, groups in SELECTOR_MAP.items():
+        if url_pattern is not None and not url_pattern.search(page.url):
+            continue
+
+        for group_selector, selectors in groups.items():
+            for group_index, group in enumerate(page.query_selector_all(group_selector)):
+                for selector, funcs in selectors.items():
+                    for element_index, element in enumerate(group.query_selector_all(selector)):
+                        for func in funcs:
+                            yield group_index, id(group), element_index, element, func
 
 
 def extract_all(page: Page):
@@ -69,8 +74,8 @@ def navigate(page: Page):
 def run(
     url: str,
     headless: bool = True,
-    pages: int = 1,
     browser_type: str = "chromium",
+    pages: int = 1,
     proxy: ProxySettings = None,
     output: Optional[str] = None,
     format: str = "json",
@@ -84,8 +89,8 @@ def run(
 
     :param url: Website URL.
     :param headless: Enables headless browser. (default=True)
-    :param pages: Number of pages to visit before exiting.
     :param browser_type: Playwright supported browser types ("chromium", "webkit" or "firefox").
+    :param pages: Maximum number of pages to crawl before exiting (default=1). This is only valid when a navigate handler is defined. # noqa
     :param output: Output file. If not provided, prints in the terminal.
     :param format: Output file format. If not provided, uses the extension of the output file or defaults to JSON.
     :param proxy: Proxy settings. (see https://playwright.dev/python/docs/api/class-apirequest#api-request-new-context-option-proxy)  # noqa
@@ -214,17 +219,21 @@ def cli():
         help="Browser type to use.",
     )
     optional.add_argument(
-        "-o",
+        "--pages",
+        dest="pages",
+        default=1,
+        type=int,
+        help="Maximum number of pages to crawl before exiting (default=1). This is only valid when a navigate handler is defined.",  # noqa
+    )
+    optional.add_argument(
         "--output",
         dest="output",
         type=str,
         help="Output file. If not provided, prints into the terminal.",
     )
     optional.add_argument(
-        "-f",
         "--format",
         dest="format",
-        type=str,
         default="json",
         choices=SUPPORTED_FORMATS,
         help='Output file format. If not provided, uses the extension of the output file or defaults to "json".',
@@ -269,6 +278,7 @@ def cli():
         url=arguments.url,
         headless=not arguments.headed,
         browser_type=arguments.browser,
+        pages=arguments.pages,
         proxy=proxy,
         output=arguments.output,
         format=arguments.format,

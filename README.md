@@ -154,6 +154,23 @@ def result_title(element):
 
 A more extensive example can be found at [examples/grouped.py](examples/grouped.py).
 
+##### URL Pattern Matching
+
+In order to use a handler function to just specific websites, a `url` pattern parameter can be passed to `@select()`.
+The `url` pattern parameter should be a valid regular expression. 
+The example below will only run if the URL of the current page matches `.*\.com`.
+
+```python
+@select(selector="css=h3:nth-child(2)", url=r".*\.com")
+def result_title(element):
+    """
+    Result title.
+    """
+    return {"title": element.text_content()}
+```
+
+A more extensive example can be found at [examples/url_pattern.py](examples/url_pattern.py).
+
 ## Author
 
 [Ronie Martinez](mailto:ronmarti18@gmail.com)
