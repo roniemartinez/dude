@@ -36,7 +36,7 @@ def get_links(element):
 if __name__ == "__main__":
     import dude
 
-    dude.run(url="https://www.google.com/search?q=dude&hl=en")
+    dude.run(urls=["https://www.google.com/search?q=dude&hl=en"])
 ```
 
 ## Why name this project "dude"?
@@ -97,12 +97,12 @@ def result_title(element):
     return {"title": element.text_content()}
 ```
 
-To run your handler functions, simply call `dude.run(url=<url-you-want-to-scrape>)`.
+To run your handler functions, simply call `dude.run(urls=["<url-you-want-to-scrape>"])`.
 
 ```python
 import dude
 
-dude.run(url="https://www.google.com/search?q=dude&hl=en")
+dude.run(urls=["https://www.google.com/search?q=dude&hl=en"])
 ```
 
 #### Advanced
@@ -183,8 +183,8 @@ Please use the command `python path/to/file.py` when running the application.
 
 from dude import Application
 
-
 app = Application()
+
 
 @app.select(selector="css=h3:nth-child(2)", url=r".*\.com")
 def result_title(element):
@@ -192,7 +192,7 @@ def result_title(element):
 
 
 if __name__ == '__main__':
-    app.run(url="https://www.google.com/search?q=dude&hl=en")
+    app.run(urls=["https://www.google.com/search?q=dude&hl=en"])
 ```
 
 A more extensive example can be found at [examples/application.py](examples/application.py).

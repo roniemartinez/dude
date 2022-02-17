@@ -49,4 +49,4 @@ def next_page(element, page):
 
 
 if __name__ == "__main__":
-    app.run(url="https://www.google.com/search?q=dude&hl=en", pages=2)
+    app.run(urls=["https://www.google.com/search?q=dude&hl=en"], pages=2)
