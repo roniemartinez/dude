@@ -1,6 +1,6 @@
 # dude uncomplicated data extraction
 
-Dude is a simple way to write a web scraper using Python decorators.
+Dude is a very simple framework to write a web scraper using Python decorators.
 The design, inspired by [Flask](https://github.com/pallets/flask), was to easily build a web scraper in just a few lines of code.
 
 ## Minimal web scraper
@@ -170,6 +170,32 @@ def result_title(element):
 ```
 
 A more extensive example can be found at [examples/url_pattern.py](examples/url_pattern.py).
+
+##### Using the Application object
+
+The decorator `@select()` and the function `run()` simplifies the usage of the framework.
+It is possible to create your own application object using the example below.
+
+> 🚨 WARNING: This is not currently supported by the command line interface! 
+Please use the command `python path/to/file.py` when running the application.
+
+```python
+
+from dude import Application
+
+
+app = Application()
+
+@app.select(selector="css=h3:nth-child(2)", url=r".*\.com")
+def result_title(element):
+    return {"title": element.text_content()}
+
+
+if __name__ == '__main__':
+    app.run(url="https://www.google.com/search?q=dude&hl=en")
+```
+
+A more extensive example can be found at [examples/application.py](examples/application.py).
 
 ## Author
 
