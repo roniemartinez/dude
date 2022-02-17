@@ -3,7 +3,7 @@ import re
 import sys
 from collections import defaultdict
 from pathlib import Path
-from typing import Optional, Pattern
+from typing import Optional, Pattern, Sequence
 
 from playwright.sync_api import Page, ProxySettings, sync_playwright
 
@@ -76,7 +76,7 @@ class Application:
 
     def run(
         self,
-        url: str,
+        urls: Sequence[str],
         headless: bool = True,
         browser_type: str = "chromium",
         pages: int = 1,
@@ -90,7 +90,7 @@ class Application:
         The resulting list of ElementHandle will be passed to the registered handler functions where data extraction
         is defined and performed.
 
-        :param url: Website URL.
+        :param urls: List of website URLs.
         :param headless: Enables headless browser. (default=True)
         :param browser_type: Playwright supported browser types ("chromium", "webkit" or "firefox").
         :param pages: Maximum number of pages to crawl before exiting (default=1). This is only valid when a navigate handler is defined. # noqa
@@ -103,15 +103,16 @@ class Application:
         with sync_playwright() as p:
             browser = p[browser_type].launch(headless=headless, proxy=proxy)
             page = browser.new_page()
-            page.goto(url)
-            logger.info("Loaded page %s", page.url)
-            self.setup(page)
-            for i in range(1, pages + 1):
-                current_page = page.url
-                for group, data in self._extract_all(page):
-                    self.collected_data[current_page][group].append(data)
-                if i == pages or not self.navigate(page) or current_page == page.url:
-                    break
+            for url in urls:
+                page.goto(url)
+                logger.info("Loaded page %s", page.url)
+                self.setup(page)
+                for i in range(1, pages + 1):
+                    current_page = page.url
+                    for group, data in self._extract_all(page):
+                        self.collected_data[current_page][group].append(data)
+                    if i == pages or not self.navigate(page) or current_page == page.url:
+                        break
             browser.close()
 
         self._process_output(format, output)

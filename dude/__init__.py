@@ -32,10 +32,12 @@ def cli():
     )
     required.add_argument(
         "--url",
-        dest="url",
+        metavar="URL",
+        dest="urls",
+        action="append",
         type=str,
         required=True,
-        help="URL to scrape.",
+        help='Website URL to scrape. Accepts one or more url (e.g. "dude scrape --url <url1> --url <url2> ...")',
     )
     # optional parameters
     optional = scrape.add_argument_group("optional arguments")
@@ -110,7 +112,7 @@ def cli():
         )
 
     run(
-        url=arguments.url,
+        urls=arguments.urls,
         headless=not arguments.headed,
         browser_type=arguments.browser,
         pages=arguments.pages,
