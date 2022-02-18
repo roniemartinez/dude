@@ -31,6 +31,7 @@ class Application:
         setup: bool = False,
         navigate: bool = False,
         url: Optional[str] = None,
+        priority: int = 100,
     ):
         """
         Decorator to register a handler function with given selector.
@@ -39,8 +40,8 @@ class Application:
         :param group: (Optional) Element selector where the matched element should be grouped. Defaults to ":root".
         :param setup: Flag to register a setup handler.
         :param navigate: Flag to register a navigate handler.
-        :param url: URL pattern. Run the handler function only when the pattern matches (default None)
-        :return: Returns the same function, technically.
+        :param url: URL pattern. Run the handler function only when the pattern matches (default None).
+        :param priority: Priority, the lowest value will be executed first (default 100).
         """
 
         def wrapper(func):
@@ -55,6 +56,7 @@ class Application:
                     handler=func,
                     setup=setup,
                     navigate=navigate,
+                    priority=priority,
                 )
             )
             return func
@@ -122,10 +124,10 @@ class Application:
         return filter(rule_filter(), self.rules)
 
     def _get_setup_rules(self):
-        return filter(rule_filter(setup=True), self.rules)
+        return sorted(filter(rule_filter(setup=True), self.rules), key=lambda r: r.priority)
 
     def _get_navigate_rules(self):
-        return filter(rule_filter(navigate=True), self.rules)
+        return sorted(filter(rule_filter(navigate=True), self.rules), key=lambda r: r.priority)
 
     def _collect_elements(self, page: Page):
         """
@@ -140,7 +142,7 @@ class Application:
             if url_pattern is not None and not url_pattern.search(page_url):
                 continue
 
-            rules = tuple(g)
+            rules = list(sorted(g, key=lambda r: r.priority))
 
             for group_index, group in enumerate(page.query_selector_all(group_selector)):
                 for rule in rules:

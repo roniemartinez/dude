@@ -8,6 +8,7 @@ class Rule(NamedTuple):
     handler: Callable
     setup: bool
     navigate: bool
+    priority: int
 
 
 def rule_sorter(rule: Rule) -> Tuple[Optional[Pattern], str, str]:
