@@ -83,7 +83,6 @@ def handler(element):
     ...
     # This dictionary can contain multiple items
     return {"<key>": "<value-extracted-from-element>"}
-
 ```
 
 The example handler below extracts the text content of any element that matches the selector `css=div#rso h3:nth-child(2)`.
@@ -104,6 +103,16 @@ import dude
 
 dude.run(urls=["https://www.google.com/search?q=dude&hl=en"])
 ```
+
+It is possible to attach a single handler to multiple selectors.
+
+```python
+@select(selector="<a-selector>")
+@select(selector="<another-selector>")
+def handler(element):
+    return {"<key>": "<value-extracted-from-element>"}
+```
+
 
 #### Advanced
 
@@ -170,6 +179,45 @@ def result_title(element):
 ```
 
 A more extensive example can be found at [examples/url_pattern.py](examples/url_pattern.py).
+
+##### Prioritization
+
+Handlers are sorted based on the following sequence:
+
+1. URL Pattern
+2. Group
+3. Selector
+4. Priority
+
+If all handlers have the same priority value, they will be executed based on which handler was inserted into the rule list first.
+This arrangement depends on how handlers are defined inside python files and which python files was imported first.
+If no priority was provided to `@select()` decorator, the value defaults to 100.
+
+The example below makes sure that `result_description()` will be called first before `result_title()`.
+
+```python
+@select(selector="css=div#rso h3:nth-child(2)", priority=1)
+def result_title(element):
+    return {"title": element.text_content()}
+
+
+@select(selector="css=div[style='-webkit-line-clamp\\3A 2']", priority=0)
+def result_description(element):
+    return {"description": element.text_content()}
+```
+
+The priority value is most useful on Setup and Navigate handlers. As an example below, the selector `css=#pnnext` will be queried first before looking for `text=Next`.
+Take note that if `css=#pnnext` exists, then `text=Next` will not be queried anymore.
+
+```python
+@select(selector="text=Next", navigate=True)
+@select(selector="css=#pnnext", navigate=True, priority=0)
+def next_page(element, page):
+    with page.expect_navigation():
+        element.click()
+```
+
+A more extensive example can be found at [examples/priority.py](examples/priority.py).
 
 ##### Using the Application object
 
