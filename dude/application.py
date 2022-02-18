@@ -1,45 +1,28 @@
+import itertools
 import logging
 import re
 import sys
-from collections import defaultdict
 from pathlib import Path
-from typing import Optional, Pattern, Sequence
+from typing import List, Optional, Sequence
 
 from playwright.sync_api import Page, ProxySettings, sync_playwright
+
+from dude.rule import Rule, rule_filter, rule_grouper, rule_sorter
+from dude.scraped_data import ScrapedData, scraped_data_grouper, scraped_data_sorter
 
 SUPPORTED_FORMATS = ("json", "csv", "yaml", "yml")
 
 logger = logging.getLogger(__name__)
 
 
-def flatten(data):
-    import itertools
-
-    def key(x):
-        return x["group_index"], x["element_index"]
-
-    for page_url, group in data.items():
-        for group_id, items in group.items():
-            for k, g in itertools.groupby(sorted(items, key=key), lambda x: (x["group_index"], x["element_index"])):
-                yield {"page_url": page_url, "group_id": group_id, **{k: v for item in g for k, v in item.items()}}
-
-
 class Application:
     def __init__(self):
-        # TODO: Implement a better way to store:
-        #  - Selectors, groups, url patterns and its handler functions
-        #  - Setup selectors and its handler functions
-        #  - Navigate selectors and its handler functions
-
         # TODO: There could be multiple setup and navigate actions.
         #  Add navigate priority value as there can only be one successful navigation.
         #  When the priority fails, try the next one.
         #  Priority values can also be applied to setup and scraping handlers.
-        self.selector_map = defaultdict(lambda: defaultdict(lambda: defaultdict(list)))
-        self.setup_action_map = {}
-        self.navigate_action_map = {}
-
-        self.collected_data = defaultdict(lambda: defaultdict(list))
+        self.rules: List[Rule] = []
+        self.collected_data: List[ScrapedData] = []
 
     def select(
         self,
@@ -61,15 +44,19 @@ class Application:
         """
 
         def wrapper(func):
-            if setup:
-                self.setup_action_map[selector] = func
-            elif navigate:
-                self.navigate_action_map[selector] = func
-            else:
-                url_pattern = url
-                if url_pattern is not None:
-                    url_pattern = re.compile(url_pattern, re.IGNORECASE)
-                self.selector_map[url_pattern][group][selector].append(func)
+            url_pattern = url
+            if url_pattern is not None:
+                url_pattern = re.compile(url_pattern, re.IGNORECASE)
+            self.rules.append(
+                Rule(
+                    selector=selector,
+                    group=group,
+                    url_pattern=url_pattern,
+                    handler=func,
+                    setup=setup,
+                    navigate=navigate,
+                )
+            )
             return func
 
         return wrapper
@@ -109,8 +96,7 @@ class Application:
                 self.setup(page)
                 for i in range(1, pages + 1):
                     current_page = page.url
-                    for group, data in self._extract_all(page):
-                        self.collected_data[current_page][group].append(data)
+                    self.collected_data.extend(self._extract_all(page, i))
                     if i == pages or not self.navigate(page) or current_page == page.url:
                         break
             browser.close()
@@ -118,19 +104,28 @@ class Application:
         self._process_output(format, output)
 
     def setup(self, page: Page):
-        for sel, func in self.setup_action_map.items():
-            for handle in page.query_selector_all(sel):
-                func(handle, page)
+        for rule in self._get_setup_rules():
+            for handle in page.query_selector_all(rule.selector):
+                rule.handler(handle, page)
 
     def navigate(self, page: Page):
-        if len(self.navigate_action_map) == 0:
-            return False
 
-        for sel, func in self.navigate_action_map.items():
-            for handle in page.query_selector_all(sel):
-                func(handle, page)
+        for rule in self._get_navigate_rules():
+            for handle in page.query_selector_all(rule.selector):
+                rule.handler(handle, page)
+                logger.info("Navigated to %s", page.url)
+                return True
 
-        logger.info("Navigated to %s", page.url)
+        return False
+
+    def _get_scraping_rules(self):
+        return filter(rule_filter(), self.rules)
+
+    def _get_setup_rules(self):
+        return filter(rule_filter(setup=True), self.rules)
+
+    def _get_navigate_rules(self):
+        return filter(rule_filter(navigate=True), self.rules)
 
     def _collect_elements(self, page: Page):
         """
@@ -138,33 +133,38 @@ class Application:
 
         :param page: Page object.
         """
-        url_pattern: Pattern
-        for url_pattern, groups in self.selector_map.items():
-            if url_pattern is not None and not url_pattern.search(page.url):
+        page_url = page.url
+        for (url_pattern, group_selector), g in itertools.groupby(
+            sorted(self._get_scraping_rules(), key=rule_sorter), key=rule_grouper
+        ):
+            if url_pattern is not None and not url_pattern.search(page_url):
                 continue
 
-            for group_selector, selectors in groups.items():
-                for group_index, group in enumerate(page.query_selector_all(group_selector)):
-                    for selector, funcs in selectors.items():
-                        for element_index, element in enumerate(group.query_selector_all(selector)):
-                            for func in funcs:
-                                yield group_index, id(group), element_index, element, func
+            rules = tuple(g)
 
-    def _extract_all(self, page: Page):
+            for group_index, group in enumerate(page.query_selector_all(group_selector)):
+                for rule in rules:
+                    for element_index, element in enumerate(group.query_selector_all(rule.selector)):
+                        yield page_url, group_index, id(group), element_index, element, rule.handler
+
+    def _extract_all(self, page: Page, page_number: int):
         """
         Extracts all the data using the registered handler functions.
 
         :param page: Page object.
         """
+        collected_elements = list(self._collect_elements(page))
 
-        for group_index, group_id, element_index, element, func in self._collect_elements(page):
-            yield group_id, {
-                "group_index": group_index,
-                "element_index": element_index,
-                **func(element),
-            }
-
-        return True
+        for page_url, group_index, group_id, element_index, element, handler in collected_elements:
+            data = ScrapedData(
+                page_number=page_number,
+                page_url=page_url,
+                group_id=group_id,
+                group_index=group_index,
+                element_index=element_index,
+                data=handler(element),
+            )
+            yield data
 
     def _process_output(self, format, output):
         if output:
@@ -179,28 +179,42 @@ class Application:
         else:
             self._process_json(output)
 
+    def _get_flattened_data(self):
+        items = []
+        for _, g in itertools.groupby(sorted(self.collected_data, key=scraped_data_sorter), key=scraped_data_grouper):
+            item = {}
+            for d in g:
+                for k, v in d._asdict().items():
+                    if k == "data":
+                        # FIXME: Keys defined in handler functions might duplicate predefined keys
+                        item.update(**v)
+                    elif k not in item:
+                        item[k] = v
+            items.append(item)
+        return items
+
     def _process_json(self, output):
         import json
 
         if output is not None:
             with open(output, "w") as f:
-                json.dump(list(flatten(self.collected_data)), f, indent=2)
+                json.dump(self._get_flattened_data(), f, indent=2)
 
             logger.info("Data saved to %s", output)
         else:
-            json.dump(list(flatten(self.collected_data)), sys.stdout, indent=2)
+            json.dump(self._get_flattened_data(), sys.stdout, indent=2)
 
     def _process_yml(self, output):
         import yaml
 
         if output is not None:
             with open(output, "w") as f:
-                yaml.safe_dump(list(flatten(self.collected_data)), f)
+                yaml.safe_dump(self._get_flattened_data(), f)
 
             logger.info("Data saved to %s", output)
 
         else:
-            yaml.safe_dump(list(flatten(self.collected_data)), sys.stdout)
+            yaml.safe_dump(self._get_flattened_data(), sys.stdout)
 
     def _process_csv(self, output):
         if output is not None:
@@ -208,7 +222,7 @@ class Application:
 
             headers = set()
             rows = []
-            for data in flatten(self.collected_data):
+            for data in self._get_flattened_data():
                 headers.update(data.keys())
                 rows.append(data)
 
