@@ -206,12 +206,12 @@ def result_description(element):
     return {"description": element.text_content()}
 ```
 
-The priority value is most useful on Setup and Navigate handlers. As an example below, the text `Weiter` will be queried first before looking for `Next`.
-Take note that if `Weiter` exists, then `Next` will not be queried anymore.
+The priority value is most useful on Setup and Navigate handlers. As an example below, the selector `css=#pnnext` will be queried first before looking for `text=Next`.
+Take note that if `css=#pnnext` exists, then `text=Next` will not be queried anymore.
 
 ```python
 @select(selector="text=Next", navigate=True)
-@select(selector="text=Weiter", navigate=True, priority=0)
+@select(selector="css=#pnnext", navigate=True, priority=0)
 def next_page(element, page):
     with page.expect_navigation():
         element.click()

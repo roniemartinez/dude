@@ -28,7 +28,7 @@ def result_description(element):
     return {"description": element.text_content()}
 
 
-@select(selector="text=I agree", setup=True)
+@select(selector="text=Ich stimme zu", setup=True)
 def agree(element, page):
     """
     Clicks "I agree" in order to use the website.
@@ -38,7 +38,7 @@ def agree(element, page):
 
 
 @select(selector="text=Next", navigate=True)
-@select(selector="text=Weiter", navigate=True, priority=0)
+@select(selector="css=#pnnext", navigate=True, priority=0)
 def next_page(element, page):
     """
     Clicks the Next button/link to navigate to the next page.
@@ -50,4 +50,4 @@ def next_page(element, page):
 if __name__ == "__main__":
     import dude
 
-    dude.run(urls=["https://www.google.com/search?q=dude&hl=en"], pages=2)
+    dude.run(urls=["https://www.google.com/search?q=dude&hl=de"], pages=2)
