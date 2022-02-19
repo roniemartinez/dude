@@ -54,6 +54,12 @@ jobs:
           key: ${{ runner.os }}-${{ matrix.python-version }}-mypy-${{ hashFiles('**/poetry.lock') }}
           restore-keys: |
             ${{ runner.os }}-${{ matrix.python-version }}-mypy-
+      - uses: actions/cache@v2
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-${{ matrix.python-version }}-ms-playwright-${{ hashFiles('**/poetry.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-${{ matrix.python-version }}-ms-playwright-
       - name: Install dependencies
         run: |
           make install-actions
