@@ -14,7 +14,7 @@ logging.basicConfig(stream=sys.stdout, level=logging.INFO, format="%(asctime)s %
 logger = logging.getLogger(__name__)
 
 
-def cli():
+def cli() -> None:  # pragma: no cover
     import argparse
     import importlib.util
 
@@ -101,12 +101,13 @@ def cli():
     for path in arguments.paths:
         module_name = Path(path).stem
         spec = importlib.util.spec_from_file_location(module_name, path)
-        module = importlib.util.module_from_spec(spec)
-        spec.loader.exec_module(module)
+        if spec and spec.loader:
+            module = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(module)
 
     proxy = None
     if arguments.proxy_server:
-        proxy = ProxySettings(
+        proxy = ProxySettings(  # type: ignore
             server=arguments.proxy_server,
             username=arguments.proxy_user or "",
             password=arguments.proxy_pass or "",

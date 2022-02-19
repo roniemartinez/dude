@@ -1,6 +1,6 @@
 import logging
 import sys
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Set
 
 from .scraper import Scraper
 
@@ -27,20 +27,7 @@ def save_csv(data: List[Dict], output: Optional[str]) -> bool:
     :return: Success
     """
     if output is not None:
-        import csv
-
-        headers = set()
-        rows = []
-        for item in data:
-            headers.update(item.keys())
-            rows.append(item)
-
-        with open(output, "w") as f:
-            writer = csv.DictWriter(f, fieldnames=headers)
-            writer.writeheader()
-            writer.writerows(rows)
-
-        logger.info("Data saved to %s", output)
+        _save_csv(data, output)
     else:
         import json
 
@@ -60,13 +47,34 @@ def save_yaml(data: List[Dict], output: Optional[str]) -> bool:
     :param output: Optional filename. If not provided, prints the data to stdout.
     :return: Success
     """
-    import yaml
 
     if output is not None:
-        with open(output, "w") as f:
-            yaml.safe_dump(data, f)
-
-        logger.info("Data saved to %s", output)
+        _save_yaml(data, output)
     else:
+        import yaml
+
         yaml.safe_dump(data, sys.stdout)
     return True
+
+
+def _save_csv(data: List[Dict], output: str) -> None:  # pragma: no cover
+    import csv
+
+    headers: Set[str] = set()
+    rows = []
+    for item in data:
+        headers.update(item.keys())
+        rows.append(item)
+    with open(output, "w") as f:
+        writer = csv.DictWriter(f, fieldnames=headers)
+        writer.writeheader()
+        writer.writerows(rows)
+    logger.info("Data saved to %s", output)
+
+
+def _save_yaml(data: List[Dict], output: str) -> None:  # pragma: no cover
+    import yaml
+
+    with open(output, "w") as f:
+        yaml.safe_dump(data, f)
+    logger.info("Data saved to %s", output)

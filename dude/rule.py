@@ -1,21 +1,21 @@
-from typing import Callable, NamedTuple, Optional, Pattern, Tuple
+from typing import Callable, NamedTuple, Tuple
 
 
 class Rule(NamedTuple):
     group: str
     selector: str
-    url_pattern: Optional[Pattern]
+    url_pattern: str
     handler: Callable
     setup: bool
     navigate: bool
     priority: int
 
 
-def rule_sorter(rule: Rule) -> Tuple[Optional[Pattern], str, str]:
+def rule_sorter(rule: Rule) -> Tuple[str, str, str]:
     return rule.url_pattern, rule.group, rule.selector
 
 
-def rule_grouper(rule: Rule) -> Tuple[Optional[Pattern], str]:
+def rule_grouper(rule: Rule) -> Tuple[str, str]:
     return rule.url_pattern, rule.group
 
 

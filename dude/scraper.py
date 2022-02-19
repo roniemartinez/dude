@@ -1,11 +1,12 @@
 import itertools
+import json
 import logging
 import re
 import sys
 from pathlib import Path
-from typing import Callable, Dict, List, Optional, Sequence
+from typing import Callable, Dict, Iterable, List, Optional, Sequence, Tuple
 
-from playwright.sync_api import Page, ProxySettings, sync_playwright
+from playwright.sync_api import ElementHandle, Page, ProxySettings, sync_playwright
 
 from dude.rule import Rule, rule_filter, rule_grouper, rule_sorter
 from dude.scraped_data import ScrapedData, scraped_data_grouper, scraped_data_sorter
@@ -13,24 +14,25 @@ from dude.scraped_data import ScrapedData, scraped_data_grouper, scraped_data_so
 logger = logging.getLogger(__name__)
 
 
-def save_json(data, output):
-    import json
-
+def save_json(data: List[Dict], output: Optional[str]) -> bool:
     if output is not None:
-        with open(output, "w") as f:
-            json.dump(data, f, indent=2)
-
-        logger.info("Data saved to %s", output)
+        _save_json(data, output)
     else:
         json.dump(data, sys.stdout, indent=2)
     return True
 
 
+def _save_json(data: List[Dict], output: str) -> None:  # pragma: no cover
+    with open(output, "w") as f:
+        json.dump(data, f, indent=2)
+    logger.info("Data saved to %s", output)
+
+
 class Scraper:
-    def __init__(self):
+    def __init__(self) -> None:
         self.rules: List[Rule] = []
         self.collected_data: List[ScrapedData] = []
-        self.save_rules: Dict[str, Callable[[List[Dict], str], bool]] = {"json": save_json}
+        self.save_rules: Dict[str, Callable[[List[Dict], Optional[str]], bool]] = {"json": save_json}
 
     def select(
         self,
@@ -38,9 +40,9 @@ class Scraper:
         group: str = ":root",
         setup: bool = False,
         navigate: bool = False,
-        url: Optional[str] = None,
+        url: str = "",
         priority: int = 100,
-    ):
+    ) -> Callable:
         """
         Decorator to register a handler function with given selector.
 
@@ -52,15 +54,12 @@ class Scraper:
         :param priority: Priority, the lowest value will be executed first (default 100).
         """
 
-        def wrapper(func):
-            url_pattern = url
-            if url_pattern is not None:
-                url_pattern = re.compile(url_pattern, re.IGNORECASE)
+        def wrapper(func: Callable) -> Callable:
             self.rules.append(
                 Rule(
                     selector=selector,
                     group=group,
-                    url_pattern=url_pattern,
+                    url_pattern=url,
                     handler=func,
                     setup=setup,
                     navigate=navigate,
@@ -71,8 +70,8 @@ class Scraper:
 
         return wrapper
 
-    def save(self, format: str):
-        def wrapper(func):
+    def save(self, format: str) -> Callable:
+        def wrapper(func: Callable) -> Callable:
             self.save_rules[format] = func
             return func
 
@@ -122,12 +121,12 @@ class Scraper:
 
         self._save(format, output)
 
-    def setup(self, page: Page):
+    def setup(self, page: Page) -> None:
         for rule in self._get_setup_rules():
             for handle in page.query_selector_all(rule.selector):
                 rule.handler(handle, page)
 
-    def navigate(self, page: Page):
+    def navigate(self, page: Page) -> bool:
 
         for rule in self._get_navigate_rules():
             for handle in page.query_selector_all(rule.selector):
@@ -137,16 +136,16 @@ class Scraper:
 
         return False
 
-    def _get_scraping_rules(self):
+    def _get_scraping_rules(self) -> Iterable[Rule]:
         return filter(rule_filter(), self.rules)
 
-    def _get_setup_rules(self):
+    def _get_setup_rules(self) -> Iterable[Rule]:
         return sorted(filter(rule_filter(setup=True), self.rules), key=lambda r: r.priority)
 
-    def _get_navigate_rules(self):
+    def _get_navigate_rules(self) -> Iterable[Rule]:
         return sorted(filter(rule_filter(navigate=True), self.rules), key=lambda r: r.priority)
 
-    def _collect_elements(self, page: Page):
+    def _collect_elements(self, page: Page) -> Iterable[Tuple[str, int, int, int, ElementHandle, Callable]]:
         """
         Collects all the elements and returns a generator of element-handler pair.
 
@@ -156,7 +155,7 @@ class Scraper:
         for (url_pattern, group_selector), g in itertools.groupby(
             sorted(self._get_scraping_rules(), key=rule_sorter), key=rule_grouper
         ):
-            if url_pattern is not None and not url_pattern.search(page_url):
+            if not re.search(url_pattern, page_url):
                 continue
 
             rules = list(sorted(g, key=lambda r: r.priority))
@@ -166,7 +165,7 @@ class Scraper:
                     for element_index, element in enumerate(group.query_selector_all(rule.selector)):
                         yield page_url, group_index, id(group), element_index, element, rule.handler
 
-    def _extract_all(self, page: Page, page_number: int):
+    def _extract_all(self, page: Page, page_number: int) -> Iterable[ScrapedData]:
         """
         Extracts all the data using the registered handler functions.
 
@@ -185,10 +184,10 @@ class Scraper:
             )
             yield data
 
-    def _get_flattened_data(self):
+    def _get_flattened_data(self) -> List[Dict]:
         items = []
         for _, g in itertools.groupby(sorted(self.collected_data, key=scraped_data_sorter), key=scraped_data_grouper):
-            item = {}
+            item: Dict = {}
             for d in g:
                 for k, v in d._asdict().items():
                     if k == "data":
@@ -199,13 +198,17 @@ class Scraper:
             items.append(item)
         return items
 
-    def _save(self, format: str, output: Optional[str] = None):
+    def _save(self, format: str, output: Optional[str] = None) -> None:
         if output:
             extension = Path(output).suffix.lower()[1:]
             format = extension
 
         data = self._get_flattened_data()
-        if self.save_rules[format](data, output):
+        try:
+            if self.save_rules[format](data, output):
+                self.collected_data.clear()
+            else:
+                raise Exception("Failed to save output %s.", {"output": output, "format": format})
+        except KeyError:
             self.collected_data.clear()
-        else:
-            raise Exception("Failed to save output %s.", {"output": output, "format": format})
+            raise

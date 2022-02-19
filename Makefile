@@ -3,6 +3,17 @@ install:
 	pip install -U pip setuptools poetry
 	poetry install
 	poetry run playwright install
+	poetry run playwright install
+	poetry run playwright install-deps
+
+.PHONY: install-actions
+install-actions:
+	pip3 install pip setuptools wheel poetry
+	poetry config virtualenvs.create false
+	poetry config experimental.new-installer false
+	poetry install
+	poetry run playwright install
+	poetry run playwright install-deps
 
 .PHONY: format
 format:
@@ -16,3 +27,13 @@ lint:
 	poetry run isort --check-only .
 	poetry run black --check .
 	poetry run pflake8 .
+	poetry run mypy tests dude
+
+.PHONY: test
+test:
+	poetry run pytest
+
+.PHONY: tag
+tag:
+	VERSION=`poetry version | grep -o -E "\d+\.\d+\.\d+"`; \
+	git tag -s -a $$VERSION -m "Release $$VERSION"
