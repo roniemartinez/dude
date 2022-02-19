@@ -219,19 +219,58 @@ def next_page(element, page):
 
 A more extensive example can be found at [examples/priority.py](examples/priority.py).
 
-##### Using the Application object
+##### Custom Storage
+
+Dude current supports `json`, `yaml/yml` and `csv` formats (the Scraper object only support `json`). 
+However, this can be extended to support custom storage or override the existing formats using the `@save()` decorator.
+The save function should accept 2 parameters, `data` (list of dictionary of scraped data) and optional `output` (can be filename or `None`).
+Take note that the save function must return a boolean for success.
+
+```python
+import tabulate
+
+
+@save("table")
+def save_table(data, output) -> bool:
+    """
+    Prints data to stdout using tabulate.
+    """
+    print(tabulate.tabulate(tabular_data=data, headers="keys", maxcolwidths=50))
+    return True
+```
+
+This will be called using any of these methods.
+
+###### From terminal
+
+```bash
+dude scrape --url "<url>" path/to/file.py --format table
+```
+
+###### From python
+
+```python
+if __name__ == "__main__":
+    import dude
+
+    dude.run(urls=["<url>"], pages=2, format="table")
+```
+
+A more extensive example can be found at [examples/custom_storage.py](examples/custom_storage.py).
+
+##### Using the Scraper application object
 
 The decorator `@select()` and the function `run()` simplifies the usage of the framework.
-It is possible to create your own application object using the example below.
+It is possible to create your own scraper application object using the example below.
 
 > 🚨 WARNING: This is not currently supported by the command line interface! 
-Please use the command `python path/to/file.py` when running the application.
+Please use the command `python path/to/file.py` to run the scraper application.
 
 ```python
 
-from dude import Application
+from dude import Scraper
 
-app = Application()
+app = Scraper()
 
 
 @app.select(selector="css=h3:nth-child(2)", url=r".*\.com")

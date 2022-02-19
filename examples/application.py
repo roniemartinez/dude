@@ -1,6 +1,6 @@
-from dude import Application
+from dude import Scraper
 
-app = Application()
+app = Scraper()
 
 
 @app.select(selector="css=div#rso >> *css=a >> css=h3:nth-child(2)")
@@ -49,4 +49,4 @@ def next_page(element, page):
 
 
 if __name__ == "__main__":
-    app.run(urls=["https://www.google.com/search?q=dude&hl=en"], pages=2)
+    app.run(urls=["https://www.google.com/search?q=dude&hl=en"])
