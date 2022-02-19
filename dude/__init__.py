@@ -4,10 +4,10 @@ from pathlib import Path
 
 from playwright.sync_api import ProxySettings
 
-from .application import SUPPORTED_FORMATS, Application
-from .context import run, select
+from .context import run, save, select  # noqa: F401
+from .scraper import Scraper  # noqa: F401
 
-__all__ = ["Application", "run", "select"]
+__al__ = ["Scraper", "run", "save", "select"]
 
 
 logging.basicConfig(stream=sys.stdout, level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
@@ -72,8 +72,9 @@ def cli():
         "--format",
         dest="format",
         default="json",
-        choices=SUPPORTED_FORMATS,
-        help='Output file format. If not provided, uses the extension of the output file or defaults to "json".',
+        type=str,
+        help='Output file format. If not provided, uses the extension of the output file or defaults to "json". '
+        'Supports "json", "yaml/yml", and "csv" but can be extended using the @save() decorator.',
     )
     optional.add_argument(
         "--proxy-server",
