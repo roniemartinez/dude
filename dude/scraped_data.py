@@ -1,4 +1,4 @@
-from typing import Dict, NamedTuple
+from typing import Dict, NamedTuple, Tuple
 
 
 class ScrapedData(NamedTuple):
@@ -10,9 +10,9 @@ class ScrapedData(NamedTuple):
     data: Dict
 
 
-def scraped_data_sorter(data: ScrapedData):
+def scraped_data_sorter(data: ScrapedData) -> Tuple[int, int, int, int]:
     return data.page_number, data.group_index, data.group_id, data.element_index
 
 
-def scraped_data_grouper(data: ScrapedData):
+def scraped_data_grouper(data: ScrapedData) -> Tuple[int, str, int, int, int]:
     return data.page_number, data.page_url, data.group_index, data.group_id, data.element_index
