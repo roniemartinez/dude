@@ -63,6 +63,15 @@ Contribute to this project by feature requests, idea discussions, reporting bugs
 
 ### Installation
 
+To install, simply run:
+
+```bash
+pip install pydude
+playwright install
+```
+
+The second command will install playwright binaries for Chrome, Firefox and Webkit. See https://playwright.dev/python/docs/intro#pip
+
 ### Example
 
 The included [examples/flat.py](examples/flat.py) code was written to scrape Google Search results ("q=dude"). You can run the example in your terminal using the command `python example.py`.
