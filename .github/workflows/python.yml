@@ -24,12 +24,12 @@ jobs:
           - os: ubuntu-latest
             pip-cache: ~/.cache/pip
             poetry-cache: ~/.cache/pypoetry
-          - os: macos-latest
-            pip-cache: ~/Library/Caches/pip
-            poetry-cache: ~/Library/Caches/pypoetry
-          - os: windows-latest
-            pip-cache: ~\AppData\Local\pip\Cache
-            poetry-cache: ~\AppData\Local\pypoetry\Cache
+#          - os: macos-latest
+#            pip-cache: ~/Library/Caches/pip
+#            poetry-cache: ~/Library/Caches/pypoetry
+#          - os: windows-latest
+#            pip-cache: ~\AppData\Local\pip\Cache
+#            poetry-cache: ~\AppData\Local\pypoetry\Cache
     steps:
       - uses: actions/checkout@v2
       - name: Set up Python ${{ matrix.python-version }}
