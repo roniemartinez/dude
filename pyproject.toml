@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "dude"
+name = "pydude"
 version = "0.1.0-alpha.0"
 repository = "https://github.com/roniemartinez/dude"
 description = "dude uncomplicated data extraction"
@@ -19,6 +19,9 @@ classifiers = [
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: Implementation :: CPython",
+]
+packages = [
+    { include = "dude" },
 ]
 
 [tool.poetry.urls]
