@@ -14,16 +14,16 @@ app = Scraper()
 @select(selector="li")
 @app.select(selector="li")
 def feature_list(element: ElementHandle) -> Dict:
-    return {"feature": element.text_content()}
+    return {"item": element.text_content()}
 
 
 @select(selector="li", url=r"example\.com")
 @app.select(selector="li", url=r"example\.com")
 def url_dont_match(element: ElementHandle) -> Dict:
-    return {"feature": element.text_content()}
+    return {"item": element.text_content()}
 
 
-@select(selector="text=Next Page", navigate=True)
+@app.select(selector="text=Next Page", navigate=True)
 def next_page(element: ElementHandle, page: Page) -> None:
     with page.expect_navigation():
         element.click()

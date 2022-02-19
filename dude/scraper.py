@@ -1,12 +1,15 @@
+import asyncio
 import itertools
 import json
 import logging
 import re
 import sys
 from pathlib import Path
-from typing import Callable, Dict, Iterable, List, Optional, Sequence, Tuple
+from typing import Any, AsyncIterable, Callable, Dict, Iterable, List, Optional, Sequence, Tuple
 
-from playwright.sync_api import ElementHandle, Page, ProxySettings, sync_playwright
+from playwright import async_api, sync_api
+from playwright.async_api import async_playwright
+from playwright.sync_api import sync_playwright
 
 from dude.rule import Rule, rule_filter, rule_grouper, rule_sorter
 from dude.scraped_data import ScrapedData, scraped_data_grouper, scraped_data_sorter
@@ -32,7 +35,8 @@ class Scraper:
     def __init__(self) -> None:
         self.rules: List[Rule] = []
         self.collected_data: List[ScrapedData] = []
-        self.save_rules: Dict[str, Callable[[List[Dict], Optional[str]], bool]] = {"json": save_json}
+        self.save_rules: Dict[str, Any] = {"json": save_json}
+        self.has_async = False
 
     def select(
         self,
@@ -55,6 +59,9 @@ class Scraper:
         """
 
         def wrapper(func: Callable) -> Callable:
+            if asyncio.iscoroutinefunction(func):
+                self.has_async = True
+
             self.rules.append(
                 Rule(
                     selector=selector,
@@ -72,6 +79,9 @@ class Scraper:
 
     def save(self, format: str) -> Callable:
         def wrapper(func: Callable) -> Callable:
+            if asyncio.iscoroutinefunction(func):
+                self.has_async = True
+
             self.save_rules[format] = func
             return func
 
@@ -83,7 +93,7 @@ class Scraper:
         headless: bool = True,
         browser_type: str = "chromium",
         pages: int = 1,
-        proxy: ProxySettings = None,
+        proxy: Optional[sync_api.ProxySettings] = None,
         output: Optional[str] = None,
         format: str = "json",
     ) -> None:
@@ -103,37 +113,95 @@ class Scraper:
         """
         logger.info("Scraper started...")
 
+        # FIXME: Too many duplicated code just to support both sync and async
+        if self.has_async:
+            logger.info("Using async mode...")
+            loop = asyncio.get_event_loop()
+            loop.run_until_complete(self._run_async(urls, headless, browser_type, pages, proxy, output, format))
+            # FIXME: Tests fail on Python 3.7 when using asyncio.run()
+            # asyncio.run(self._run_async(urls, headless, browser_type, pages, proxy, output, format))
+        else:
+            logger.info("Using sync mode...")
+            self._run_sync(urls, headless, browser_type, pages, proxy, output, format)
+
+    def _run_sync(
+        self,
+        urls: Sequence[str],
+        headless: bool,
+        browser_type: str,
+        pages: int,
+        proxy: Optional[sync_api.ProxySettings],
+        output: Optional[str],
+        format: str,
+    ) -> None:
         with sync_playwright() as p:
             browser = p[browser_type].launch(headless=headless, proxy=proxy)
             page = browser.new_page()
             for url in urls:
                 page.goto(url)
                 logger.info("Loaded page %s", page.url)
-                self.setup(page)
+                self._setup(page)
 
                 for i in range(1, pages + 1):
                     current_page = page.url
                     self.collected_data.extend(self._extract_all(page, i))
                     # TODO: Add option to save data per page
-                    if i == pages or not self.navigate(page) or current_page == page.url:
+                    if i == pages or not self._navigate(page) or current_page == page.url:
                         break
             browser.close()
-
         self._save(format, output)
 
-    def setup(self, page: Page) -> None:
+    async def _run_async(
+        self,
+        urls: Sequence[str],
+        headless: bool,
+        browser_type: str,
+        pages: int,
+        proxy: Optional[sync_api.ProxySettings],
+        output: Optional[str],
+        format: str,
+    ) -> None:
+        async with async_playwright() as p:
+            browser = await p[browser_type].launch(headless=headless, proxy=proxy)
+            page = await browser.new_page()
+            for url in urls:
+                await page.goto(url)
+                logger.info("Loaded page %s", page.url)
+                await self._setup_async(page)
+
+                for i in range(1, pages + 1):
+                    current_page = page.url
+                    self.collected_data.extend([data async for data in self._extract_all_async(page, i)])
+                    # TODO: Add option to save data per page
+                    if i == pages or not await self._navigate_async(page) or current_page == page.url:
+                        break
+            await browser.close()
+        await self._save_async(format, output)
+
+    def _setup(self, page: sync_api.Page) -> None:
         for rule in self._get_setup_rules():
-            for handle in page.query_selector_all(rule.selector):
-                rule.handler(handle, page)
+            for element in page.query_selector_all(rule.selector):
+                rule.handler(element, page)
 
-    def navigate(self, page: Page) -> bool:
+    async def _setup_async(self, page: async_api.Page) -> None:
+        for rule in self._get_setup_rules():
+            for element in await page.query_selector_all(rule.selector):
+                await rule.handler(element, page)
 
+    def _navigate(self, page: sync_api.Page) -> bool:
         for rule in self._get_navigate_rules():
-            for handle in page.query_selector_all(rule.selector):
-                rule.handler(handle, page)
+            for element in page.query_selector_all(rule.selector):
+                rule.handler(element, page)
                 logger.info("Navigated to %s", page.url)
                 return True
+        return False
 
+    async def _navigate_async(self, page: async_api.Page) -> bool:
+        for rule in self._get_navigate_rules():
+            for element in await page.query_selector_all(rule.selector):
+                await rule.handler(element, page)
+                logger.info("Navigated to %s", page.url)
+                return True
         return False
 
     def _get_scraping_rules(self) -> Iterable[Rule]:
@@ -145,7 +213,9 @@ class Scraper:
     def _get_navigate_rules(self) -> Iterable[Rule]:
         return sorted(filter(rule_filter(navigate=True), self.rules), key=lambda r: r.priority)
 
-    def _collect_elements(self, page: Page) -> Iterable[Tuple[str, int, int, int, ElementHandle, Callable]]:
+    def _collect_elements(
+        self, page: sync_api.Page
+    ) -> Iterable[Tuple[str, int, int, int, sync_api.ElementHandle, Callable]]:
         """
         Collects all the elements and returns a generator of element-handler pair.
 
@@ -165,7 +235,29 @@ class Scraper:
                     for element_index, element in enumerate(group.query_selector_all(rule.selector)):
                         yield page_url, group_index, id(group), element_index, element, rule.handler
 
-    def _extract_all(self, page: Page, page_number: int) -> Iterable[ScrapedData]:
+    async def _collect_elements_async(
+        self, page: async_api.Page
+    ) -> AsyncIterable[Tuple[str, int, int, int, async_api.ElementHandle, Callable]]:
+        """
+        Collects all the elements and returns a generator of element-handler pair.
+
+        :param page: Page object.
+        """
+        page_url = page.url
+        for (url_pattern, group_selector), g in itertools.groupby(
+            sorted(self._get_scraping_rules(), key=rule_sorter), key=rule_grouper
+        ):
+            if not re.search(url_pattern, page_url):
+                continue
+
+            rules = list(sorted(g, key=lambda r: r.priority))
+
+            for group_index, group in enumerate(await page.query_selector_all(group_selector)):
+                for rule in rules:
+                    for element_index, element in enumerate(await group.query_selector_all(rule.selector)):
+                        yield page_url, group_index, id(group), element_index, element, rule.handler
+
+    def _extract_all(self, page: sync_api.Page, page_number: int) -> Iterable[ScrapedData]:
         """
         Extracts all the data using the registered handler functions.
 
@@ -174,7 +266,7 @@ class Scraper:
         collected_elements = list(self._collect_elements(page))
 
         for page_url, group_index, group_id, element_index, element, handler in collected_elements:
-            data = ScrapedData(
+            scraped_data = ScrapedData(
                 page_number=page_number,
                 page_url=page_url,
                 group_id=group_id,
@@ -182,7 +274,27 @@ class Scraper:
                 element_index=element_index,
                 data=handler(element),
             )
-            yield data
+            yield scraped_data
+
+    async def _extract_all_async(self, page: async_api.Page, page_number: int) -> AsyncIterable[ScrapedData]:
+        """
+        Extracts all the data using the registered handler functions.
+
+        :param page: Page object.
+        """
+
+        collected_elements = [element async for element in self._collect_elements_async(page)]
+
+        for page_url, group_index, group_id, element_index, element, handler in collected_elements:
+            scraped_data = ScrapedData(
+                page_number=page_number,
+                page_url=page_url,
+                group_id=group_id,
+                group_index=group_index,
+                element_index=element_index,
+                data=await handler(element),
+            )
+            yield scraped_data
 
     def _get_flattened_data(self) -> List[Dict]:
         items = []
@@ -206,6 +318,26 @@ class Scraper:
         data = self._get_flattened_data()
         try:
             if self.save_rules[format](data, output):
+                self.collected_data.clear()
+            else:
+                raise Exception("Failed to save output %s.", {"output": output, "format": format})
+        except KeyError:
+            self.collected_data.clear()
+            raise
+
+    async def _save_async(self, format: str, output: Optional[str] = None) -> None:
+        if output:
+            extension = Path(output).suffix.lower()[1:]
+            format = extension
+
+        data = self._get_flattened_data()
+        try:
+            handler = self.save_rules[format]
+            if asyncio.iscoroutinefunction(handler):
+                is_successful = await handler(data, output)
+            else:
+                is_successful = handler(data, output)
+            if is_successful:
                 self.collected_data.clear()
             else:
                 raise Exception("Failed to save output %s.", {"output": output, "format": format})

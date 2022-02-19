@@ -16,5 +16,5 @@ if __name__ == "__main__":
 
     import dude
 
-    html = f"file://{(Path(__file__).resolve().parent / 'grouping.html').absolute()}"
+    html = f"file://{(Path(__file__).resolve().parent / 'example.html').absolute()}"
     dude.run(urls=[html])

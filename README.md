@@ -39,11 +39,17 @@ if __name__ == "__main__":
     dude.run(urls=["https://www.google.com/search?q=dude&hl=en"])
 ```
 
-## Why name this project "dude"?
+## Features
 
-- [X] A [Recursive acronym](https://en.wikipedia.org/wiki/Recursive_acronym).
-- [X] Add "uncomplicated" (like [`ufw`](https://wiki.ubuntu.com/UncomplicatedFirewall)) into the name.
-- [X] Puns! I also think that if you want to do web scraping, there's probably some random dude around the corner who can make it very easy for you to start with it. 😊
+- Simple Flask-inspired design - build a scraper with one decorator.
+- Uses Playwright's API - run your scraper in Chrome, Firefox and Webkit and leverage Playwright's powerful selector engine.
+- Data grouping - group related scraping data.
+- URL pattern matching - run functions on specific URLs.
+- Priority - reorder functions based on priority.
+- Setup function - enable setup steps (clicking dialogs or login).
+- Navigate function - enable navigation steps to move to other pages.
+- Custom storage - option to save data to other formats or database.
+- Async support - write async handlers.
 
 ## Support
 
@@ -72,11 +78,7 @@ playwright install
 
 The second command will install playwright binaries for Chrome, Firefox and Webkit. See https://playwright.dev/python/docs/intro#pip
 
-### Example
-
-The included [examples/flat.py](examples/flat.py) code was written to scrape Google Search results ("q=dude"). You can run the example in your terminal using the command `python example.py`.
-
-#### Basics
+### Basics
 
 To use `dude`, start by importing the library.
 
@@ -122,10 +124,11 @@ def handler(element):
     return {"<key>": "<value-extracted-from-element>"}
 ```
 
+The included [examples/flat.py](examples/flat.py) code was written to scrape Google Search results ("q=dude"). You can run the example in your terminal using the command `python example.py`.
 
-#### Advanced
+### Advanced
 
-##### Setup
+#### Setup
 
 Some websites might require you to click on dialog buttons. You can pass `setup=True` parameter to declare the setup actions.
 
@@ -139,7 +142,7 @@ def agree(element, page):
         element.click()
 ```
 
-##### Navigate
+#### Navigate
 
 To navigate to another page, you can pass `navigate=True` parameter to declare the navigate actions.
 
@@ -153,7 +156,7 @@ def next_page(element, page):
         element.click()
 ```
 
-##### Grouping results
+#### Grouping results
 
 When scraping a page containing a list of information, for example, a Search Engine Results Page (SERP) can have URLs, titles and descriptions,
 it is important to know how data can be grouped. By default, all scraped results are grouped by `:root` which is the root document, creating a flat list.
@@ -243,7 +246,7 @@ By specifying the group in `@select(..., group="css=.custom-group")`, we will be
 ]
 ```
 
-##### URL Pattern Matching
+#### URL Pattern Matching
 
 In order to use a handler function to just specific websites, a `url` pattern parameter can be passed to `@select()`.
 The `url` pattern parameter should be a valid regular expression. 
@@ -260,7 +263,7 @@ def result_title(element):
 
 A more extensive example can be found at [examples/url_pattern.py](examples/url_pattern.py).
 
-##### Prioritization
+#### Prioritization
 
 Handlers are sorted based on the following sequence:
 
@@ -299,7 +302,7 @@ def next_page(element, page):
 
 A more extensive example can be found at [examples/priority.py](examples/priority.py).
 
-##### Custom Storage
+#### Custom Storage
 
 Dude current supports `json`, `yaml/yml` and `csv` formats (the Scraper object only support `json`). 
 However, this can be extended to support custom storage or override the existing formats using the `@save()` decorator.
@@ -321,13 +324,13 @@ def save_table(data, output) -> bool:
 
 This will be called using any of these methods.
 
-###### From terminal
+##### From terminal
 
 ```bash
 dude scrape --url "<url>" path/to/file.py --format table
 ```
 
-###### From python
+##### From python
 
 ```python
 if __name__ == "__main__":
@@ -338,7 +341,7 @@ if __name__ == "__main__":
 
 A more extensive example can be found at [examples/custom_storage.py](examples/custom_storage.py).
 
-##### Using the Scraper application object
+#### Using the Scraper application object
 
 The decorator `@select()` and the function `run()` simplifies the usage of the framework.
 It is possible to create your own scraper application object using the example below.
@@ -363,6 +366,39 @@ if __name__ == '__main__':
 ```
 
 A more extensive example can be found at [examples/application.py](examples/application.py).
+
+#### Async Support
+
+Handler functions can be converted to async. It is not possible to mix async and sync handlers since Playwright does not support this.
+It is however, possible to have async and sync storage handlers at the same time since this is not connected to Playwright anymore.
+
+```python
+@select(selector="css=h3:nth-child(2)", url=r".*\.com")
+async def result_title(element):
+    """
+    Result title.
+    """
+    return {"title": await element.text_content()}
+
+@save("json")
+async def save_json(data, output) -> bool:
+    ...
+    return True
+
+@save("xml")
+def save_json5(data, output) -> bool:
+    # sync storage handler can be used on sync and async mode
+    ...
+    return True
+```
+
+A more extensive example can be found at [examples/async.py](examples/async.py).
+
+## Why name this project "dude"?
+
+- [X] A [Recursive acronym](https://en.wikipedia.org/wiki/Recursive_acronym) looks nice.
+- [X] Adding "uncomplicated" (like [`ufw`](https://wiki.ubuntu.com/UncomplicatedFirewall)) into the name says it is a very simple framework. 
+- [X] Puns! I also think that if you want to do web scraping, there's probably some random dude around the corner who can make it very easy for you to start with it. 😊
 
 ## Author
 
