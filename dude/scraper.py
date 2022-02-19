@@ -3,26 +3,34 @@ import logging
 import re
 import sys
 from pathlib import Path
-from typing import List, Optional, Sequence
+from typing import Callable, Dict, List, Optional, Sequence
 
 from playwright.sync_api import Page, ProxySettings, sync_playwright
 
 from dude.rule import Rule, rule_filter, rule_grouper, rule_sorter
 from dude.scraped_data import ScrapedData, scraped_data_grouper, scraped_data_sorter
 
-SUPPORTED_FORMATS = ("json", "csv", "yaml", "yml")
-
 logger = logging.getLogger(__name__)
 
 
-class Application:
+def save_json(data, output):
+    import json
+
+    if output is not None:
+        with open(output, "w") as f:
+            json.dump(data, f, indent=2)
+
+        logger.info("Data saved to %s", output)
+    else:
+        json.dump(data, sys.stdout, indent=2)
+    return True
+
+
+class Scraper:
     def __init__(self):
-        # TODO: There could be multiple setup and navigate actions.
-        #  Add navigate priority value as there can only be one successful navigation.
-        #  When the priority fails, try the next one.
-        #  Priority values can also be applied to setup and scraping handlers.
         self.rules: List[Rule] = []
         self.collected_data: List[ScrapedData] = []
+        self.save_rules: Dict[str, Callable[[List[Dict], str], bool]] = {"json": save_json}
 
     def select(
         self,
@@ -60,6 +68,13 @@ class Application:
 
         return wrapper
 
+    def save(self, format: str):
+        def wrapper(func):
+            self.save_rules[format] = func
+            return func
+
+        return wrapper
+
     def run(
         self,
         urls: Sequence[str],
@@ -81,7 +96,7 @@ class Application:
         :param browser_type: Playwright supported browser types ("chromium", "webkit" or "firefox").
         :param pages: Maximum number of pages to crawl before exiting (default=1). This is only valid when a navigate handler is defined. # noqa
         :param output: Output file. If not provided, prints in the terminal.
-        :param format: Output file format. If not provided, uses the extension of the output file or defaults to JSON.
+        :param format: Output file format. If not provided, uses the extension of the output file or defaults to json.
         :param proxy: Proxy settings. (see https://playwright.dev/python/docs/api/class-apirequest#api-request-new-context-option-proxy)  # noqa
         """
         logger.info("Scraper started...")
@@ -93,14 +108,16 @@ class Application:
                 page.goto(url)
                 logger.info("Loaded page %s", page.url)
                 self.setup(page)
+
                 for i in range(1, pages + 1):
                     current_page = page.url
                     self.collected_data.extend(self._extract_all(page, i))
+                    # TODO: Add option to save data per page
                     if i == pages or not self.navigate(page) or current_page == page.url:
                         break
             browser.close()
 
-        self._process_output(format, output)
+        self._save(format, output)
 
     def setup(self, page: Page):
         for rule in self._get_setup_rules():
@@ -165,19 +182,6 @@ class Application:
             )
             yield data
 
-    def _process_output(self, format, output):
-        if output:
-            extension = Path(output).suffix.lower()[1:]
-            if extension in SUPPORTED_FORMATS:
-                format = extension
-
-        if format == "csv":
-            self._process_csv(output)
-        elif format in ("yaml", "yml"):
-            self._process_yml(output)
-        else:
-            self._process_json(output)
-
     def _get_flattened_data(self):
         items = []
         for _, g in itertools.groupby(sorted(self.collected_data, key=scraped_data_sorter), key=scraped_data_grouper):
@@ -192,46 +196,13 @@ class Application:
             items.append(item)
         return items
 
-    def _process_json(self, output):
-        import json
+    def _save(self, format: str, output: Optional[str] = None):
+        if output:
+            extension = Path(output).suffix.lower()[1:]
+            format = extension
 
-        if output is not None:
-            with open(output, "w") as f:
-                json.dump(self._get_flattened_data(), f, indent=2)
-
-            logger.info("Data saved to %s", output)
+        data = self._get_flattened_data()
+        if self.save_rules[format](data, output):
+            self.collected_data.clear()
         else:
-            json.dump(self._get_flattened_data(), sys.stdout, indent=2)
-
-    def _process_yml(self, output):
-        import yaml
-
-        if output is not None:
-            with open(output, "w") as f:
-                yaml.safe_dump(self._get_flattened_data(), f)
-
-            logger.info("Data saved to %s", output)
-
-        else:
-            yaml.safe_dump(self._get_flattened_data(), sys.stdout)
-
-    def _process_csv(self, output):
-        if output is not None:
-            import csv
-
-            headers = set()
-            rows = []
-            for data in self._get_flattened_data():
-                headers.update(data.keys())
-                rows.append(data)
-
-            with open(output, "w") as f:
-                writer = csv.DictWriter(f, fieldnames=headers)
-                writer.writeheader()
-                writer.writerows(rows)
-
-            logger.info("Data saved to %s", output)
-        else:
-            # TODO: find a better way to present a table if output is not None
-            logger.warning("Printing CSV to terminal is currently not supported. Defaulting to json.")
-            self._process_json(output)
+            raise Exception("Failed to save output %s.", {"output": output, "format": format})

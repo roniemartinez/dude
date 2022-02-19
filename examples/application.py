@@ -1,6 +1,6 @@
-from dude import Application
+from dude import Scraper
 
-app = Application()
+app = Scraper()
 
 
 @app.select(selector="css=div#rso >> *css=a >> css=h3:nth-child(2)")

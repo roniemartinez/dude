@@ -36,6 +36,7 @@ isort = "^5.10.1"
 pyproject-flake8 = "^0.0.1-alpha.2"
 pytest = "^7.0.1"
 pytest-cov = "^3.0.0"
+tabulate = { git = "https://github.com/astanin/python-tabulate" }
 
 [tool.isort]
 line_length = 120
