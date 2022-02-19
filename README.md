@@ -172,6 +172,77 @@ def result_title(element):
 
 A more extensive example can be found at [examples/grouped.py](examples/grouped.py).
 
+The `group` parameter has the advantage of making sure that items are in their correct group. 
+Take for example the HTML below, notice that in the second `div`, there is no description.
+
+```html
+    <div class="custom-group">
+        <p class="title">Title 1</p>
+        <p class="description">Description 1</p>
+    </div>
+    <div class="custom-group">
+        <p class="title">Title 2</p>
+    </div>
+    <div class="custom-group">
+        <p class="title">Title 3</p>
+        <p class="description">Description 3</p>
+    </div>
+```
+
+When the group is not specified, it will result in "Description 3" being grouped with "Title 2".
+
+```json5
+[
+  {
+    "page_number": 1,
+    // ...
+    "description": "Description 1",
+    "title": "Title 1"
+  },
+  {
+    "page_number": 1,
+    // ...
+    "description": "Description 3",
+    "title": "Title 2"
+  },
+  {
+    "page_number": 1,
+    // ...
+    "title": "Title 3"
+  }
+]
+```
+
+By specifying the group in `@select(..., group="css=.custom-group")`, we will be able to get a better result.
+
+```json5
+[
+  {
+    "page_number": 1,
+    // ...
+    "group_index": 0,
+    "element_index": 0,
+    "description": "Description 1",
+    "title": "Title 1"
+  },
+  {
+    "page_number": 1,
+    // ...
+    "group_index": 1,
+    "element_index": 0,
+    "title": "Title 2"
+  },
+  {
+    "page_number": 1,
+    // ...
+    "group_index": 2,
+    "element_index": 0,
+    "description": "Description 3",
+    "title": "Title 3"
+  }
+]
+```
+
 ##### URL Pattern Matching
 
 In order to use a handler function to just specific websites, a `url` pattern parameter can be passed to `@select()`.
