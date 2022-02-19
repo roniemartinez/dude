@@ -30,7 +30,7 @@ class Application:
         group: str = ":root",
         setup: bool = False,
         navigate: bool = False,
-        url: Optional[str] = None,
+        url: str = "",
         priority: int = 100,
     ):
         """
@@ -45,14 +45,11 @@ class Application:
         """
 
         def wrapper(func):
-            url_pattern = url
-            if url_pattern is not None:
-                url_pattern = re.compile(url_pattern, re.IGNORECASE)
             self.rules.append(
                 Rule(
                     selector=selector,
                     group=group,
-                    url_pattern=url_pattern,
+                    url_pattern=url,
                     handler=func,
                     setup=setup,
                     navigate=navigate,
@@ -139,7 +136,7 @@ class Application:
         for (url_pattern, group_selector), g in itertools.groupby(
             sorted(self._get_scraping_rules(), key=rule_sorter), key=rule_grouper
         ):
-            if url_pattern is not None and not url_pattern.search(page_url):
+            if not re.search(url_pattern, page_url):
                 continue
 
             rules = list(sorted(g, key=lambda r: r.priority))

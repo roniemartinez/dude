@@ -14,7 +14,7 @@ logging.basicConfig(stream=sys.stdout, level=logging.INFO, format="%(asctime)s %
 logger = logging.getLogger(__name__)
 
 
-def cli():
+def cli():  # pragma: no cover
     import argparse
     import importlib.util
 

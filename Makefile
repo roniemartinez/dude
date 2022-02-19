@@ -16,3 +16,7 @@ lint:
 	poetry run isort --check-only .
 	poetry run black --check .
 	poetry run pflake8 .
+
+.PHONY: test
+test:
+	poetry run pytest

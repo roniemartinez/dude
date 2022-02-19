@@ -20,7 +20,7 @@ def result_title(element):
     return {"title": element.text_content()}
 
 
-@select(selector="css=div[style='-webkit-line-clamp\\3A 2']", url=r".*\.com")
+@select(selector="css=div[style='-webkit-line-clamp\\3A 2']")
 def result_description(element):
     """
     Result description.
