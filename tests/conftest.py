@@ -14,7 +14,7 @@ class IsInteger:
 
 @pytest.fixture()
 def test_url() -> str:
-    return f"file://{(Path(__file__).resolve().parent / 'dude.html').absolute()}"
+    return f"file://{(Path(__file__).resolve().parent.parent / 'examples/dude.html').absolute()}"
 
 
 @pytest.fixture()
@@ -27,7 +27,7 @@ def expected_data(test_url: str) -> List[Dict]:
             "group_id": is_integer,
             "group_index": 0,
             "element_index": 0,
-            "item": "Item 1",
+            "item": "Title 1",
         },
         {
             "page_number": 1,
@@ -35,7 +35,7 @@ def expected_data(test_url: str) -> List[Dict]:
             "group_id": is_integer,
             "group_index": 0,
             "element_index": 1,
-            "item": "Item 2",
+            "item": "Title 2",
         },
         {
             "page_number": 1,
@@ -43,6 +43,6 @@ def expected_data(test_url: str) -> List[Dict]:
             "group_id": is_integer,
             "group_index": 0,
             "element_index": 2,
-            "item": "Item 3",
+            "item": "Title 3",
         },
     ]
