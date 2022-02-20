@@ -19,6 +19,7 @@ def cli() -> None:  # pragma: no cover
     import importlib.util
 
     parser = argparse.ArgumentParser(description="dude uncomplicated data extraction")
+    parser.add_argument("-V", "--version", dest="version", action="store_true", required=False, help="show version")
     subparsers = parser.add_subparsers(title="subcommands")
     scrape = subparsers.add_parser("scrape", description="Run the dude scraper.", help="Run the dude scraper.")
     # required parameters
@@ -95,6 +96,14 @@ def cli() -> None:  # pragma: no cover
         help="Proxy password.",
     )
     arguments = parser.parse_args()
+
+    if arguments.version:
+        import pkg_resources
+
+        version = pkg_resources.get_distribution("pydude").version
+        print("dude", version)
+        return
+
     if (arguments.proxy_user or arguments.proxy_pass) and not arguments.proxy_server:
         parser.error("--proxy-user or --proxy-pass requires --proxy-server.")
 
