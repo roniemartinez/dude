@@ -2,6 +2,7 @@
 
 Dude is a very simple framework to write a web scraper using Python decorators.
 The design, inspired by [Flask](https://github.com/pallets/flask), was to easily build a web scraper in just a few lines of code.
+Dude has an easy to learn syntax.
 
 ## Minimal web scraper
 
@@ -16,6 +17,7 @@ def get_links(element):
     return {"url": element.get_attribute("href")}
 ```
 
+The example above will get all the [hyperlink](https://en.wikipedia.org/wiki/Hyperlink#HTML) elements in a page and calls the handler function `get_links()` for each element.
 To start scraping, just simply run in your terminal:
 
 ```bash
@@ -41,7 +43,7 @@ if __name__ == "__main__":
 
 ## Features
 
-- Simple Flask-inspired design - build a scraper with one decorator.
+- Simple Flask-inspired design - build a scraper with decorators.
 - Uses Playwright's API - run your scraper in Chrome, Firefox and Webkit and leverage Playwright's powerful selector engine.
 - Data grouping - group related scraping data.
 - URL pattern matching - run functions on specific URLs.
@@ -173,7 +175,7 @@ def result_title(element):
     return {"title": element.text_content()}
 ```
 
-A more extensive example can be found at [examples/grouped.py](examples/grouped.py).
+A more extensive example can be found at [examples/grouping.py](examples/grouping.py).
 
 The `group` parameter has the advantage of making sure that items are in their correct group. 
 Take for example the HTML below, notice that in the second `div`, there is no description.
@@ -304,10 +306,13 @@ A more extensive example can be found at [examples/priority.py](examples/priorit
 
 #### Custom Storage
 
-Dude current supports `json`, `yaml/yml` and `csv` formats (the Scraper object only support `json`). 
-However, this can be extended to support custom storage or override the existing formats using the `@save()` decorator.
+Dude current supports `json`, `yaml/yml` and `csv` formats (the `Scraper` class only support `json`). 
+However, this can be extended to support a custom storage or override the existing formats using the `@save()` decorator.
 The save function should accept 2 parameters, `data` (list of dictionary of scraped data) and optional `output` (can be filename or `None`).
 Take note that the save function must return a boolean for success.
+
+The example below prints the output to terminal using tabulate for illustration purposes only. 
+You can use the `@save()` decorator in other ways like saving the scraped data to spreadsheets, database or send it to an API.
 
 ```python
 import tabulate
@@ -322,26 +327,23 @@ def save_table(data, output) -> bool:
     return True
 ```
 
-This will be called using any of these methods.
+The custom storage can then be called using any of these methods:
 
-##### From terminal
-
-```bash
-dude scrape --url "<url>" path/to/file.py --format table
-```
-
-##### From python
-
-```python
-if __name__ == "__main__":
-    import dude
-
-    dude.run(urls=["<url>"], pages=2, format="table")
-```
+1. From terminal
+    ```bash
+    dude scrape --url "<url>" path/to/file.py --format table
+    ```
+2. From python
+    ```python
+    if __name__ == "__main__":
+        import dude
+    
+        dude.run(urls=["<url>"], pages=2, format="table")
+    ```
 
 A more extensive example can be found at [examples/custom_storage.py](examples/custom_storage.py).
 
-#### Using the Scraper application object
+#### Using the Scraper application class
 
 The decorator `@select()` and the function `run()` simplifies the usage of the framework.
 It is possible to create your own scraper application object using the example below.
