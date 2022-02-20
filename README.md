@@ -80,7 +80,7 @@ playwright install
 
 The second command will install playwright binaries for Chrome, Firefox and Webkit. See https://playwright.dev/python/docs/intro#pip
 
-### Basics
+### Basic Usage
 
 To use `dude`, start by importing the library.
 
@@ -128,7 +128,7 @@ def handler(element):
 
 The included [examples/flat.py](examples/flat.py) code was written to scrape Google Search results ("q=dude"). You can run the example in your terminal using the command `python examples/flat.py`.
 
-### Advanced
+### Advanced Usage
 
 #### Setup
 
@@ -158,7 +158,7 @@ def next_page(element, page):
         element.click()
 ```
 
-#### Grouping results
+#### Grouping Results
 
 When scraping a page containing a list of information, for example, a Search Engine Results Page (SERP) can have URLs, titles and descriptions,
 it is important to know how data can be grouped. By default, all scraped results are grouped by `:root` which is the root document, creating a flat list.
@@ -246,6 +246,55 @@ By specifying the group in `@select(..., group="css=.custom-group")`, we will be
     "title": "Title 3"
   }
 ]
+```
+
+##### The `group` parameter simplifies how you write your code
+
+> ℹ️ The examples below are both acceptable way to write a scraper. You have the option to choose how you write the code.
+
+A common way developers write scraper can be illustrated using this example below (see [examples/single_handler.py](examples/single_handler.py) for the complete script).
+While this works, it can be hard to maintain.
+
+```python
+@select(selector="css=.g")
+def result_handler(element):
+    """
+    Perform all the heavy-lifting in a single handler.
+    """
+    data = {}
+
+    url = element.query_selector("*css=a >> css=h3:nth-child(2)")
+    if url:
+        data["url"] = url.get_attribute("href")
+
+    title = element.query_selector("h3:nth-child(2)")
+    if title:
+        data["title"] = element.text_content()
+
+    description = element.query_selector("css=div[style='-webkit-line-clamp\\3A 2']")
+    if description:
+        data["description"] = element.text_content()
+
+    return data
+```
+
+This can be rewritten in a much simpler way like below (see [examples/grouping.py](examples/grouping.py) for the complete script).
+It will require you to write 3 simple functions but is much easier to read as you don't have to deal with querying the child elements.
+
+```python
+@select(selector="*css=a >> css=h3:nth-child(2)", group="css=.g")
+def result_url(element):
+    return {"url": element.get_attribute("href")}
+
+
+@select(selector="css=h3:nth-child(2)", group="css=.g")
+def result_title(element):
+    return {"title": element.text_content()}
+
+
+@select(selector="css=div[style='-webkit-line-clamp\\3A 2']", group="css=.g")
+def result_description(element):
+    return {"description": element.text_content()}
 ```
 
 #### URL Pattern Matching

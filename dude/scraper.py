@@ -266,13 +266,16 @@ class Scraper:
         collected_elements = list(self._collect_elements(page))
 
         for page_url, group_index, group_id, element_index, element, handler in collected_elements:
+            data = handler(element)
+            if not len(data):
+                continue
             scraped_data = ScrapedData(
                 page_number=page_number,
                 page_url=page_url,
                 group_id=group_id,
                 group_index=group_index,
                 element_index=element_index,
-                data=handler(element),
+                data=data,
             )
             yield scraped_data
 
@@ -286,13 +289,18 @@ class Scraper:
         collected_elements = [element async for element in self._collect_elements_async(page)]
 
         for page_url, group_index, group_id, element_index, element, handler in collected_elements:
+            data = await handler(element)
+
+            if not len(data):
+                continue
+
             scraped_data = ScrapedData(
                 page_number=page_number,
                 page_url=page_url,
                 group_id=group_id,
                 group_index=group_index,
                 element_index=element_index,
-                data=await handler(element),
+                data=data,
             )
             yield scraped_data
 
