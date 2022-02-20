@@ -44,7 +44,7 @@ if __name__ == "__main__":
 ## Features
 
 - Simple Flask-inspired design - build a scraper with decorators.
-- Uses Playwright's API - run your scraper in Chrome, Firefox and Webkit and leverage Playwright's powerful selector engine.
+- Uses Playwright API - run your scraper in Chrome, Firefox and Webkit and leverage Playwright's powerful selector engine supporting CSS, XPath, text, regex, etc.
 - Data grouping - group related scraping data.
 - URL pattern matching - run functions on specific URLs.
 - Priority - reorder functions based on priority.
@@ -65,9 +65,9 @@ Contribute to this project by feature requests, idea discussions, reporting bugs
 
 ### Requirements
 
-- [X] Any dude should know how to work with selectors (CSS or XPath).
-- [X] This library was built on top of [Playwright](https://github.com/microsoft/playwright-python). Any dude should be at least familiar with the basics of Playwright - they also extended the selectors to support text, regular expressions, etc. See [Selectors | Playwright Python](https://playwright.dev/python/docs/selectors).
-- [X] Python decorators... you'll live, dude!
+- ✅ Any dude should know how to work with selectors (CSS or XPath).
+- ✅ This library was built on top of [Playwright](https://github.com/microsoft/playwright-python). Any dude should be at least familiar with the basics of Playwright - they also extended the selectors to support text, regular expressions, etc. See [Selectors | Playwright Python](https://playwright.dev/python/docs/selectors).
+- ✅ Python decorators... you'll live, dude!
 
 ### Installation
 
@@ -225,23 +225,17 @@ By specifying the group in `@select(..., group="css=.custom-group")`, we will be
   {
     "page_number": 1,
     // ...
-    "group_index": 0,
-    "element_index": 0,
     "description": "Description 1",
     "title": "Title 1"
   },
   {
     "page_number": 1,
     // ...
-    "group_index": 1,
-    "element_index": 0,
     "title": "Title 2"
   },
   {
     "page_number": 1,
     // ...
-    "group_index": 2,
-    "element_index": 0,
     "description": "Description 3",
     "title": "Title 3"
   }
@@ -356,7 +350,7 @@ A more extensive example can be found at [examples/priority.py](examples/priorit
 
 #### Custom Storage
 
-Dude current supports `json`, `yaml/yml` and `csv` formats (the `Scraper` class only support `json`). 
+Dude currently support `json`, `yaml/yml` and `csv` formats only (the `Scraper` class only support `json`). 
 However, this can be extended to support a custom storage or override the existing formats using the `@save()` decorator.
 The save function should accept 2 parameters, `data` (list of dictionary of scraped data) and optional `output` (can be filename or `None`).
 Take note that the save function must return a boolean for success.
@@ -481,9 +475,9 @@ optional arguments:
 
 ## Why name this project "dude"?
 
-- [X] A [Recursive acronym](https://en.wikipedia.org/wiki/Recursive_acronym) looks nice.
-- [X] Adding "uncomplicated" (like [`ufw`](https://wiki.ubuntu.com/UncomplicatedFirewall)) into the name says it is a very simple framework. 
-- [X] Puns! I also think that if you want to do web scraping, there's probably some random dude around the corner who can make it very easy for you to start with it. 😊
+- ✅ A [Recursive acronym](https://en.wikipedia.org/wiki/Recursive_acronym) looks nice.
+- ✅ Adding "uncomplicated" (like [`ufw`](https://wiki.ubuntu.com/UncomplicatedFirewall)) into the name says it is a very simple framework. 
+- ✅ Puns! I also think that if you want to do web scraping, there's probably some random dude around the corner who can make it very easy for you to start with it. 😊
 
 ## Author
 

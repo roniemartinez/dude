@@ -7,9 +7,17 @@ on:
   push:
     branches:
       - 'master'
+    paths:
+      - 'dude/**'
+      - 'tests/**'
+      - 'poetry.lock'
   pull_request:
     branches:
       - 'master'
+    paths:
+      - 'dude/**'
+      - 'tests/**'
+      - 'poetry.lock'
 
 concurrency:
   group: ${{ github.ref }}
