@@ -2,6 +2,7 @@
 
 Dude is a very simple framework to write a web scraper using Python decorators.
 The design, inspired by [Flask](https://github.com/pallets/flask), was to easily build a web scraper in just a few lines of code.
+Dude has an easy to learn syntax.
 
 ## Minimal web scraper
 
@@ -16,6 +17,7 @@ def get_links(element):
     return {"url": element.get_attribute("href")}
 ```
 
+The example above will get all the [hyperlink](https://en.wikipedia.org/wiki/Hyperlink#HTML) elements in a page and calls the handler function `get_links()` for each element.
 To start scraping, just simply run in your terminal:
 
 ```bash
@@ -41,7 +43,7 @@ if __name__ == "__main__":
 
 ## Features
 
-- Simple Flask-inspired design - build a scraper with one decorator.
+- Simple Flask-inspired design - build a scraper with decorators.
 - Uses Playwright's API - run your scraper in Chrome, Firefox and Webkit and leverage Playwright's powerful selector engine.
 - Data grouping - group related scraping data.
 - URL pattern matching - run functions on specific URLs.
