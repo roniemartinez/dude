@@ -11,12 +11,12 @@ from dude import Scraper
 async_app = Scraper()
 
 
-@async_app.select(selector="li")
-async def feature_list(element: ElementHandle) -> Dict:
+@async_app.select(selector=".title")
+async def title(element: ElementHandle) -> Dict:
     return {"item": await element.text_content()}
 
 
-@async_app.select(selector="li", url=r"example\.com")
+@async_app.select(selector=".title", url=r"example\.com")
 async def url_dont_match(element: ElementHandle) -> Dict:
     return {"item": await element.text_content()}
 

@@ -11,14 +11,14 @@ from dude import Scraper, context, run, scraper, select
 app = Scraper()
 
 
-@select(selector="li")
-@app.select(selector="li")
-def feature_list(element: ElementHandle) -> Dict:
+@select(selector=".title")
+@app.select(selector=".title")
+def title(element: ElementHandle) -> Dict:
     return {"item": element.text_content()}
 
 
-@select(selector="li", url=r"example\.com")
-@app.select(selector="li", url=r"example\.com")
+@select(selector=".title", url=r"example\.com")
+@app.select(selector=".title", url=r"example\.com")
 def url_dont_match(element: ElementHandle) -> Dict:
     return {"item": element.text_content()}
 
