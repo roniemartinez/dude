@@ -124,7 +124,7 @@ def handler(element):
     return {"<key>": "<value-extracted-from-element>"}
 ```
 
-The included [examples/flat.py](examples/flat.py) code was written to scrape Google Search results ("q=dude"). You can run the example in your terminal using the command `python example.py`.
+The included [examples/flat.py](examples/flat.py) code was written to scrape Google Search results ("q=dude"). You can run the example in your terminal using the command `python examples/flat.py`.
 
 ### Advanced
 
