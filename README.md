@@ -13,11 +13,11 @@ from dude import select
 
 
 @select(selector="a")
-def get_links(element):
+def get_link(element):
     return {"url": element.get_attribute("href")}
 ```
 
-The example above will get all the [hyperlink](https://en.wikipedia.org/wiki/Hyperlink#HTML) elements in a page and calls the handler function `get_links()` for each element.
+The example above will get all the [hyperlink](https://en.wikipedia.org/wiki/Hyperlink#HTML) elements in a page and calls the handler function `get_link()` for each element.
 To start scraping, just simply run in your terminal:
 
 ```bash
@@ -31,7 +31,7 @@ from dude import select
 
 
 @select(selector="a")
-def get_links(element):
+def get_link(element):
     return {"url": element.get_attribute("href")}
 
 
@@ -164,14 +164,11 @@ When scraping a page containing a list of information, for example, a Search Eng
 it is important to know how data can be grouped. By default, all scraped results are grouped by `:root` which is the root document, creating a flat list.
 To specify grouping, pass `group=<selector-for-grouping>` to `@select()` decorator.
 
-In the example below, the results are grouped by an element with class `g`. The matched selectors should be children of this element.
+In the example below, the results are grouped by an element with class `custom-group`. The matched selectors should be children of this element.
 
 ```python
 @select(selector="css=.title", group="css=.custom-group")
 def result_title(element):
-    """
-    Result title.
-    """
     return {"title": element.text_content()}
 ```
 
@@ -300,9 +297,6 @@ The example below will only run if the URL of the current page matches `.*\.com`
 ```python
 @select(selector="css=.title", url=r".*\.com")
 def result_title(element):
-    """
-    Result title.
-    """
     return {"title": element.text_content()}
 ```
 
@@ -325,7 +319,6 @@ The example below makes sure that `result_description()` will be called first be
 
 ```python
 @select(selector="css=.title", priority=1)
-
 def result_title(element):
     return {"title": element.text_content()}
 
@@ -421,9 +414,6 @@ It is however, possible to have async and sync storage handlers at the same time
 ```python
 @select(selector="css=.title")
 async def result_title(element):
-    """
-    Result title.
-    """
     return {"title": await element.text_content()}
 
 @save("json")
