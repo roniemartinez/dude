@@ -43,6 +43,13 @@ def cli() -> None:  # pragma: no cover
     # optional parameters
     optional = scrape.add_argument_group("optional arguments")
     optional.add_argument(
+        "--use-bs4",
+        dest="use_bs4",
+        default=False,
+        action="store_true",
+        help="Use BeautifulSoup4.",
+    )
+    optional.add_argument(
         "--headed",
         dest="headed",
         default=False,
@@ -124,6 +131,7 @@ def cli() -> None:  # pragma: no cover
 
     run(
         urls=arguments.urls,
+        use_bs4=arguments.use_bs4,
         headless=not arguments.headed,
         browser_type=arguments.browser,
         pages=arguments.pages,

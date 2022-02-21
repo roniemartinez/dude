@@ -90,6 +90,7 @@ class Scraper:
     def run(
         self,
         urls: Sequence[str],
+        use_bs4: bool = False,
         headless: bool = True,
         browser_type: str = "chromium",
         pages: int = 1,
@@ -104,6 +105,7 @@ class Scraper:
         is defined and performed.
 
         :param urls: List of website URLs.
+        :param use_bs4: Use BeautifulSoup.  (default=False)
         :param headless: Enables headless browser. (default=True)
         :param browser_type: Playwright supported browser types ("chromium", "webkit" or "firefox").
         :param pages: Maximum number of pages to crawl before exiting (default=1). This is only valid when a navigate handler is defined. # noqa
@@ -113,8 +115,11 @@ class Scraper:
         """
         logger.info("Scraper started...")
 
+        if use_bs4:
+            self._run_soup(urls, pages, output, format)
+
         # FIXME: Too many duplicated code just to support both sync and async
-        if self.has_async:
+        elif self.has_async:
             logger.info("Using async mode...")
             loop = asyncio.get_event_loop()
             loop.run_until_complete(self._run_async(urls, headless, browser_type, pages, proxy, output, format))
@@ -149,6 +154,35 @@ class Scraper:
                     if i == pages or not self._navigate(page) or current_page == page.url:
                         break
             browser.close()
+        self._save(format, output)
+
+    def _run_soup(
+        self,
+        urls: Sequence[str],
+        pages: int,
+        output: Optional[str],
+        format: str,
+    ) -> None:
+        import httpx
+        from bs4 import BeautifulSoup
+
+        client = httpx.Client()
+        for url in urls:
+            for i in range(1, pages + 1):
+                if url.startswith("file://"):
+                    with open(url.removeprefix("file://")) as f:
+                        soup = BeautifulSoup(f.read(), "html.parser")
+                        self.collected_data.extend(self._soup_extract_all(soup, url, i))
+                else:
+                    try:
+                        response = client.get(url)
+                        soup = BeautifulSoup(response.text, "html.parser")
+                        self.collected_data.extend(self._soup_extract_all(soup, url, i))
+                        if i == pages:
+                            break
+                    except httpx.HTTPStatusError as e:
+                        logger.exception(e)
+                        break
         self._save(format, output)
 
     async def _run_async(
@@ -257,6 +291,22 @@ class Scraper:
                     for element_index, element in enumerate(await group.query_selector_all(rule.selector)):
                         yield page_url, group_index, id(group), element_index, element, rule.handler
 
+    def _soup_collect_elements(self, soup: Any, url: str) -> Iterable[Tuple[str, int, int, int, Any, Callable]]:
+        for (url_pattern, group_selector), g in itertools.groupby(
+            sorted(self._get_scraping_rules(), key=rule_sorter), key=rule_grouper
+        ):
+            if not re.search(url_pattern, url):
+                continue
+
+            rules = list(sorted(g, key=lambda r: r.priority))
+
+            for group_index, group in enumerate(soup.select(group_selector)):
+                for rule in rules:
+                    for element_index, element in enumerate(group.select(rule.selector)):
+                        if not element:
+                            continue
+                        yield url, group_index, id(group), element_index, element, rule.handler
+
     def _extract_all(self, page: sync_api.Page, page_number: int) -> Iterable[ScrapedData]:
         """
         Extracts all the data using the registered handler functions.
@@ -264,6 +314,27 @@ class Scraper:
         :param page: Page object.
         """
         collected_elements = list(self._collect_elements(page))
+
+        for page_url, group_index, group_id, element_index, element, handler in collected_elements:
+            data = handler(element)
+            if not len(data):
+                continue
+            scraped_data = ScrapedData(
+                page_number=page_number,
+                page_url=page_url,
+                group_id=group_id,
+                group_index=group_index,
+                element_index=element_index,
+                data=data,
+            )
+            yield scraped_data
+
+    def _soup_extract_all(self, soup: Any, url: str, page_number: int) -> Iterable[ScrapedData]:
+        """
+        Extracts all the data using the registered handler functions.
+
+        """
+        collected_elements = list(self._soup_collect_elements(soup, url))
 
         for page_url, group_index, group_id, element_index, element, handler in collected_elements:
             data = handler(element)
