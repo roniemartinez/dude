@@ -1,5 +1,14 @@
 from dude import select
 
+"""
+This example demonstrates how to use BeautifulSoup4.
+
+To access an attribute, use:
+    soup["href"]
+To get the text, use:
+    soup.get_text()
+"""
+
 
 @select(selector="a.url", priority=2)
 def result_url(soup):

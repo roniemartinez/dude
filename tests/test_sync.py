@@ -6,7 +6,7 @@ import pytest
 import yaml
 from playwright.sync_api import ElementHandle, Page
 
-from dude import Scraper, context, run, scraper, select
+from dude import Scraper, base, context, run, select
 
 app = Scraper()
 
@@ -74,7 +74,7 @@ def test_save_yaml(mock_safe_dump: mock.MagicMock, expected_data: List[Dict], te
     mock_safe_dump.assert_called()
 
 
-@mock.patch.object(scraper, "_save_json")
+@mock.patch.object(base, "_save_json")
 def test_save_json_file(mock_save: mock.MagicMock, expected_data: List[Dict], test_url: str) -> None:
     run(urls=[test_url], output="output.json")
     mock_save.assert_called_with(expected_data, "output.json")
