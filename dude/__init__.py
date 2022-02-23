@@ -129,9 +129,13 @@ def cli() -> None:  # pragma: no cover
             password=arguments.proxy_pass or "",
         )
 
+    parser_type: str = "playwright"
+    if arguments.use_bs4:
+        parser_type = "bs4"
+
     run(
         urls=arguments.urls,
-        use_bs4=arguments.use_bs4,
+        parser=parser_type,
         headless=not arguments.headed,
         browser_type=arguments.browser,
         pages=arguments.pages,

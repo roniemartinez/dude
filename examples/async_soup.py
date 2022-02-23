@@ -1,7 +1,7 @@
 from dude import select
 
 """
-This example demonstrates how to use BeautifulSoup4 + HTTPX
+This example demonstrates how to use BeautifulSoup4 + async HTTPX
 
 To access an attribute, use:
     soup["href"]
@@ -11,17 +11,17 @@ To get the text, use:
 
 
 @select(selector="a.url", priority=2)
-def result_url(soup):
+async def result_url(soup):
     return {"url": soup["href"]}
 
 
 @select(selector=".title", priority=1)
-def result_title(soup):
+async def result_title(soup):
     return {"title": soup.get_text()}
 
 
 @select(selector=".description", priority=0)
-def result_description(soup):
+async def result_description(soup):
     return {"description": soup.get_text()}
 
 

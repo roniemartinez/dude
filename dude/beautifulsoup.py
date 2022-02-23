@@ -1,23 +1,46 @@
+import asyncio
 import itertools
 import logging
 import re
-from typing import Any, Callable, Iterable, Optional, Sequence, Tuple
+from typing import Any, AsyncIterable, Callable, Iterable, Optional, Sequence, Tuple
 
-from dude.base import AbstractScraper
+from playwright import sync_api
+
+from dude.base import BaseScraper
 from dude.rule import rule_grouper, rule_sorter
-from dude.scraped_data import ScrapedData
 
 logger = logging.getLogger(__name__)
 
 
-class BeautifulSoupScraper(AbstractScraper):
+class BeautifulSoupScraper(BaseScraper):
     def run(
+        self,
+        urls: Sequence[str],
+        parser: str = "bs4",
+        headless: bool = True,
+        browser_type: str = "chromium",
+        pages: int = 1,
+        proxy: Optional[sync_api.ProxySettings] = None,
+        output: Optional[str] = None,
+        format: str = "json",
+        **kwargs: Any,
+    ) -> None:
+        if self.has_async:
+            logger.info("Using async mode...")
+            loop = asyncio.get_event_loop()
+            loop.run_until_complete(self._run_async(urls=urls, pages=pages, output=output, format=format))
+            # FIXME: Tests fail on Python 3.7 when using asyncio.run()
+            # asyncio.run(self._run_async(urls, headless, browser_type, pages, proxy, output, format))
+        else:
+            logger.info("Using sync mode...")
+            self._run_sync(urls=urls, pages=pages, output=output, format=format)
+
+    def _run_sync(
         self,
         urls: Sequence[str],
         pages: int,
         output: Optional[str],
         format: str,
-        **kwargs: Any,
     ) -> None:
         import httpx
         from bs4 import BeautifulSoup
@@ -28,14 +51,14 @@ class BeautifulSoupScraper(AbstractScraper):
                     if url.startswith("file://"):
                         with open(url.removeprefix("file://")) as f:
                             soup = BeautifulSoup(f.read(), "html.parser")
-                            self.collected_data.extend(self._soup_extract_all(soup, url, i))
+                            self.collected_data.extend(self.extract_all(page_number=i, soup=soup, url=url))
                             if i == pages:
                                 break
                     else:
                         try:
                             response = client.get(url)
                             soup = BeautifulSoup(response.text, "html.parser")
-                            self.collected_data.extend(self._soup_extract_all(soup, url, i))
+                            self.collected_data.extend(self.extract_all(page_number=i, soup=soup, url=url))
                             if i == pages:
                                 break
                         except httpx.HTTPStatusError as e:
@@ -43,19 +66,57 @@ class BeautifulSoupScraper(AbstractScraper):
                             break
         self._save(format, output)
 
-    def setup(self, *kwargs: Any) -> None:
+    async def _run_async(
+        self,
+        urls: Sequence[str],
+        pages: int,
+        output: Optional[str],
+        format: str,
+    ) -> None:
+        import httpx
+        from bs4 import BeautifulSoup
+
+        async with httpx.AsyncClient() as client:
+            for url in urls:
+                for i in range(1, pages + 1):
+                    if url.startswith("file://"):
+                        with open(url.removeprefix("file://")) as f:
+                            soup = BeautifulSoup(f.read(), "html.parser")
+                            self.collected_data.extend(
+                                [data async for data in self.extract_all_async(page_number=i, soup=soup, url=url)]
+                            )
+                            if i == pages:
+                                break
+                    else:
+                        try:
+                            response = await client.get(url)
+                            soup = BeautifulSoup(response.text, "html.parser")
+                            self.collected_data.extend(
+                                [data async for data in self.extract_all_async(page_number=i, soup=soup, url=url)]
+                            )
+                            if i == pages:
+                                break
+                        except httpx.HTTPStatusError as e:
+                            logger.exception(e)
+                            break
+        self._save(format, output)
+
+    def setup(self, **kwargs: Any) -> None:
         pass
 
-    async def setup_async(self, *kwargs: Any) -> None:
+    async def setup_async(self, **kwargs: Any) -> None:
         pass
 
-    def navigate(self, *kwargs: Any) -> bool:
-        pass
+    def navigate(self, **kwargs: Any) -> bool:
+        return False
 
-    async def navigate_async(self, *kwargs: Any) -> bool:
-        pass
+    async def navigate_async(self, **kwargs: Any) -> bool:
+        return False
 
-    def _soup_collect_elements(self, soup: Any, url: str) -> Iterable[Tuple[str, int, int, int, Any, Callable]]:
+    def collect_elements(self, **kwargs: Any) -> Iterable[Tuple[str, int, int, int, Any, Callable]]:
+        soup = kwargs["soup"]
+        url = kwargs["url"]
+
         for (url_pattern, group_selector), g in itertools.groupby(
             sorted(self.get_scraping_rules(), key=rule_sorter), key=rule_grouper
         ):
@@ -71,22 +132,6 @@ class BeautifulSoupScraper(AbstractScraper):
                             continue
                         yield url, group_index, id(group), element_index, element, rule.handler
 
-    def _soup_extract_all(self, soup: Any, url: str, page_number: int) -> Iterable[ScrapedData]:
-        """
-        Extracts all the data using the registered handler functions.
-        """
-        collected_elements = list(self._soup_collect_elements(soup, url))
-
-        for page_url, group_index, group_id, element_index, element, handler in collected_elements:
-            data = handler(element)
-            if not len(data):
-                continue
-            scraped_data = ScrapedData(
-                page_number=page_number,
-                page_url=page_url,
-                group_id=group_id,
-                group_index=group_index,
-                element_index=element_index,
-                data=data,
-            )
-            yield scraped_data
+    async def collect_elements_async(self, **kwargs: Any) -> AsyncIterable[Tuple[str, int, int, int, Any, Callable]]:
+        for item in self.collect_elements(**kwargs):
+            yield item

@@ -5,7 +5,9 @@ import logging
 import sys
 from abc import ABC, abstractmethod
 from pathlib import Path
-from typing import Any, Callable, Dict, Iterable, List, Optional
+from typing import Any, AsyncIterable, Callable, Coroutine, Dict, Iterable, List, Optional, Sequence, Tuple, Union
+
+from playwright import sync_api
 
 from dude.rule import Rule, rule_filter
 from dude.scraped_data import ScrapedData, scraped_data_grouper, scraped_data_sorter
@@ -27,31 +29,32 @@ def _save_json(data: List[Dict], output: str) -> None:  # pragma: no cover
     logger.info("Data saved to %s", output)
 
 
-class AbstractScraper(ABC):
-    def __init__(self) -> None:
-        self.rules: List[Rule] = []
-        self.collected_data: List[ScrapedData] = []
-        self.save_rules: Dict[str, Any] = {"json": save_json}
-        self.has_async = False
+class BaseCollector(ABC):
+    """
+    Base collector class.
+
+    This collects all the selector and saving rules.
+    """
+
+    def __init__(self, rules: List[Rule] = None, save_rules: Dict[str, Any] = None, has_async: bool = False) -> None:
+        self.rules: List[Rule] = rules or []
+        self.save_rules: Dict[str, Any] = save_rules or {"json": save_json}
+        self.has_async = has_async
+        self.scraper: Optional[BaseScraper] = None
 
     @abstractmethod
-    def run(self, **kwargs: Any) -> None:
-        raise NotImplementedError
-
-    @abstractmethod
-    def setup(self, **kwargs: Any) -> None:
-        raise NotImplementedError
-
-    @abstractmethod
-    async def setup_async(self, **kwargs: Any) -> None:
-        raise NotImplementedError
-
-    @abstractmethod
-    def navigate(self, **kwargs: Any) -> bool:
-        raise NotImplementedError
-
-    @abstractmethod
-    async def navigate_async(self, **kwargs: Any) -> bool:
+    def run(
+        self,
+        urls: Sequence[str],
+        parser: str,
+        headless: bool,
+        browser_type: str,
+        pages: int,
+        proxy: Optional[sync_api.ProxySettings],
+        output: Optional[str],
+        format: str,
+        **kwargs: Any,
+    ) -> None:
         raise NotImplementedError
 
     def select(
@@ -74,21 +77,23 @@ class AbstractScraper(ABC):
         :param priority: Priority, the lowest value will be executed first (default 100).
         """
 
-        def wrapper(func: Callable) -> Callable:
+        def wrapper(func: Callable) -> Union[Callable, Coroutine]:
             if asyncio.iscoroutinefunction(func):
                 self.has_async = True
 
-            self.rules.append(
-                Rule(
-                    selector=selector,
-                    group=group,
-                    url_pattern=url,
-                    handler=func,
-                    setup=setup,
-                    navigate=navigate,
-                    priority=priority,
-                )
+            rule = Rule(
+                selector=selector,
+                group=group,
+                url_pattern=url,
+                handler=func,
+                setup=setup,
+                navigate=navigate,
+                priority=priority,
             )
+            if not self.scraper:
+                self.rules.append(rule)
+            else:
+                self.scraper.rules.append(rule)
             return func
 
         return wrapper
@@ -98,10 +103,94 @@ class AbstractScraper(ABC):
             if asyncio.iscoroutinefunction(func):
                 self.has_async = True
 
-            self.save_rules[format] = func
+            if not self.scraper:
+                self.save_rules[format] = func
+            else:
+                self.scraper.save_rules[format] = func
             return func
 
         return wrapper
+
+
+class BaseScraper(BaseCollector):
+    def __init__(self, rules: List[Rule] = None, save_rules: Dict[str, Any] = None, has_async: bool = False) -> None:
+        super(BaseScraper, self).__init__(rules, save_rules, has_async)
+        self.collected_data: List[ScrapedData] = []
+
+    @abstractmethod
+    def setup(self, **kwargs: Any) -> None:
+        raise NotImplementedError
+
+    @abstractmethod
+    async def setup_async(self, **kwargs: Any) -> None:
+        raise NotImplementedError
+
+    @abstractmethod
+    def navigate(self, **kwargs: Any) -> bool:
+        raise NotImplementedError
+
+    @abstractmethod
+    async def navigate_async(self, **kwargs: Any) -> bool:
+        raise NotImplementedError
+
+    @abstractmethod
+    def collect_elements(self, **kwargs: Any) -> Iterable[Tuple[str, int, int, int, Any, Callable]]:
+        """
+        Collects all the elements and returns a generator of element-handler pair.
+        """
+        raise NotImplementedError
+
+    @abstractmethod
+    async def collect_elements_async(self, **kwargs: Any) -> AsyncIterable[Tuple[str, int, int, int, Any, Callable]]:
+        """
+        Collects all the elements and returns a generator of element-handler pair.
+        """
+
+        yield "", 0, 0, 0, 0, str  # HACK: mypy does not identify this as AsyncIterable
+        raise NotImplementedError
+
+    def extract_all(self, page_number: int, **kwargs: Any) -> Iterable[ScrapedData]:
+        """
+        Extracts all the data using the registered handler functions.
+        """
+        collected_elements = list(self.collect_elements(**kwargs))
+
+        for page_url, group_index, group_id, element_index, element, handler in collected_elements:
+            data = handler(element)
+            if not len(data):
+                continue
+            scraped_data = ScrapedData(
+                page_number_=page_number,
+                page_url_=page_url,
+                group_id_=group_id,
+                group_index_=group_index,
+                element_index_=element_index,
+                data=data,
+            )
+            yield scraped_data
+
+    async def extract_all_async(self, page_number: int, **kwargs: Any) -> AsyncIterable[ScrapedData]:
+        """
+        Extracts all the data using the registered handler functions.
+        """
+
+        collected_elements = [element async for element in self.collect_elements_async(**kwargs)]
+
+        for page_url, group_index, group_id, element_index, element, handler in collected_elements:
+            data = await handler(element)
+
+            if not len(data):
+                continue
+
+            scraped_data = ScrapedData(
+                page_number_=page_number,
+                page_url_=page_url,
+                group_id_=group_id,
+                group_index_=group_index,
+                element_index_=element_index,
+                data=data,
+            )
+            yield scraped_data
 
     def get_scraping_rules(self) -> Iterable[Rule]:
         return filter(rule_filter(), self.rules)
