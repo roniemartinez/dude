@@ -85,10 +85,11 @@ jobs:
           make test
       - name: Code Coverage
         uses: codecov/codecov-action@v2.1.0
+        if: ${{ success() }}
 
   testpypi:
     needs: [ test ]
-    if: always() && !(github.ref == 'refs/heads/master' || startsWith(github.head_ref, 'dependabot/pip/') )
+    if: success() && !(github.ref == 'refs/heads/master' || startsWith(github.head_ref, 'dependabot/pip/') )
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -110,7 +111,7 @@ jobs:
 
   pypi:
     needs: [ test ]
-    if: always() && github.ref == 'refs/heads/master'
+    if: success() && github.ref == 'refs/heads/master'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
