@@ -11,6 +11,7 @@ on:
       - 'dude/**'
       - 'tests/**'
       - 'poetry.lock'
+      - '.github/workflows/**'
   pull_request:
     branches:
       - 'master'
@@ -18,6 +19,7 @@ on:
       - 'dude/**'
       - 'tests/**'
       - 'poetry.lock'
+      - '.github/workflows/**'
 
 concurrency:
   group: ${{ github.ref }}
