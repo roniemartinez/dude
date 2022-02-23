@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "pydude"
-version = "0.1.0"
+version = "0.1.1-alpha.0"
 repository = "https://github.com/roniemartinez/dude"
 description = "dude uncomplicated data extraction"
 authors = ["Ronie Martinez <ronmarti18@gmail.com>"]
