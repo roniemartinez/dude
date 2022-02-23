@@ -7,12 +7,19 @@ install:
 
 .PHONY: install-actions
 install-actions:
-	pip3 install pip setuptools wheel poetry
+	pip3 install -U pip setuptools poetry
 	poetry config virtualenvs.create false
 	poetry config experimental.new-installer false
 	poetry install
 	poetry run playwright install
 	poetry run playwright install-deps
+
+.PHONY: install-publish
+install-publish:
+	pip3 install -U pip setuptools poetry
+	poetry config virtualenvs.create false
+	poetry config experimental.new-installer false
+	poetry install --no-dev
 
 .PHONY: format
 format:
