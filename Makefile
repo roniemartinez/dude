@@ -14,13 +14,6 @@ install-actions:
 	poetry run playwright install
 	poetry run playwright install-deps
 
-.PHONY: install-publish
-install-publish:
-	pip3 install -U pip setuptools poetry
-#	poetry config virtualenvs.create false
-#	poetry config experimental.new-installer false
-#	poetry install
-
 .PHONY: format
 format:
 	poetry run autoflake --remove-all-unused-imports --in-place -r --exclude __init__.py .
