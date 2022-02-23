@@ -90,4 +90,3 @@ def test_save_csv_file(mock_save: mock.MagicMock, expected_data: List[Dict], tes
 def test_save_yaml_file(mock_save: mock.MagicMock, expected_data: List[Dict], test_url: str) -> None:
     run(urls=[test_url], output="output.yaml")
     mock_save.assert_called_with(expected_data, "output.yaml")
-    assert False
