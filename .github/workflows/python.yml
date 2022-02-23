@@ -1,4 +1,4 @@
-# This workflow will install Python dependencies, run tests and lint with a variety of Python versions and deploy to TestPyPI/PyPI
+# This workflow will install Python dependencies, run tests and lint with a variety of Python versions
 # For more information see: https://help.github.com/actions/language-and-framework-guides/using-python-with-github-actions
 
 name: Python
@@ -6,20 +6,10 @@ name: Python
 on:
   push:
     branches:
-      - 'master'
-    paths:
-      - 'dude/**'
-      - 'tests/**'
-      - 'poetry.lock'
-      - '.github/workflows/**'
+      - master
   pull_request:
     branches:
-      - 'master'
-    paths:
-      - 'dude/**'
-      - 'tests/**'
-      - 'poetry.lock'
-      - '.github/workflows/**'
+      - master
 
 concurrency:
   group: ${{ github.ref }}
@@ -85,46 +75,3 @@ jobs:
       - name: Code Coverage
         uses: codecov/codecov-action@v2.1.0
         if: ${{ success() }}
-
-  testpypi:
-    needs: [ test ]
-    if: success() && !(github.ref == 'refs/heads/master' || startsWith(github.head_ref, 'dependabot/pip/') )
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - name: Set up Python
-        uses: actions/setup-python@v2
-        with:
-          python-version: '3.x'
-      - name: Install dependencies
-        run: |
-          pip3 install -U pip setuptools poetry
-      - name: Build package
-        run: |
-          poetry config repositories.testpypi https://test.pypi.org/legacy/
-          poetry config http-basic.testpypi ${{ secrets.TEST_PYPI_USER }} ${{ secrets.TEST_PYPI_PASS }}
-          poetry build
-      - name: Publish package
-        run: |
-          poetry publish -r testpypi
-
-  pypi:
-    needs: [ test ]
-    if: success() && github.ref == 'refs/heads/master'
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - name: Set up Python
-        uses: actions/setup-python@v2
-        with:
-          python-version: '3.x'
-      - name: Install dependencies
-        run: |
-          pip3 install -U pip setuptools poetry
-      - name: Build package
-        run: |
-          poetry config http-basic.pypi ${{ secrets.PYPI_USER }} ${{ secrets.PYPI_PASS }}
-          poetry build
-      - name: Publish package
-        run: |
-          poetry publish

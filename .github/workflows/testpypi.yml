@@ -1,0 +1,30 @@
+# This workflow will publish to TestPyPI
+# For more information see: https://help.github.com/actions/language-and-framework-guides/using-python-with-github-actions
+
+name: Publish to TestPyPI
+
+on:
+  release:
+    types:
+      - created
+
+jobs:
+  testpypi:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.x'
+      - name: Install dependencies
+        run: |
+          pip3 install -U pip setuptools poetry
+      - name: Build package
+        run: |
+          poetry config repositories.testpypi https://test.pypi.org/legacy/
+          poetry config http-basic.testpypi ${{ secrets.TEST_PYPI_USER }} ${{ secrets.TEST_PYPI_PASS }}
+          poetry build
+      - name: Publish package
+        run: |
+          poetry publish -r testpypi
