@@ -1,8 +1,37 @@
+<table>
+    <tr>
+        <td>License</td>
+        <td><img src='https://img.shields.io/pypi/l/pydude.svg?style=for-the-badge' alt="License"></td>
+        <td>Version</td>
+        <td><img src='https://img.shields.io/pypi/v/pydude.svg?logo=pypi&style=for-the-badge' alt="Version"></td>
+    </tr>
+    <tr>
+        <td>Github Actions</td>
+        <td><img src='https://img.shields.io/github/workflow/status/roniemartinez/dude/Python?label=actions&logo=github%20actions&style=for-the-badge' alt="Github Actions"></td>
+        <td>Coverage</td>
+        <td><img src='https://img.shields.io/codecov/c/github/roniemartinez/dude/branch?label=codecov&logo=codecov&style=for-the-badge' alt="CodeCov"></td>
+    </tr>
+    <tr>
+        <td>Supported versions</td>
+        <td><img src='https://img.shields.io/pypi/pyversions/pydude.svg?logo=python&style=for-the-badge' alt="Python Versions"></td>
+        <td>Wheel</td>
+        <td><img src='https://img.shields.io/pypi/wheel/pydude.svg?style=for-the-badge' alt="Wheel"></td>
+    </tr>
+    <tr>
+        <td>Status</td>
+        <td><img src='https://img.shields.io/pypi/status/pydude.svg?style=for-the-badge' alt="Status"></td>
+        <td>Downloads</td>
+        <td><img src='https://img.shields.io/pypi/dm/pydude.svg?style=for-the-badge' alt="Downloads"></td>
+    </tr>
+</table>
+
 # dude uncomplicated data extraction
 
 Dude is a very simple framework to write a web scraper using Python decorators.
 The design, inspired by [Flask](https://github.com/pallets/flask), was to easily build a web scraper in just a few lines of code.
 Dude has an easy to learn syntax.
+
+> 🚨 Dude is currently in Pre-Alpha. Please expect breaking changes.
 
 ## Minimal web scraper
 
