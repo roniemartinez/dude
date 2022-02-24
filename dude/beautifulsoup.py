@@ -49,7 +49,7 @@ class BeautifulSoupScraper(BaseScraper):
             for url in urls:
                 for i in range(1, pages + 1):
                     if url.startswith("file://"):
-                        with open(url.removeprefix("file://")) as f:
+                        with open(url[7:]) as f:
                             soup = BeautifulSoup(f.read(), "html.parser")
                             self.collected_data.extend(self.extract_all(page_number=i, soup=soup, url=url))
                             if i == pages:
@@ -80,7 +80,7 @@ class BeautifulSoupScraper(BaseScraper):
             for url in urls:
                 for i in range(1, pages + 1):
                     if url.startswith("file://"):
-                        with open(url.removeprefix("file://")) as f:
+                        with open(url[7:]) as f:
                             soup = BeautifulSoup(f.read(), "html.parser")
                             self.collected_data.extend(
                                 [data async for data in self.extract_all_async(page_number=i, soup=soup, url=url)]
