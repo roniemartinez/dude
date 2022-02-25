@@ -7,6 +7,7 @@ class ScrapedData(NamedTuple):
     group_id: int
     group_index: int
     element_index: int
+    # actual collected data
     data: Dict
 
 

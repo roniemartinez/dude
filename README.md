@@ -81,6 +81,7 @@ if __name__ == "__main__":
 - Navigate function - enable navigation steps to move to other pages.
 - Custom storage - option to save data to other formats or database.
 - Async support - write async handlers.
+- BeautifulSoup4 - option to use BeautifulSoup4 instead of Playwright.
 
 ## Support
 
@@ -225,19 +226,19 @@ When the group is not specified, it will result in "Description 3" being grouped
 ```json5
 [
   {
-    "page_number": 1,
+    "_page_number": 1,
     // ...
     "description": "Description 1",
     "title": "Title 1"
   },
   {
-    "page_number": 1,
+    "_page_number": 1,
     // ...
     "description": "Description 3",
     "title": "Title 2"
   },
   {
-    "page_number": 1,
+    "_page_number": 1,
     // ...
     "title": "Title 3"
   }
@@ -249,18 +250,18 @@ By specifying the group in `@select(..., group="css=.custom-group")`, we will be
 ```json5
 [
   {
-    "page_number": 1,
+    "_page_number": 1,
     // ...
     "description": "Description 1",
     "title": "Title 1"
   },
   {
-    "page_number": 1,
+    "_page_number": 1,
     // ...
     "title": "Title 2"
   },
   {
-    "page_number": 1,
+    "_page_number": 1,
     // ...
     "description": "Description 3",
     "title": "Title 3"
@@ -458,6 +459,26 @@ def save_xml(data, output) -> bool:
 ```
 
 A more extensive example can be found at [examples/async.py](examples/async.py).
+
+#### Using BeautifulSoup4
+
+Option to use BeautifulSoup4 is now available. To install, run:
+
+```bash
+pip install pydude[bs4]
+```
+
+To use BeautifulSoup4 in the command line, just add the `--bs4` argument:
+
+```bash
+dude scrape --url "<url>" --bs4 path/to/file.py
+```
+
+To use BeautifulSoup4 in python code, just pass the parameter `parser="bs4"` to `run()` function.
+
+```python
+dude.run(urls=["https://dude.ron.sh/"], format="bs4")
+```
 
 ## CLI
 

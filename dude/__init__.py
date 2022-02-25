@@ -42,6 +42,21 @@ def cli() -> None:  # pragma: no cover
     )
     # optional parameters
     optional = scrape.add_argument_group("optional arguments")
+    parser_group = optional.add_mutually_exclusive_group()
+    parser_group.add_argument(
+        "--playwright",
+        dest="playwright",
+        default=False,
+        action="store_true",
+        help="Use Playwright.",
+    )
+    parser_group.add_argument(
+        "--bs4",
+        dest="bs4",
+        default=False,
+        action="store_true",
+        help="Use BeautifulSoup4.",
+    )
     optional.add_argument(
         "--headed",
         dest="headed",
@@ -122,8 +137,13 @@ def cli() -> None:  # pragma: no cover
             password=arguments.proxy_pass or "",
         )
 
+    parser_type = "playwright"
+    if arguments.bs4:
+        parser_type = "bs4"
+
     run(
         urls=arguments.urls,
+        parser=parser_type,
         headless=not arguments.headed,
         browser_type=arguments.browser,
         pages=arguments.pages,
