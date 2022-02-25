@@ -1,4 +1,5 @@
 import json
+import sys
 from typing import Dict, List
 from unittest import mock
 
@@ -34,6 +35,7 @@ def test_full_flow_bs4(
     mock_save.assert_called_with(expected_data, None)
 
 
+@pytest.mark.skipif(sys.version_info < (3, 8), reason="AsyncMock is not supported.")
 @mock.patch.object(httpx, "AsyncClient")
 def test_full_flow_bs4_httpx(
     mock_client: mock.AsyncMock,
@@ -65,6 +67,7 @@ def test_select(
     mock_save.assert_called_with(expected_data, None)
 
 
+@pytest.mark.skipif(sys.version_info < (3, 8), reason="AsyncMock is not supported.")
 def test_async_save(
     scraper_application: Scraper, async_playwright_select: None, expected_data: List[Dict], test_url: str
 ) -> None:
