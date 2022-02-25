@@ -468,24 +468,39 @@ Option to use BeautifulSoup4 is now available. To install, run:
 pip install pydude[bs4]
 ```
 
-To use BeautifulSoup4 in the command line, just add the `--bs4` argument:
+Attributes and texts from soup objects can be accessed using the examples below:
+
+```python
+@select(selector="a.url")
+def result_url(soup):
+    return {"url": soup["href"]}
+
+
+@select(selector=".title")
+def result_title(soup):
+    return {"title": soup.get_text()}
+```
+
+To use BeautifulSoup4 from the command line, just add the `--bs4` argument:
 
 ```bash
 dude scrape --url "<url>" --bs4 path/to/file.py
 ```
 
-To use BeautifulSoup4 in python code, just pass the parameter `parser="bs4"` to `run()` function.
+To use BeautifulSoup4 from python code, just pass the parameter `parser="bs4"` to `run()` function.
 
 ```python
 dude.run(urls=["https://dude.ron.sh/"], format="bs4")
 ```
 
+Examples are can be found at [examples/soup.py](examples/soup.py) and [examples/async_soup.py](examples/async_soup.py).
+
 ## CLI
 
 ```bash
 % dude scrape -h                                                                 
-usage: dude scrape [-h] --url URL [--headed] [--browser {chromium,webkit,firefox}] [--pages PAGES] [--output OUTPUT] [--format FORMAT] [--proxy-server PROXY_SERVER] [--proxy-user PROXY_USER]
-                   [--proxy-pass PROXY_PASS]
+usage: dude scrape [-h] --url URL [--playwright | --bs4] [--headed] [--browser {chromium,webkit,firefox}] [--pages PAGES] [--output OUTPUT] [--format FORMAT] [--proxy-server PROXY_SERVER]
+                   [--proxy-user PROXY_USER] [--proxy-pass PROXY_PASS]
                    PATH [PATH ...]
 
 Run the dude scraper.
@@ -498,6 +513,8 @@ required arguments:
   --url URL             Website URL to scrape. Accepts one or more url (e.g. "dude scrape --url <url1> --url <url2> ...")
 
 optional arguments:
+  --playwright          Use Playwright.
+  --bs4                 Use BeautifulSoup4.
   --headed              Run headed browser.
   --browser {chromium,webkit,firefox}
                         Browser type to use.
