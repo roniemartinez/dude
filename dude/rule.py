@@ -1,11 +1,11 @@
-from typing import Any, Callable, NamedTuple, Tuple
+from typing import Callable, NamedTuple, Tuple
 
 
 class Rule(NamedTuple):
     group: str
     selector: str
     url_pattern: str
-    handler: Any  # function or coroutine
+    handler: Callable
     setup: bool
     navigate: bool
     priority: int

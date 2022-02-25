@@ -91,7 +91,6 @@ setup.py,
 [tool.pytest.ini_options]
 norecursedirs = ["examples"]
 addopts = """\
-    --doctest-modules \
     --cov=dude \
     --cov-report=term-missing \
     --cov-report=xml \

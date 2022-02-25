@@ -225,19 +225,19 @@ When the group is not specified, it will result in "Description 3" being grouped
 ```json5
 [
   {
-    "page_number": 1,
+    "_page_number": 1,
     // ...
     "description": "Description 1",
     "title": "Title 1"
   },
   {
-    "page_number": 1,
+    "_page_number": 1,
     // ...
     "description": "Description 3",
     "title": "Title 2"
   },
   {
-    "page_number": 1,
+    "_page_number": 1,
     // ...
     "title": "Title 3"
   }
@@ -249,18 +249,18 @@ By specifying the group in `@select(..., group="css=.custom-group")`, we will be
 ```json5
 [
   {
-    "page_number": 1,
+    "_page_number": 1,
     // ...
     "description": "Description 1",
     "title": "Title 1"
   },
   {
-    "page_number": 1,
+    "_page_number": 1,
     // ...
     "title": "Title 2"
   },
   {
-    "page_number": 1,
+    "_page_number": 1,
     // ...
     "description": "Description 3",
     "title": "Title 3"

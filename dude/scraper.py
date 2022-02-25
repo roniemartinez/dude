@@ -1,16 +1,16 @@
 import logging
-from typing import Any, Optional, Sequence
+from typing import Optional, Sequence
 
 from playwright import sync_api
 
-from dude.base import BaseCollector
-from dude.beautifulsoup import BeautifulSoupScraper
-from dude.playwright import PlaywrightScraper
+from .base import ScraperBase
+from .beautifulsoup import BeautifulSoupScraper
+from .playwright import PlaywrightScraper
 
 logger = logging.getLogger(__name__)
 
 
-class Scraper(BaseCollector):
+class Scraper(ScraperBase):
     """
     Convenience class to easily use the available decorators.
     """
@@ -18,15 +18,28 @@ class Scraper(BaseCollector):
     def run(
         self,
         urls: Sequence[str],
-        parser: str = "playwright",
-        headless: bool = True,
-        browser_type: str = "chromium",
         pages: int = 1,
         proxy: Optional[sync_api.ProxySettings] = None,
         output: Optional[str] = None,
         format: str = "json",
-        **kwargs: Any,
+        # extra args
+        parser: str = "playwright",
+        headless: bool = True,
+        browser_type: str = "chromium",
     ) -> None:
+        """
+        Convenience method to handle switching between different types of parsers.
+
+        :param urls: List of website URLs.
+        :param pages: Maximum number of pages to crawl before exiting (default=1). This is only used when a navigate handler is defined. # noqa
+        :param proxy: Proxy settings. (see https://playwright.dev/python/docs/api/class-apirequest#api-request-new-context-option-proxy)  # noqa
+        :param output: Output file. If not provided, prints in the terminal.
+        :param format: Output file format. If not provided, uses the extension of the output file or defaults to json.
+
+        :param parser: Parser type ["playwright" (default) or "bs4"]
+        :param headless: Enables headless browser. (default=True)
+        :param browser_type: Playwright supported browser types ("chromium", "webkit" or "firefox").
+        """
         logger.info("Scraper started...")
 
         if not self.scraper:
@@ -43,4 +56,11 @@ class Scraper(BaseCollector):
                     has_async=self.has_async,
                 )
 
-        self.scraper.run(urls, parser, headless, browser_type, pages, proxy, output, format, **kwargs)
+        self.scraper.run(
+            urls=urls,
+            pages=pages,
+            proxy=proxy,
+            output=output,
+            format=format,
+            **{"headless": headless, "browser_type": browser_type},
+        )

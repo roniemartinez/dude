@@ -8,58 +8,129 @@ from playwright import async_api, sync_api
 from playwright.async_api import async_playwright
 from playwright.sync_api import sync_playwright
 
-from dude.base import BaseScraper
-from dude.rule import rule_grouper, rule_sorter
+from .base import ScraperAbstract
+from .rule import rule_grouper, rule_sorter
 
 logger = logging.getLogger(__name__)
 
 
-class PlaywrightScraper(BaseScraper):
+class PlaywrightScraper(ScraperAbstract):
+    """
+    Playwright-based scraper
+    """
+
     def run(
         self,
         urls: Sequence[str],
-        parser: str = "playwright",
-        headless: bool = True,
-        browser_type: str = "chromium",
         pages: int = 1,
         proxy: Optional[sync_api.ProxySettings] = None,
         output: Optional[str] = None,
         format: str = "json",
+        headless: bool = True,
+        browser_type: str = "chromium",
         **kwargs: Any,
     ) -> None:
+        """
+        Executes Playwright-based scraper.
+
+        :param urls: List of website URLs.
+        :param pages: Maximum number of pages to crawl before exiting (default=1). This is only used when a navigate handler is defined. # noqa
+        :param proxy: Proxy settings. (see https://playwright.dev/python/docs/api/class-apirequest#api-request-new-context-option-proxy)  # noqa
+        :param output: Output file. If not provided, prints in the terminal.
+        :param format: Output file format. If not provided, uses the extension of the output file or defaults to json.
+
+        :param headless: Enables headless browser. (default=True)
+        :param browser_type: Playwright supported browser types ("chromium", "webkit" or "firefox").
+        """
+        logger.info("Using Playwright...")
         if self.has_async:
             logger.info("Using async mode...")
             loop = asyncio.get_event_loop()
-            loop.run_until_complete(self._run_async(urls, headless, browser_type, pages, proxy, output, format))
+            loop.run_until_complete(
+                self._run_async(
+                    urls=urls,
+                    headless=headless,
+                    browser_type=browser_type,
+                    pages=pages,
+                    proxy=proxy,
+                    output=output,
+                    format=format,
+                )
+            )
             # FIXME: Tests fail on Python 3.7 when using asyncio.run()
-            # asyncio.run(self._run_async(urls, headless, browser_type, pages, proxy, output, format))
+            # asyncio.run(
+            #     self._run_async(
+            #         urls=urls,
+            #         headless=headless,
+            #         browser_type=browser_type,
+            #         pages=pages,
+            #         proxy=proxy,
+            #         output=output,
+            #         format=format,
+            #     )
+            # )
         else:
             logger.info("Using sync mode...")
-            self._run_sync(urls, headless, browser_type, pages, proxy, output, format)
+            self._run_sync(
+                urls=urls,
+                headless=headless,
+                browser_type=browser_type,
+                pages=pages,
+                proxy=proxy,
+                output=output,
+                format=format,
+            )
 
-    def setup(self, **kwargs: Any) -> None:
-        page: sync_api.Page = kwargs["page"]
+    @staticmethod
+    def _query_selector_all(page: sync_api.Page, selector: str) -> Iterable[sync_api.ElementHandle]:
+        """
+        Temporary fix for coverage not counting page.query_selector_all() when used in a for loop.
+        """
+        yield from page.query_selector_all(selector)
+
+    def setup(self, page: sync_api.Page = None) -> None:
+        """
+        Executes setup handlers
+
+        :param page: Page.
+        """
+        assert page is not None
         for rule in self.get_setup_rules():
-            for element in page.query_selector_all(rule.selector):
+            for element in self._query_selector_all(page, rule.selector):
                 rule.handler(element, page)
 
-    async def setup_async(self, **kwargs: Any) -> None:
-        page: async_api.Page = kwargs["page"]
+    async def setup_async(self, page: async_api.Page = None) -> None:
+        """
+        Executes setup handlers
+
+        :param page: Page.
+        """
+        assert page is not None
         for rule in self.get_setup_rules():
             for element in await page.query_selector_all(rule.selector):
                 await rule.handler(element, page)
 
-    def navigate(self, **kwargs: Any) -> bool:
-        page: sync_api.Page = kwargs["page"]
+    def navigate(self, page: sync_api.Page = None) -> bool:
+        """
+        Executes navigate handlers
+
+        :param page: Page.
+        """
+        assert page is not None
         for rule in self.get_navigate_rules():
-            for element in page.query_selector_all(rule.selector):
+            for element in self._query_selector_all(page, rule.selector):
                 rule.handler(element, page)
                 logger.info("Navigated to %s", page.url)
                 return True
         return False
 
-    async def navigate_async(self, **kwargs: Any) -> bool:
-        page: async_api.Page = kwargs["page"]
+    async def navigate_async(self, page: async_api.Page = None) -> bool:
+        """
+        Executes navigate handlers
+
+        :param page: Page.
+        """
+        assert page is not None
         for rule in self.get_navigate_rules():
             for element in await page.query_selector_all(rule.selector):
                 await rule.handler(element, page)
@@ -123,8 +194,11 @@ class PlaywrightScraper(BaseScraper):
             await browser.close()
         await self._save_async(format, output)
 
-    def collect_elements(self, **kwargs: Any) -> Iterable[Tuple[str, int, int, int, Any, Callable]]:
-        page: sync_api.Page = kwargs["page"]
+    def collect_elements(self, page: sync_api.Page = None) -> Iterable[Tuple[str, int, int, int, Any, Callable]]:
+        """
+        Collects all the elements and returns a generator of element-handler pair.
+        """
+        assert page is not None
         page_url = page.url
         for (url_pattern, group_selector), g in itertools.groupby(
             sorted(self.get_scraping_rules(), key=rule_sorter), key=rule_grouper
@@ -139,11 +213,13 @@ class PlaywrightScraper(BaseScraper):
                     for element_index, element in enumerate(group.query_selector_all(rule.selector)):
                         yield page_url, group_index, id(group), element_index, element, rule.handler
 
-    async def collect_elements_async(self, **kwargs: Any) -> AsyncIterable[Tuple[str, int, int, int, Any, Callable]]:
+    async def collect_elements_async(
+        self, page: async_api.Page = None
+    ) -> AsyncIterable[Tuple[str, int, int, int, Any, Callable]]:
         """
         Collects all the elements and returns a generator of element-handler pair.
         """
-        page = kwargs["page"]
+        assert page is not None
         page_url = page.url
         for (url_pattern, group_selector), g in itertools.groupby(
             sorted(self.get_scraping_rules(), key=rule_sorter), key=rule_grouper

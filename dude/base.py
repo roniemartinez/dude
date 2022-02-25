@@ -1,61 +1,57 @@
 import asyncio
 import itertools
-import json
 import logging
-import sys
 from abc import ABC, abstractmethod
 from pathlib import Path
 from typing import Any, AsyncIterable, Callable, Coroutine, Dict, Iterable, List, Optional, Sequence, Tuple, Union
 
 from playwright import sync_api
 
-from dude.rule import Rule, rule_filter
-from dude.scraped_data import ScrapedData, scraped_data_grouper, scraped_data_sorter
+from .rule import Rule, rule_filter
+from .scraped_data import ScrapedData, scraped_data_grouper, scraped_data_sorter
+from .storage import save_json
 
 logger = logging.getLogger(__name__)
 
 
-def save_json(data: List[Dict], output: Optional[str]) -> bool:
-    if output is not None:
-        _save_json(data, output)
-    else:
-        json.dump(data, sys.stdout, indent=2)
-    return True
-
-
-def _save_json(data: List[Dict], output: str) -> None:  # pragma: no cover
-    with open(output, "w") as f:
-        json.dump(data, f, indent=2)
-    logger.info("Data saved to %s", output)
-
-
-class BaseCollector(ABC):
+class ScraperBase(ABC):
     """
-    Base collector class.
+    Base Scraper class.
 
-    This collects all the selector and saving rules.
+    This registers all the selector and saving rules.
     """
 
-    def __init__(self, rules: List[Rule] = None, save_rules: Dict[str, Any] = None, has_async: bool = False) -> None:
+    def __init__(
+        self,
+        rules: List[Rule] = None,
+        save_rules: Dict[str, Any] = None,
+        has_async: bool = False,
+        scraper: Optional["ScraperAbstract"] = None,
+    ) -> None:
         self.rules: List[Rule] = rules or []
         self.save_rules: Dict[str, Any] = save_rules or {"json": save_json}
         self.has_async = has_async
-        self.scraper: Optional[BaseScraper] = None
+        self.scraper = scraper
 
     @abstractmethod
     def run(
         self,
         urls: Sequence[str],
-        parser: str,
-        headless: bool,
-        browser_type: str,
         pages: int,
         proxy: Optional[sync_api.ProxySettings],
         output: Optional[str],
         format: str,
-        **kwargs: Any,
     ) -> None:
-        raise NotImplementedError
+        """
+        Abstract method for executing the scraper.
+
+        :param urls: List of website URLs.
+        :param pages: Maximum number of pages to crawl before exiting (default=1). This is only used when a navigate handler is defined. # noqa
+        :param proxy: Proxy settings. (see https://playwright.dev/python/docs/api/class-apirequest#api-request-new-context-option-proxy)  # noqa
+        :param output: Output file. If not provided, prints in the terminal.
+        :param format: Output file format. If not provided, uses the extension of the output file or defaults to json.
+        """
+        raise NotImplementedError  # pragma: no cover
 
     def select(
         self,
@@ -67,7 +63,7 @@ class BaseCollector(ABC):
         priority: int = 100,
     ) -> Callable:
         """
-        Decorator to register a handler function with given selector.
+        Decorator to register a handler function to a given selector.
 
         :param selector: Element selector (CSS, XPath, text, regex)
         :param group: (Optional) Element selector where the matched element should be grouped. Defaults to ":root".
@@ -99,6 +95,12 @@ class BaseCollector(ABC):
         return wrapper
 
     def save(self, format: str) -> Callable:
+        """
+        Decorator to register a save function to a format.
+
+        :param format: Format (json, csv, or any custom string).
+        """
+
         def wrapper(func: Callable) -> Callable:
             if asyncio.iscoroutinefunction(func):
                 self.has_async = True
@@ -112,42 +114,42 @@ class BaseCollector(ABC):
         return wrapper
 
 
-class BaseScraper(BaseCollector):
+class ScraperAbstract(ScraperBase):
     def __init__(self, rules: List[Rule] = None, save_rules: Dict[str, Any] = None, has_async: bool = False) -> None:
-        super(BaseScraper, self).__init__(rules, save_rules, has_async)
+        super(ScraperAbstract, self).__init__(rules, save_rules, has_async)
         self.collected_data: List[ScrapedData] = []
 
     @abstractmethod
-    def setup(self, **kwargs: Any) -> None:
-        raise NotImplementedError
+    def setup(self) -> None:
+        raise NotImplementedError  # pragma: no cover
 
     @abstractmethod
-    async def setup_async(self, **kwargs: Any) -> None:
-        raise NotImplementedError
+    async def setup_async(self) -> None:
+        raise NotImplementedError  # pragma: no cover
 
     @abstractmethod
-    def navigate(self, **kwargs: Any) -> bool:
-        raise NotImplementedError
+    def navigate(self) -> bool:
+        raise NotImplementedError  # pragma: no cover
 
     @abstractmethod
-    async def navigate_async(self, **kwargs: Any) -> bool:
-        raise NotImplementedError
+    async def navigate_async(self) -> bool:
+        raise NotImplementedError  # pragma: no cover
 
     @abstractmethod
-    def collect_elements(self, **kwargs: Any) -> Iterable[Tuple[str, int, int, int, Any, Callable]]:
+    def collect_elements(self) -> Iterable[Tuple[str, int, int, int, Any, Callable]]:
         """
         Collects all the elements and returns a generator of element-handler pair.
         """
-        raise NotImplementedError
+        raise NotImplementedError  # pragma: no cover
 
     @abstractmethod
-    async def collect_elements_async(self, **kwargs: Any) -> AsyncIterable[Tuple[str, int, int, int, Any, Callable]]:
+    async def collect_elements_async(self) -> AsyncIterable[Tuple[str, int, int, int, Any, Callable]]:
         """
         Collects all the elements and returns a generator of element-handler pair.
         """
 
-        yield "", 0, 0, 0, 0, str  # HACK: mypy does not identify this as AsyncIterable
-        raise NotImplementedError
+        yield "", 0, 0, 0, 0, str  # HACK: mypy does not identify this as AsyncIterable  # pragma: no cover
+        raise NotImplementedError  # pragma: no cover
 
     def extract_all(self, page_number: int, **kwargs: Any) -> Iterable[ScrapedData]:
         """
@@ -160,11 +162,11 @@ class BaseScraper(BaseCollector):
             if not len(data):
                 continue
             scraped_data = ScrapedData(
-                page_number_=page_number,
-                page_url_=page_url,
-                group_id_=group_id,
-                group_index_=group_index,
-                element_index_=element_index,
+                page_number=page_number,
+                page_url=page_url,
+                group_id=group_id,
+                group_index=group_index,
+                element_index=element_index,
                 data=data,
             )
             yield scraped_data
@@ -183,11 +185,11 @@ class BaseScraper(BaseCollector):
                 continue
 
             scraped_data = ScrapedData(
-                page_number_=page_number,
-                page_url_=page_url,
-                group_id_=group_id,
-                group_index_=group_index,
-                element_index_=element_index,
+                page_number=page_number,
+                page_url=page_url,
+                group_id=group_id,
+                group_index=group_index,
+                element_index=element_index,
                 data=data,
             )
             yield scraped_data
@@ -211,7 +213,7 @@ class BaseScraper(BaseCollector):
                         # FIXME: Keys defined in handler functions might duplicate predefined keys
                         item.update(**v)
                     elif k not in item:
-                        item[k] = v
+                        item[f"_{k}"] = v
             items.append(item)
         return items
 
