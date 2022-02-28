@@ -1,0 +1,24 @@
+site_name: dude uncomplicated data extraction
+
+theme:
+  name: material
+  features:
+    - navigation.sections
+    - navigation.expand
+    - navigation.indexes
+    - toc.follow
+    - content.code.annotate
+
+markdown_extensions:
+  - admonition
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
+
+nav:
+  - index.md
+  - Features:
+      - features/index.md
+
+extra_css:
+  - style.css
