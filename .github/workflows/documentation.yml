@@ -1,0 +1,28 @@
+# This workflow will publish the MkDocs documentation to GitHub Pages
+# For more information see: https://help.github.com/actions/language-and-framework-guides/using-python-with-github-actions
+
+name: Publish Documentation
+
+on:
+  push:
+    tags:
+      - '*'
+
+concurrency:
+  group: ${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+        with:
+          python-version: '3.9'
+      - run: |
+          pip3 install -U pip setuptools poetry
+          poetry config virtualenvs.create false
+          poetry config experimental.new-installer false
+          poetry install -E bs4
+      - run: poetry run mkdocs gh-deploy --force

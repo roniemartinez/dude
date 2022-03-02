@@ -1,0 +1,48 @@
+site_name: dude uncomplicated data extraction
+
+repo_url: https://github.com/roniemartinez/dude
+repo_name: roniemartinez/dude
+copyright: Copyright &copy; 2022 Ronie Martinez
+
+use_directory_urls: false
+
+theme:
+  name: material
+  features:
+    - navigation.expand
+    - navigation.indexes
+    - toc.follow
+    - content.code.annotate
+  icon:
+    repo: fontawesome/brands/github
+
+markdown_extensions:
+  - admonition
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
+
+nav:
+  - index.md
+  - features.md
+  - basic_usage.md
+  - Advanced Usage:
+      - advanced/index.md
+      - Setup: advanced/01_setup.md
+      - Navigate: advanced/02_navigate.md
+      - Grouping Results: advanced/03_grouping.md
+      - URL Pattern Matching: advanced/04_url_pattern_matching.md
+      - Prioritization: advanced/05_prioritization.md
+      - Custom Storage: advanced/06_custom_storage.md
+      - The Scraper Application Class: advanced/07_the_scraper_application_class.md
+      - Asynchronous Support: advanced/08_async.md
+      - BeautifulSoup4 Support: advanced/09_beautifulsoup4.md
+  - cli.md
+  - reference.md
+
+extra_css:
+  - style.css
+
+plugins:
+  - search
+  - mkdocstrings
