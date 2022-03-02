@@ -70,6 +70,11 @@ dude scrape --url "<url>" --output data.json path/to/file.py #(1)
 - Async support - write async handlers.
 - BeautifulSoup4 - option to use BeautifulSoup4 instead of Playwright.
 
+## Documentation
+
+Read the complete documentation at [https://roniemartinez.github.io/dude/](https://roniemartinez.github.io/dude/).
+All the advanced and useful features are documented there.
+
 ## Support
 
 This project is at a very early stage. This dude needs some love! ❤️
@@ -77,7 +82,6 @@ This project is at a very early stage. This dude needs some love! ❤️
 Contribute to this project by feature requests, idea discussions, reporting bugs, opening pull requests, or through Github Sponsors. Your help is highly appreciated.
 
 [![Github Sponsors](https://img.shields.io/github/sponsors/roniemartinez?label=github%20sponsors&logo=github%20sponsors&style=for-the-badge)](https://github.com/sponsors/roniemartinez)
-
 
 ## Requirements
 
