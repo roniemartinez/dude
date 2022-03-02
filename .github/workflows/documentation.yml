@@ -5,9 +5,8 @@ name: Publish Documentation
 
 on:
   push:
-    branches:
-      - master
-      - documentation
+    tags:
+      - '*'
 
 concurrency:
   group: ${{ github.ref }}
