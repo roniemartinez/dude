@@ -57,12 +57,20 @@ class ScraperBase(ABC):
 
     def select(
         self,
-        selector: str,
+        selector: str = None,
         group: str = None,
         setup: bool = False,
         navigate: bool = False,
         url: str = "",
         priority: int = 100,
+        css: str = None,
+        xpath: str = None,
+        text: str = None,
+        regex: str = None,
+        group_css: str = None,
+        group_xpath: str = None,
+        group_text: str = None,
+        group_regex: str = None,
     ) -> Callable:
         """
         Decorator to register a handler function to a given selector.
@@ -73,15 +81,26 @@ class ScraperBase(ABC):
         :param navigate: Flag to register a navigate handler.
         :param url: URL pattern. Run the handler function only when the pattern matches (default None).
         :param priority: Priority, the lowest value will be executed first (default 100).
+        :param css: CSS selector.
+        :param xpath: XPath selector.
+        :param text: Text selector.
+        :param regex: Regular expression selector
+        :param group_css: Group CSS selector.
+        :param group_xpath: Group XPath selector.
+        :param group_text: Group Text selector.
+        :param group_regex: Group Regular expression selector
         """
 
         def wrapper(func: Callable) -> Union[Callable, Coroutine]:
+            sel = Selector(selector=selector, css=css, xpath=xpath, text=text, regex=regex)
+            assert sel, "Any of selector, css, xpath, text and regex params should be present."
+
             if asyncio.iscoroutinefunction(func):
                 self.has_async = True
 
             rule = Rule(
-                selector=selector,
-                group=Selector(selector=group),
+                selector=sel,
+                group=Selector(selector=group, css=group_css, xpath=group_xpath, text=group_text, regex=group_regex),
                 url_pattern=url,
                 handler=func,
                 setup=setup,
