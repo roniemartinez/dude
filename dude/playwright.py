@@ -42,6 +42,8 @@ class PlaywrightScraper(ScraperAbstract):
         :param headless: Enables headless browser. (default=True)
         :param browser_type: Playwright supported browser types ("chromium", "webkit" or "firefox").
         """
+        self.update_rule_groups()
+
         logger.info("Using Playwright...")
         if self.has_async:
             logger.info("Using async mode...")
@@ -208,7 +210,7 @@ class PlaywrightScraper(ScraperAbstract):
 
             rules = list(sorted(g, key=lambda r: r.priority))
 
-            for group_index, group in enumerate(page.query_selector_all(group_selector)):
+            for group_index, group in enumerate(page.query_selector_all(str(group_selector))):
                 for rule in rules:
                     for element_index, element in enumerate(group.query_selector_all(rule.selector)):
                         yield page_url, group_index, id(group), element_index, element, rule.handler
@@ -229,7 +231,7 @@ class PlaywrightScraper(ScraperAbstract):
 
             rules = list(sorted(g, key=lambda r: r.priority))
 
-            for group_index, group in enumerate(await page.query_selector_all(group_selector)):
+            for group_index, group in enumerate(await page.query_selector_all(str(group_selector))):
                 for rule in rules:
                     for element_index, element in enumerate(await group.query_selector_all(rule.selector)):
                         yield page_url, group_index, id(group), element_index, element, rule.handler

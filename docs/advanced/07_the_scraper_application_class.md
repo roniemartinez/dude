@@ -19,7 +19,7 @@ It is possible to create your own scraper application object using the example b
     app = Scraper()
     
     
-    @app.select(selector="css=.title")
+    @app.select(selector=".title")
     def result_title(element):
         return {"title": element.text_content()}
     

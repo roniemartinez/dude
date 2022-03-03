@@ -1,17 +1,20 @@
-from dude import select
+from dude import group, select
 
 
-@select(selector="css=a.url", group="css=.custom-group")
+@group(css=".custom-group")
+@select(selector="a.url")
 def result_url(element):
     return {"url": element.get_attribute("href")}
 
 
-@select(selector="css=.title", group="css=.custom-group")
+@group(css=".custom-group")
+@select(selector=".title")
 def result_title(element):
     return {"title": element.text_content()}
 
 
-@select(selector="css=.description", group="css=.custom-group")
+@group(css=".custom-group")
+@select(selector=".description")
 def result_description(element):
     return {"description": element.text_content()}
 

@@ -4,10 +4,10 @@ from pathlib import Path
 
 from playwright.sync_api import ProxySettings
 
-from .context import run, save, select  # noqa: F401
+from .context import group, run, save, select  # noqa: F401
 from .scraper import Scraper  # noqa: F401
 
-__al__ = ["Scraper", "run", "save", "select"]
+__al__ = ["Scraper", "group", "run", "save", "select"]
 
 
 logging.basicConfig(stream=sys.stdout, level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")

@@ -10,7 +10,7 @@ The example below will only run if the URL of the current page matches `.*\.com`
     from dude import select
     
     
-    @select(selector="css=.title", url=r".*\.com")
+    @select(selector=".title", url=r".*\.com")
     def result_title(element):
         return {"title": element.text_content()}
     ```

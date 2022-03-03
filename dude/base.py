@@ -7,7 +7,7 @@ from typing import Any, AsyncIterable, Callable, Coroutine, Dict, Iterable, List
 
 from playwright import sync_api
 
-from .rule import Rule, rule_filter
+from .rule import Group, Rule, rule_filter
 from .scraped_data import ScrapedData, scraped_data_grouper, scraped_data_sorter
 from .storage import save_json
 
@@ -24,11 +24,13 @@ class ScraperBase(ABC):
     def __init__(
         self,
         rules: List[Rule] = None,
+        groups: Dict[Callable, Group] = None,
         save_rules: Dict[str, Any] = None,
         has_async: bool = False,
         scraper: Optional["ScraperAbstract"] = None,
     ) -> None:
         self.rules: List[Rule] = rules or []
+        self.groups: Dict[Callable, Group] = groups or {}
         self.save_rules: Dict[str, Any] = save_rules or {"json": save_json}
         self.has_async = has_async
         self.scraper = scraper
@@ -56,7 +58,7 @@ class ScraperBase(ABC):
     def select(
         self,
         selector: str,
-        group: str = ":root",
+        group: str = None,
         setup: bool = False,
         navigate: bool = False,
         url: str = "",
@@ -65,7 +67,7 @@ class ScraperBase(ABC):
         """
         Decorator to register a handler function to a given selector.
 
-        :param selector: Element selector (CSS, XPath, text, regex)
+        :param selector: Element selector (CSS, XPath, text, regex).
         :param group: (Optional) Element selector where the matched element should be grouped. Defaults to ":root".
         :param setup: Flag to register a setup handler.
         :param navigate: Flag to register a navigate handler.
@@ -79,7 +81,7 @@ class ScraperBase(ABC):
 
             rule = Rule(
                 selector=selector,
-                group=group,
+                group=Group(selector=group),
                 url_pattern=url,
                 handler=func,
                 setup=setup,
@@ -90,6 +92,56 @@ class ScraperBase(ABC):
                 self.rules.append(rule)
             else:
                 self.scraper.rules.append(rule)
+            return func
+
+        return wrapper
+
+    def group(
+        self,
+        selector: str = None,
+        css: str = None,
+        xpath: str = None,
+        text: str = None,
+        regex: str = None,
+    ) -> Callable:
+        """
+        Decorator to register a handler function to a given group.
+
+        :param selector: Element selector (any of CSS, XPath, text, regex).
+        :param css: CSS selector.
+        :param xpath: XPath selector.
+        :param text: Text selector.
+        :param regex: Regular expression selector
+        """
+
+        def wrapper(func: Callable) -> Union[Callable, Coroutine]:
+            if not (selector or css or xpath or text or regex):
+                raise Exception("Any of selector, css, xpath, text or regex selectors must be present")
+
+            if asyncio.iscoroutinefunction(func):
+                self.has_async = True
+
+            group = Group(selector=selector, css=css, xpath=xpath, text=text, regex=regex)
+            if not self.scraper:
+                if func in self.groups:
+                    logger.warning(
+                        "Group '%s' already exists for function '%s'. Skipping '%s'...",
+                        self.groups[func],
+                        func.__name__,
+                        group,
+                    )
+                else:
+                    self.groups[func] = group
+            else:
+                if func in self.scraper.groups:
+                    logger.warning(
+                        "Group '%s' already exists for function '%s'. Skipping '%s'...",
+                        self.scraper.groups[func],
+                        func.__name__,
+                        group,
+                    )
+                else:
+                    self.scraper.groups[func] = group
             return func
 
         return wrapper
@@ -115,8 +167,14 @@ class ScraperBase(ABC):
 
 
 class ScraperAbstract(ScraperBase):
-    def __init__(self, rules: List[Rule] = None, save_rules: Dict[str, Any] = None, has_async: bool = False) -> None:
-        super(ScraperAbstract, self).__init__(rules, save_rules, has_async)
+    def __init__(
+        self,
+        rules: List[Rule] = None,
+        groups: Dict[Callable, Group] = None,
+        save_rules: Dict[str, Any] = None,
+        has_async: bool = False,
+    ) -> None:
+        super(ScraperAbstract, self).__init__(rules, groups, save_rules, has_async)
         self.collected_data: List[ScrapedData] = []
 
     @abstractmethod
@@ -134,6 +192,18 @@ class ScraperAbstract(ScraperBase):
     @abstractmethod
     async def navigate_async(self) -> bool:
         raise NotImplementedError  # pragma: no cover
+
+    def update_rule_groups(self) -> None:
+        self.rules = [rule for rule in self._update_rule_groups()]
+
+    def _update_rule_groups(self) -> Iterable[Rule]:
+        for rule in self.rules:
+            if rule.group:
+                yield rule
+            elif rule.handler in self.groups:
+                yield rule._replace(group=self.groups[rule.handler])
+            else:
+                yield rule._replace(group=Group(selector=":root"))
 
     @abstractmethod
     def collect_elements(self) -> Iterable[Tuple[str, int, int, int, Any, Callable]]:

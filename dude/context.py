@@ -6,6 +6,7 @@ from .storage import save_csv, save_yaml
 logger = logging.getLogger(__name__)
 
 _scraper = Scraper()
+group = _scraper.group
 run = _scraper.run
 save = _scraper.save
 select = _scraper.select

@@ -2,7 +2,7 @@
 
 When scraping a page containing a list of information, for example, containing URLs, titles and descriptions, it is important to know how data can be grouped together. 
 By default, all scraped results are grouped by `:root` which is the root document.
-To specify grouping, pass `group=<selector-for-grouping>` to `@select()` decorator.
+To specify grouping, use the `@group()` decorator and passing the argument `selector="<selector-for-grouping>"`.
 
 In the example below, the results are grouped by an element with class `custom-group`. The matched selectors should be children of this element.
 Click on the annotations (+ sign) for more details.
@@ -10,17 +10,32 @@ Click on the annotations (+ sign) for more details.
 === "Python"
     
     ```python
-    from dude import select
+    from dude import group, select
     
     
-    @select(selector="css=.title", group="css=.custom-group") # (1)
+    @group(selector=".custom-group") # (1)
+    @select(selector=".title")
     def result_title(element):
         return {"title": element.text_content()}
     ```
 
     1. Group the results by the CSS selector `.custom-group`.
 
-A more extensive example can be found at [examples/grouping.py](https://github.com/roniemartinez/dude/tree/master/examples/grouping.py).
+
+You can also specify groups by passing `group=<selector-for-grouping>` to `@select()` decorator.
+
+=== "Python"
+    
+    ```python
+    from dude import select
+    
+    
+    @select(selector=".title", group=".custom-group") # (1)
+    def result_title(element):
+        return {"title": element.text_content()}
+    ```
+
+    1. Group the results by the CSS selector `.custom-group`.
 
 ## Why we need to group the results
 
@@ -69,7 +84,7 @@ When the group is not specified, the default grouping will be used it will resul
     ]
     ```
 
-By specifying the group in `@select(..., group="css=.custom-group")`, we will be able to get a better result.
+By specifying the group in `@select(..., group=".custom-group")`, we will be able to get a better result.
 
 === "Specified Grouping"
 
@@ -95,7 +110,7 @@ By specifying the group in `@select(..., group="css=.custom-group")`, we will be
     ]
     ```
 
-## The `group` parameter simplifies how you write your code
+## Groups simplify how you write your code
 
 !!! info
 
@@ -111,7 +126,7 @@ While this works, it can be hard to maintain.
     from dude import select
 
 
-    @select(selector="css=.custom-group")
+    @select(selector=".custom-group")
     def result_handler(element):
         """
         Perform all the heavy-lifting in a single handler.
@@ -133,27 +148,41 @@ While this works, it can be hard to maintain.
         return data
     ```
 
-This can be rewritten in a much simpler way like below (see [examples/grouping.py](https://github.com/roniemartinez/dude/tree/master/examples/grouping.py) for the complete script).
-
 It will only require us to write 3 simple functions but is much easier to read as we don't have to deal with querying the child elements, ourselves.
 
 === "Separate handlers with grouping"
 
     ```python
-    from dude import select
+    from dude import group, select
 
 
-    @select(selector="css=a.url", group="css=.custom-group")
+    @select(selector="a.url", group=".custom-group")
     def result_url(element):
         return {"url": element.get_attribute("href")}
     
     
-    @select(selector="css=.title", group="css=.custom-group")
+    @select(selector=".title", group=".custom-group")
     def result_title(element):
         return {"title": element.text_content()}
     
     
-    @select(selector="css=.description", group="css=.custom-group")
+    @select(selector=".description", group=".custom-group")
     def result_description(element):
         return {"description": element.text_content()}
     ```
+
+## When are `@group()` decorator and `group` parameter used
+
+1. If the `group` parameter is present, it will be used for grouping.
+2. If the `group` parameter is not present, the selector in the `@group()` decorator will be used for grouping.
+3. If both `group` parameter and `@group()` decorator are not present, the `:root` element will be used for grouping.
+
+!!! info
+
+    Use `@group()` decorator when using multiple `@select()` decorators in one function in order to reduce repetition.
+    
+
+## Examples
+
+- Grouping by `@group()` decorator: [examples/group_decorator.py](https://github.com/roniemartinez/dude/tree/master/examples/group_decorator.py).
+- Grouping by passing `group` parameter to `@select()` decorator: [examples/group_in_select.py](https://github.com/roniemartinez/dude/tree/master/examples/group_in_select.py).

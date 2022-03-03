@@ -36,6 +36,8 @@ class BeautifulSoupScraper(ScraperAbstract):
         :param output: Output file. If not provided, prints in the terminal.
         :param format: Output file format. If not provided, uses the extension of the output file or defaults to json.
         """
+        self.update_rule_groups()
+
         logger.info("Using BeautifulSoup4...")
         if self.has_async:
             logger.info("Using async mode...")
@@ -139,7 +141,7 @@ class BeautifulSoupScraper(ScraperAbstract):
 
             rules = list(sorted(g, key=lambda r: r.priority))
 
-            for group_index, group in enumerate(soup.select(group_selector)):
+            for group_index, group in enumerate(soup.select(str(group_selector))):
                 for rule in rules:
                     for element_index, element in enumerate(group.select(rule.selector)):
                         yield url, group_index, id(group), element_index, element, rule.handler
