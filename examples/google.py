@@ -4,7 +4,7 @@ Use at your own risk!
 from dude import select
 
 
-@select(selector="*css=a >> css=h3:nth-child(2)", group="css=.g")
+@select(selector="*css=a >> h3:nth-child(2)", group=".g")
 def result_url(element):
     """
     Result URL.
@@ -15,7 +15,7 @@ def result_url(element):
     return {"url": element.get_attribute("href")}
 
 
-@select(selector="css=h3:nth-child(2)", group="css=.g")
+@select(selector="h3:nth-child(2)", group=".g")
 def result_title(element):
     """
     Result title.
@@ -23,7 +23,7 @@ def result_title(element):
     return {"title": element.text_content()}
 
 
-@select(selector="css=div[style='-webkit-line-clamp\\3A 2']", group="css=.g")
+@select(selector="div[style='-webkit-line-clamp\\3A 2']", group=".g")
 def result_description(element):
     """
     Result description.

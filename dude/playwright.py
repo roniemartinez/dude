@@ -2,7 +2,7 @@ import asyncio
 import itertools
 import logging
 import re
-from typing import Any, AsyncIterable, Callable, Iterable, Optional, Sequence, Tuple
+from typing import Any, AsyncIterable, Callable, Iterable, Optional, Sequence, Tuple, Union
 
 from playwright import async_api, sync_api
 from playwright.async_api import async_playwright
@@ -42,6 +42,8 @@ class PlaywrightScraper(ScraperAbstract):
         :param headless: Enables headless browser. (default=True)
         :param browser_type: Playwright supported browser types ("chromium", "webkit" or "firefox").
         """
+        self.update_rule_groups()
+
         logger.info("Using Playwright...")
         if self.has_async:
             logger.info("Using async mode...")
@@ -82,11 +84,13 @@ class PlaywrightScraper(ScraperAbstract):
             )
 
     @staticmethod
-    def _query_selector_all(page: sync_api.Page, selector: str) -> Iterable[sync_api.ElementHandle]:
+    def _query_selector_all(
+        page_or_element: Union[sync_api.Page, sync_api.ElementHandle], selector: str
+    ) -> Iterable[sync_api.ElementHandle]:
         """
         Temporary fix for coverage not counting page.query_selector_all() when used in a for loop.
         """
-        yield from page.query_selector_all(selector)
+        yield from page_or_element.query_selector_all(selector)
 
     def setup(self, page: sync_api.Page = None) -> None:
         """
@@ -148,22 +152,25 @@ class PlaywrightScraper(ScraperAbstract):
         output: Optional[str],
         format: str,
     ) -> None:
+        # FIXME: Coverage fails to cover anything within this context manager block
         with sync_playwright() as p:
             browser = p[browser_type].launch(headless=headless, proxy=proxy)
             page = browser.new_page()
-            for url in urls:
-                page.goto(url)
-                logger.info("Loaded page %s", page.url)
-                self.setup(page=page)
-
-                for i in range(1, pages + 1):
-                    current_page = page.url
-                    self.collected_data.extend(self.extract_all(page_number=i, page=page))
-                    # TODO: Add option to save data per page
-                    if i == pages or not self.navigate(page=page) or current_page == page.url:
-                        break
+            self._scrape_sync(page, urls, pages)
             browser.close()
         self._save(format, output)
+
+    def _scrape_sync(self, page: sync_api.Page, urls: Sequence[str], pages: int) -> None:
+        for _ in (page.goto(url) for url in urls):
+            logger.info("Loaded page %s", page.url)
+            self.setup(page=page)
+
+            for i in range(1, pages + 1):
+                current_page = page.url
+                self.collected_data.extend(self.extract_all(page_number=i, page=page))
+                # TODO: Add option to save data per page
+                if i == pages or not self.navigate(page=page) or current_page == page.url:
+                    break
 
     async def _run_async(
         self,
@@ -208,9 +215,9 @@ class PlaywrightScraper(ScraperAbstract):
 
             rules = list(sorted(g, key=lambda r: r.priority))
 
-            for group_index, group in enumerate(page.query_selector_all(group_selector)):
+            for group_index, group in enumerate(page.query_selector_all(group_selector.to_str(with_type=True))):
                 for rule in rules:
-                    for element_index, element in enumerate(group.query_selector_all(rule.selector)):
+                    for element_index, element in enumerate(self._query_selector_all(group, rule.selector)):
                         yield page_url, group_index, id(group), element_index, element, rule.handler
 
     async def collect_elements_async(
@@ -229,7 +236,7 @@ class PlaywrightScraper(ScraperAbstract):
 
             rules = list(sorted(g, key=lambda r: r.priority))
 
-            for group_index, group in enumerate(await page.query_selector_all(group_selector)):
+            for group_index, group in enumerate(await page.query_selector_all(group_selector.to_str(with_type=True))):
                 for rule in rules:
                     for element_index, element in enumerate(await group.query_selector_all(rule.selector)):
                         yield page_url, group_index, id(group), element_index, element, rule.handler

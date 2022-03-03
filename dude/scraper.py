@@ -46,12 +46,14 @@ class Scraper(ScraperBase):
             if parser == "bs4":
                 self.scraper = BeautifulSoupScraper(
                     rules=self.rules,
+                    groups=self.groups,
                     save_rules=self.save_rules,
                     has_async=self.has_async,
                 )
             else:
                 self.scraper = PlaywrightScraper(
                     rules=self.rules,
+                    groups=self.groups,
                     save_rules=self.save_rules,
                     has_async=self.has_async,
                 )

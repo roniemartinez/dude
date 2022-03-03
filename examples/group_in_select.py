@@ -1,17 +1,17 @@
 from dude import select
 
 
-@select(selector="a.url", priority=2)
+@select(selector="a.url", group=".custom-group")
 def result_url(element):
     return {"url": element.get_attribute("href")}
 
 
-@select(selector=".title", priority=1)
+@select(selector=".title", group=".custom-group")
 def result_title(element):
     return {"title": element.text_content()}
 
 
-@select(selector=".description", priority=0)
+@select(selector=".description", group=".custom-group")
 def result_description(element):
     return {"description": element.text_content()}
 

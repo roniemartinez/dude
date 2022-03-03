@@ -28,7 +28,7 @@ Click on the annotations (+ sign) for more details.
     3. You can specify your Python algorithm here.
     4. Return a dictionary. This can contain an arbitrary amount of key-value pairs.
 
-The example handler below extracts the text content of any element that matches the selector `css=.title`.
+The example handler below extracts the text content of any element that matches the CSS selector `.title`.
 
 === "Python"
 
@@ -36,7 +36,7 @@ The example handler below extracts the text content of any element that matches 
     from dude import select
     
     
-    @select(selector="css=.title")
+    @select(selector=".title")
     def result_title(element):
         """
         Result title.

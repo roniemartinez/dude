@@ -34,14 +34,17 @@ def scraper_application_with_parser() -> Scraper:
 
 @pytest.fixture()
 def playwright_select(scraper_application: Scraper) -> None:
+    @scraper_application.group(selector=":root")  # will be skipped
+    @scraper_application.group(selector=".custom-group")
     @scraper_application.select(selector=".title")
     def title(element: sync_api.ElementHandle) -> Dict:
         return {"item": element.text_content()}
 
-    @scraper_application.select(selector=".title")
+    @scraper_application.select(selector=".title", group=".custom-group")
     def empty(element: sync_api.ElementHandle) -> Dict:
         return {}
 
+    @scraper_application.group(selector=".custom-group")
     @scraper_application.select(selector=".title", url=r"example\.com")
     def url_dont_match(element: sync_api.ElementHandle) -> Dict:
         return {"item": element.text_content()}
@@ -49,14 +52,16 @@ def playwright_select(scraper_application: Scraper) -> None:
 
 @pytest.fixture()
 def bs4_select(scraper_application: Scraper) -> None:
+    @scraper_application.group(selector=".custom-group")
     @scraper_application.select(selector=".title")
     def title(element: BeautifulSoup) -> Dict:
         return {"item": element.get_text()}
 
-    @scraper_application.select(selector=".title")
+    @scraper_application.select(selector=".title", group=".custom-group")
     def empty(element: BeautifulSoup) -> Dict:
         return {}
 
+    @scraper_application.group(selector=".custom-group")
     @scraper_application.select(selector=".title", url=r"example\.com")
     def url_dont_match(element: BeautifulSoup) -> Dict:
         return {"item": element.get_text()}
@@ -64,14 +69,17 @@ def bs4_select(scraper_application: Scraper) -> None:
 
 @pytest.fixture()
 def playwright_select_with_parser(scraper_application_with_parser: Scraper) -> None:
+    @scraper_application_with_parser.group(selector=":root")  # will be skipped
+    @scraper_application_with_parser.group(selector=".custom-group")
     @scraper_application_with_parser.select(selector=".title")
     def title(element: sync_api.ElementHandle) -> Dict:
         return {"item": element.text_content()}
 
-    @scraper_application_with_parser.select(selector=".title")
+    @scraper_application_with_parser.select(selector=".title", group=".custom-group")
     def empty(element: sync_api.ElementHandle) -> Dict:
         return {}
 
+    @scraper_application_with_parser.group(selector=".custom-group")
     @scraper_application_with_parser.select(selector=".title", url=r"example\.com")
     def url_dont_match(element: sync_api.ElementHandle) -> Dict:
         return {"item": element.text_content()}
@@ -96,14 +104,16 @@ def playwright_navigate(scraper_application: Scraper) -> None:
 
 @pytest.fixture()
 def async_playwright_select(scraper_application: Scraper) -> None:
+    @scraper_application.group(selector=".custom-group")
     @scraper_application.select(selector=".title")
     async def title(element: async_api.ElementHandle) -> Dict:
         return {"item": await element.text_content()}
 
-    @scraper_application.select(selector=".title")
+    @scraper_application.select(selector=".title", group=".custom-group")
     async def empty(element: async_api.ElementHandle) -> Dict:
         return {}
 
+    @scraper_application.group(selector=".custom-group")
     @scraper_application.select(selector=".title", url=r"example\.com")
     async def url_dont_match(element: async_api.ElementHandle) -> Dict:
         return {"item": await element.text_content()}
@@ -111,14 +121,16 @@ def async_playwright_select(scraper_application: Scraper) -> None:
 
 @pytest.fixture()
 def async_bs4_select(scraper_application: Scraper) -> None:
+    @scraper_application.group(selector=".custom-group")
     @scraper_application.select(selector=".title")
     async def title(element: BeautifulSoup) -> Dict:
         return {"item": element.get_text()}
 
-    @scraper_application.select(selector=".title")
+    @scraper_application.select(selector=".title", group=".custom-group")
     async def empty(element: BeautifulSoup) -> Dict:
         return {}
 
+    @scraper_application.group(selector=".custom-group")
     @scraper_application.select(selector=".title", url=r"example\.com")
     async def url_dont_match(element: BeautifulSoup) -> Dict:
         return {"item": element.get_text()}
@@ -157,16 +169,16 @@ def expected_data(test_url: str) -> List[Dict]:
             "_page_number": 1,
             "_page_url": test_url,
             "_group_id": is_integer,
-            "_group_index": 0,
-            "_element_index": 1,
+            "_group_index": 1,
+            "_element_index": 0,
             "item": "Title 2",
         },
         {
             "_page_number": 1,
             "_page_url": test_url,
             "_group_id": is_integer,
-            "_group_index": 0,
-            "_element_index": 2,
+            "_group_index": 2,
+            "_element_index": 0,
             "item": "Title 3",
         },
     ]

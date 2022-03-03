@@ -37,3 +37,7 @@ tag:
 	VERSION=`poetry version | grep -o -E "\d+\.\d+\.\d+(-\w+\.\d+)?"`; \
 	git tag -s -a $$VERSION -m "Release $$VERSION"; \
 	echo "Tagged $$VERSION";
+
+.PHONY: serve-mkdocs
+serve-mkdocs:
+	poetry run mkdocs serve

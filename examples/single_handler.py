@@ -1,7 +1,7 @@
 from dude import select
 
 
-@select(selector="css=.custom-group")
+@select(selector=".custom-group")
 def result_handler(element):
     """
     Perform all the heavy-lifting in a single handler.
