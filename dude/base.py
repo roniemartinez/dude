@@ -7,7 +7,7 @@ from typing import Any, AsyncIterable, Callable, Coroutine, Dict, Iterable, List
 
 from playwright import sync_api
 
-from .rule import Group, Rule, rule_filter
+from .rule import Rule, Selector, rule_filter
 from .scraped_data import ScrapedData, scraped_data_grouper, scraped_data_sorter
 from .storage import save_json
 
@@ -24,13 +24,13 @@ class ScraperBase(ABC):
     def __init__(
         self,
         rules: List[Rule] = None,
-        groups: Dict[Callable, Group] = None,
+        groups: Dict[Callable, Selector] = None,
         save_rules: Dict[str, Any] = None,
         has_async: bool = False,
         scraper: Optional["ScraperAbstract"] = None,
     ) -> None:
         self.rules: List[Rule] = rules or []
-        self.groups: Dict[Callable, Group] = groups or {}
+        self.groups: Dict[Callable, Selector] = groups or {}
         self.save_rules: Dict[str, Any] = save_rules or {"json": save_json}
         self.has_async = has_async
         self.scraper = scraper
@@ -81,7 +81,7 @@ class ScraperBase(ABC):
 
             rule = Rule(
                 selector=selector,
-                group=Group(selector=group),
+                group=Selector(selector=group),
                 url_pattern=url,
                 handler=func,
                 setup=setup,
@@ -121,7 +121,7 @@ class ScraperBase(ABC):
             if asyncio.iscoroutinefunction(func):
                 self.has_async = True
 
-            group = Group(selector=selector, css=css, xpath=xpath, text=text, regex=regex)
+            group = Selector(selector=selector, css=css, xpath=xpath, text=text, regex=regex)
             if not self.scraper:
                 if func in self.groups:
                     logger.warning(
@@ -170,7 +170,7 @@ class ScraperAbstract(ScraperBase):
     def __init__(
         self,
         rules: List[Rule] = None,
-        groups: Dict[Callable, Group] = None,
+        groups: Dict[Callable, Selector] = None,
         save_rules: Dict[str, Any] = None,
         has_async: bool = False,
     ) -> None:
@@ -203,7 +203,7 @@ class ScraperAbstract(ScraperBase):
             elif rule.handler in self.groups:
                 yield rule._replace(group=self.groups[rule.handler])
             else:
-                yield rule._replace(group=Group(selector=":root"))
+                yield rule._replace(group=Selector(selector=":root"))
 
     @abstractmethod
     def collect_elements(self) -> Iterable[Tuple[str, int, int, int, Any, Callable]]:

@@ -1,5 +1,5 @@
 import json
-from typing import Dict, List
+from typing import Any, Dict, List
 from unittest import mock
 
 import httpx
@@ -18,6 +18,8 @@ def test_full_flow(
     expected_data: List[Dict],
     test_url: str,
 ) -> None:
+    assert scraper_application.has_async is False
+    assert len(scraper_application.rules) == 5
     mock_save = mock.MagicMock()
     scraper_application.save(format="custom")(mock_save)
     scraper_application.run(urls=[test_url], pages=2, format="custom", parser="playwright")
@@ -30,6 +32,8 @@ def test_full_flow_bs4(
     expected_data: List[Dict],
     test_url: str,
 ) -> None:
+    assert scraper_application.has_async is False
+    assert len(scraper_application.rules) == 3
     mock_save = mock.MagicMock()
     scraper_application.save(format="custom")(mock_save)
     scraper_application.run(urls=[test_url], pages=2, format="custom", parser="bs4")
@@ -44,6 +48,8 @@ def test_full_flow_bs4_httpx(
     expected_data: List[Dict],
     test_url: str,
 ) -> None:
+    assert scraper_application.has_async is False
+    assert len(scraper_application.rules) == 3
     mock_save = mock.MagicMock()
 
     with open(test_url[7:]) as f:
@@ -57,9 +63,11 @@ def test_full_flow_bs4_httpx(
     mock_save.assert_called_with(expected_data, None)
 
 
-def test_select(
+def test_custom_save(
     scraper_application: Scraper, playwright_select: None, expected_data: List[Dict], test_url: str
 ) -> None:
+    assert scraper_application.has_async is False
+    assert len(scraper_application.rules) == 3
     mock_save = mock.MagicMock()
     mock_save.return_value = True
     scraper_application.save(format="custom")(mock_save)
@@ -73,6 +81,9 @@ def test_scraper_with_parser(
     expected_data: List[Dict],
     test_url: str,
 ) -> None:
+    assert scraper_application_with_parser.has_async is False
+    assert scraper_application_with_parser.scraper is not None
+    assert len(scraper_application_with_parser.scraper.rules) == 3
     mock_save = mock.MagicMock()
     mock_save.return_value = True
     scraper_application_with_parser.save(format="custom")(mock_save)
@@ -81,6 +92,8 @@ def test_scraper_with_parser(
 
 
 def test_format_not_supported(scraper_application: Scraper, playwright_select: None, test_url: str) -> None:
+    assert scraper_application.has_async is False
+    assert len(scraper_application.rules) == 3
     with pytest.raises(KeyError):
         scraper_application.run(urls=[test_url], pages=2, format="custom", parser="playwright")
 
@@ -88,6 +101,8 @@ def test_format_not_supported(scraper_application: Scraper, playwright_select: N
 def test_failed_to_save(
     scraper_application: Scraper, playwright_select: None, expected_data: List[Dict], test_url: str
 ) -> None:
+    assert scraper_application.has_async is False
+    assert len(scraper_application.rules) == 3
     mock_save = mock.MagicMock()
     mock_save.return_value = False
     scraper_application.save(format="fail_db")(mock_save)
@@ -103,6 +118,8 @@ def test_save_json(
     expected_data: List[Dict],
     test_url: str,
 ) -> None:
+    assert scraper_application.has_async is False
+    assert len(scraper_application.rules) == 3
     scraper_application.save(format="json")(save_json)
     scraper_application.run(urls=[test_url], format="json")
     mock_dump.assert_called()
@@ -116,6 +133,8 @@ def test_save_csv(
     expected_data: List[Dict],
     test_url: str,
 ) -> None:
+    assert scraper_application.has_async is False
+    assert len(scraper_application.rules) == 3
     scraper_application.save(format="csv")(save_csv)
     scraper_application.run(urls=[test_url], format="csv")
     mock_dump.assert_called()
@@ -129,6 +148,8 @@ def test_save_yaml(
     expected_data: List[Dict],
     test_url: str,
 ) -> None:
+    assert scraper_application.has_async is False
+    assert len(scraper_application.rules) == 3
     scraper_application.save(format="yaml")(save_yaml)
     scraper_application.run(urls=[test_url], format="yaml")
     mock_safe_dump.assert_called()
@@ -142,6 +163,8 @@ def test_save_json_file(
     expected_data: List[Dict],
     test_url: str,
 ) -> None:
+    assert scraper_application.has_async is False
+    assert len(scraper_application.rules) == 3
     scraper_application.run(urls=[test_url], output="output.json")
     mock_save.assert_called_with(expected_data, "output.json")
 
@@ -154,6 +177,8 @@ def test_save_csv_file(
     expected_data: List[Dict],
     test_url: str,
 ) -> None:
+    assert scraper_application.has_async is False
+    assert len(scraper_application.rules) == 3
     scraper_application.save(format="csv")(save_csv)
     scraper_application.run(urls=[test_url], output="output.csv")
     mock_save.assert_called_with(expected_data, "output.csv")
@@ -167,6 +192,19 @@ def test_save_yaml_file(
     expected_data: List[Dict],
     test_url: str,
 ) -> None:
+    assert scraper_application.has_async is False
+    assert len(scraper_application.rules) == 3
     scraper_application.save(format="yaml")(save_yaml)
     scraper_application.run(urls=[test_url], output="output.yaml")
     mock_save.assert_called_with(expected_data, "output.yaml")
+
+
+def test_playwright_invalid_group(scraper_application: Scraper) -> None:
+    assert scraper_application.has_async is False
+    assert len(scraper_application.rules) == 0
+    with pytest.raises(Exception):
+
+        @scraper_application.group()
+        @scraper_application.select(selector=".title")
+        def title(element: Any) -> Dict:
+            return {}

@@ -17,6 +17,8 @@ def test_full_flow(
     expected_data: List[Dict],
     test_url: str,
 ) -> None:
+    assert scraper_application.has_async is True
+    assert len(scraper_application.rules) == 5
     mock_save = mock.MagicMock()
     scraper_application.save(format="custom")(mock_save)
     scraper_application.run(urls=[test_url], pages=2, format="custom", parser="playwright")
@@ -29,6 +31,8 @@ def test_full_flow_bs4(
     expected_data: List[Dict],
     test_url: str,
 ) -> None:
+    assert scraper_application.has_async is True
+    assert len(scraper_application.rules) == 3
     mock_save = mock.MagicMock()
     scraper_application.save(format="custom")(mock_save)
     scraper_application.run(urls=[test_url], pages=2, format="custom", parser="bs4")
@@ -44,6 +48,8 @@ def test_full_flow_bs4_httpx(
     expected_data: List[Dict],
     test_url: str,
 ) -> None:
+    assert scraper_application.has_async is True
+    assert len(scraper_application.rules) == 3
     mock_save = mock.MagicMock()
 
     with open(test_url[7:]) as f:
@@ -57,9 +63,11 @@ def test_full_flow_bs4_httpx(
     mock_save.assert_called_with(expected_data, None)
 
 
-def test_select(
+def test_custom_save(
     scraper_application: Scraper, async_playwright_select: None, expected_data: List[Dict], test_url: str
 ) -> None:
+    assert scraper_application.has_async is True
+    assert len(scraper_application.rules) == 3
     mock_save = mock.MagicMock()
     mock_save.return_value = True
     scraper_application.save(format="custom")(mock_save)
@@ -71,6 +79,8 @@ def test_select(
 def test_async_save(
     scraper_application: Scraper, async_playwright_select: None, expected_data: List[Dict], test_url: str
 ) -> None:
+    assert scraper_application.has_async is True
+    assert len(scraper_application.rules) == 3
     mock_save = mock.AsyncMock()  # type: ignore[attr-defined]
     mock_save.return_value = True
     scraper_application.save(format="custom")(mock_save)
@@ -79,6 +89,8 @@ def test_async_save(
 
 
 def test_format_not_supported(scraper_application: Scraper, async_playwright_select: None, test_url: str) -> None:
+    assert scraper_application.has_async is True
+    assert len(scraper_application.rules) == 3
     with pytest.raises(KeyError):
         scraper_application.run(urls=[test_url], pages=2, format="custom", parser="playwright")
 
@@ -86,6 +98,8 @@ def test_format_not_supported(scraper_application: Scraper, async_playwright_sel
 def test_failed_to_save(
     scraper_application: Scraper, async_playwright_select: None, expected_data: List[Dict], test_url: str
 ) -> None:
+    assert scraper_application.has_async is True
+    assert len(scraper_application.rules) == 3
     mock_save = mock.MagicMock()
     mock_save.return_value = False
     scraper_application.save(format="fail_db")(mock_save)
@@ -101,5 +115,7 @@ def test_save(
     expected_data: List[Dict],
     test_url: str,
 ) -> None:
+    assert scraper_application.has_async is True
+    assert len(scraper_application.rules) == 3
     scraper_application.run(urls=[test_url], format="json")
     mock_dump.assert_called()

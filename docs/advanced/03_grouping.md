@@ -2,10 +2,26 @@
 
 When scraping a page containing a list of information, for example, containing URLs, titles and descriptions, it is important to know how data can be grouped together. 
 By default, all scraped results are grouped by `:root` which is the root document.
-To specify grouping, use the `@group()` decorator and passing the argument `selector="<selector-for-grouping>"`.
+To specify grouping, pass `group=<selector-for-grouping>` to `@select()` decorator.
 
 In the example below, the results are grouped by an element with class `custom-group`. The matched selectors should be children of this element.
 Click on the annotations (+ sign) for more details.
+
+=== "Python"
+    
+    ```python
+    from dude import select
+    
+    
+    @select(selector=".title", group=".custom-group") # (1)
+    def result_title(element):
+        return {"title": element.text_content()}
+    ```
+
+    1. Group the results by the CSS selector `.custom-group`.
+
+
+You can also specify groups by using the `@group()` decorator and passing the argument `selector="<selector-for-grouping>"`.
 
 === "Python"
     
@@ -21,25 +37,9 @@ Click on the annotations (+ sign) for more details.
 
     1. Group the results by the CSS selector `.custom-group`.
 
-
-You can also specify groups by passing `group=<selector-for-grouping>` to `@select()` decorator.
-
-=== "Python"
-    
-    ```python
-    from dude import select
-    
-    
-    @select(selector=".title", group=".custom-group") # (1)
-    def result_title(element):
-        return {"title": element.text_content()}
-    ```
-
-    1. Group the results by the CSS selector `.custom-group`.
-
 ## Why we need to group the results
 
-The `group` parameter has the advantage of making sure that items are in their correct group. 
+The `group` parameter or the `@group()` decorator has the advantage of making sure that items are in their correct group. 
 Take for example the HTML source below, notice that in the second `div`, there is no description.
 
 === "HTML"
@@ -58,7 +58,7 @@ Take for example the HTML source below, notice that in the second `div`, there i
         </div>
     ```
 
-When the group is not specified, the default grouping will be used it will result in "**Description 3**" being grouped with "**Title 2**".
+When the group is not specified, the default grouping will be used which will result in "**Description 3**" being grouped with "**Title 2**".
 
 === "Default Grouping"
 
@@ -171,7 +171,7 @@ It will only require us to write 3 simple functions but is much easier to read a
         return {"description": element.text_content()}
     ```
 
-## When are `@group()` decorator and `group` parameter used
+## When are `@group()` decorator and `group` parameter used by Dude
 
 1. If the `group` parameter is present, it will be used for grouping.
 2. If the `group` parameter is not present, the selector in the `@group()` decorator will be used for grouping.
