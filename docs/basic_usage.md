@@ -58,6 +58,32 @@ It is possible to attach a single handler to multiple selectors.
         return {"<key>": "<value-extracted-from-element>"}
     ```
 
+## Supported selector types
+
+The `@select()` decorator does not only accept `selector` but also `css`, `xpath`, `text` and `regex`.
+Please take note that `css`, `xpath`, `text` and `regex` are specific and `selector` can contain any of these types.
+
+=== "Python"
+
+    ```python
+    from dude import select
+    
+    
+    @select(css="<css-selector>")     #(1)
+    @select(xpath="<xpath-selector>") #(2)
+    @select(text="<xpath-selector>")  #(3)
+    @select(regex="<xpath-selector>") #(4)
+    def handler(element):
+        return {"<key>": "<value-extracted-from-element>"}
+    ```
+
+    1. CSS Selector
+    2. XPath Selector
+    3. Text Selector
+    4. Regular Expression Selector
+
+It is possible to use 2 or more of these types at the same time but only one will be used taking the precedence `selector` -> `css` -> `xpath` -> `text` -> `regex`.
+
 ## How to run the scraper
 
 To start scraping, use any of the following options. Click on the annotations (+ sign) for more details.
