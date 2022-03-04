@@ -13,7 +13,7 @@ Click on the annotations (+ sign) for more details.
     from dude import select
     
     
-    @select(selector=".title", group=".custom-group") # (1)
+    @select(css=".title", group=".custom-group") # (1)
     def result_title(element):
         return {"title": element.text_content()}
     ```
@@ -29,8 +29,8 @@ You can also specify groups by using the `@group()` decorator and passing the ar
     from dude import group, select
     
     
-    @group(selector=".custom-group") # (1)
-    @select(selector=".title")
+    @group(css=".custom-group") # (1)
+    @select(css=".title")
     def result_title(element):
         return {"title": element.text_content()}
     ```
@@ -48,10 +48,10 @@ Please take note that `group_css`, `group_xpath`, `group_text` and `group_regex`
     from dude import select
     
     
-    @select(selector=".title", group_css="<css-selector>")     #(1)
-    @select(selector=".title", group_xpath="<xpath-selector>") #(2)
-    @select(selector=".title", group_text="<xpath-selector>")  #(3)
-    @select(selector=".title", group_regex="<xpath-selector>") #(4)
+    @select(css=".title", group_css="<css-selector>")     #(1)
+    @select(css=".title", group_xpath="<xpath-selector>") #(2)
+    @select(css=".title", group_text="<text-selector>")  #(3)
+    @select(css=".title", group_regex="<regex-selector>") #(4)
     def handler(element):
         return {"<key>": "<value-extracted-from-element>"}
     ```
@@ -171,7 +171,7 @@ While this works, it can be hard to maintain.
     from dude import select
 
 
-    @select(selector=".custom-group")
+    @select(css=".custom-group")
     def result_handler(element):
         """
         Perform all the heavy-lifting in a single handler.
@@ -201,17 +201,17 @@ It will only require us to write 3 simple functions but is much easier to read a
     from dude import group, select
 
 
-    @select(selector="a.url", group=".custom-group")
+    @select(css="a.url", group=".custom-group")
     def result_url(element):
         return {"url": element.get_attribute("href")}
     
     
-    @select(selector=".title", group=".custom-group")
+    @select(css=".title", group=".custom-group")
     def result_title(element):
         return {"title": element.text_content()}
     
     
-    @select(selector=".description", group=".custom-group")
+    @select(css=".description", group=".custom-group")
     def result_description(element):
         return {"description": element.text_content()}
     ```

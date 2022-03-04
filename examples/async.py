@@ -1,17 +1,17 @@
 from dude import select
 
 
-@select(selector="a.url")
+@select(css="a.url")
 async def result_url(element):
     return {"url": await element.get_attribute("href")}
 
 
-@select(selector=".title")
+@select(css=".title")
 async def result_title(element):
     return {"title": await element.text_content()}
 
 
-@select(selector=".description")
+@select(css=".description")
 async def result_description(element):
     return {"description": await element.text_content()}
 

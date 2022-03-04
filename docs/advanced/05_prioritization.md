@@ -20,18 +20,18 @@ The example below makes sure that `result_description()` will be called first be
     from dude import select
 
 
-    @select(selector=".title", priority=1)
+    @select(css=".title", priority=1)
     def result_title(element):
         return {"title": element.text_content()}
     
     
-    @select(selector=".description", priority=0)
+    @select(css=".description", priority=0)
     def result_description(element):
         return {"description": element.text_content()}
     ```
 
-The priority value is most useful on Setup and Navigate handlers. As an example below, the selector `#pnnext` will be queried first before looking for `text=Next`.
-Take note that if `#pnnext` exists, then `text=Next` will not be queried anymore.
+The priority value is most useful on Setup and Navigate handlers. As an example below, the selector `css="#pnnext"` will be queried first before looking for `text="Next"`.
+Take note that if `css="#pnnext"` exists, then `text="Next"` will not be queried anymore.
 
 === "Python"
 
@@ -39,8 +39,8 @@ Take note that if `#pnnext` exists, then `text=Next` will not be queried anymore
     from dude import select
     
     
-    @select(selector="text=Next", navigate=True)
-    @select(selector="#pnnext", navigate=True, priority=0)
+    @select(text="Next", navigate=True)
+    @select(css="#pnnext", navigate=True, priority=0)
     def next_page(element, page):
         with page.expect_navigation():
             element.click()

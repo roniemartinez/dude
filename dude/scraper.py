@@ -6,13 +6,6 @@ from playwright import sync_api
 from .base import ScraperBase
 from .playwright import PlaywrightScraper
 
-try:
-    from .beautifulsoup import BeautifulSoupScraper
-
-    HAS_BS4 = True
-except ImportError:  # pragma: no cover
-    HAS_BS4 = False
-
 logger = logging.getLogger(__name__)
 
 
@@ -46,12 +39,13 @@ class Scraper(ScraperBase):
         :param headless: Enables headless browser. (default=True)
         :param browser_type: Playwright supported browser types ("chromium", "webkit" or "firefox").
         """
+
         logger.info("Scraper started...")
 
         if not self.scraper:
             if parser == "bs4":
-                if not HAS_BS4:  # pragma: no cover
-                    raise Exception("BeautifulSoup4 is not installed!")
+                from .beautifulsoup import BeautifulSoupScraper
+
                 self.scraper = BeautifulSoupScraper(
                     rules=self.rules,
                     groups=self.groups,

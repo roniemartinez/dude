@@ -20,12 +20,12 @@ Instead of ElementHandle objects when using Playwright as parser, Soup objects a
     from dude import select
     
     
-    @select(selector="a.url")
+    @select(css="a.url")
     def result_url(soup):
         return {"url": soup["href"]} # (1)
     
     
-    @select(selector=".title")
+    @select(css=".title")
     def result_title(soup):
         return {"title": soup.get_text()} # (2)
     ```

@@ -12,7 +12,7 @@ def save_table(data, output) -> bool:
     return True
 
 
-@select(selector="a.url")
+@select(css="a.url")
 def result_url(element):
     return {"url": element.get_attribute("href")}
 

@@ -35,34 +35,34 @@ def scraper_application_with_parser() -> Scraper:
 @pytest.fixture()
 def playwright_select(scraper_application: Scraper) -> None:
     @scraper_application.group(selector=":root")  # will be skipped
-    @scraper_application.group(selector=".custom-group")
-    @scraper_application.select(selector=".title")
+    @scraper_application.group(css=".custom-group")
+    @scraper_application.select(css=".title")
     def title(element: sync_api.ElementHandle) -> Dict:
         return {"item": element.text_content()}
 
-    @scraper_application.select(selector=".title", group=".custom-group")
+    @scraper_application.select(css=".title", group=".custom-group")
     def empty(element: sync_api.ElementHandle) -> Dict:
         return {}
 
-    @scraper_application.group(selector=".custom-group")
-    @scraper_application.select(selector=".title", url=r"example\.com")
+    @scraper_application.group(css=".custom-group")
+    @scraper_application.select(css=".title", url=r"example\.com")
     def url_dont_match(element: sync_api.ElementHandle) -> Dict:
         return {"item": element.text_content()}
 
 
 @pytest.fixture()
 def bs4_select(scraper_application: Scraper) -> None:
-    @scraper_application.group(selector=".custom-group")
-    @scraper_application.select(selector=".title")
+    @scraper_application.group(css=".custom-group")
+    @scraper_application.select(css=".title")
     def title(element: BeautifulSoup) -> Dict:
         return {"item": element.get_text()}
 
-    @scraper_application.select(selector=".title", group=".custom-group")
+    @scraper_application.select(css=".title", group=".custom-group")
     def empty(element: BeautifulSoup) -> Dict:
         return {}
 
-    @scraper_application.group(selector=".custom-group")
-    @scraper_application.select(selector=".title", url=r"example\.com")
+    @scraper_application.group(css=".custom-group")
+    @scraper_application.select(css=".title", url=r"example\.com")
     def url_dont_match(element: BeautifulSoup) -> Dict:
         return {"item": element.get_text()}
 
@@ -70,17 +70,17 @@ def bs4_select(scraper_application: Scraper) -> None:
 @pytest.fixture()
 def playwright_select_with_parser(scraper_application_with_parser: Scraper) -> None:
     @scraper_application_with_parser.group(selector=":root")  # will be skipped
-    @scraper_application_with_parser.group(selector=".custom-group")
-    @scraper_application_with_parser.select(selector=".title")
+    @scraper_application_with_parser.group(css=".custom-group")
+    @scraper_application_with_parser.select(css=".title")
     def title(element: sync_api.ElementHandle) -> Dict:
         return {"item": element.text_content()}
 
-    @scraper_application_with_parser.select(selector=".title", group=".custom-group")
+    @scraper_application_with_parser.select(css=".title", group=".custom-group")
     def empty(element: sync_api.ElementHandle) -> Dict:
         return {}
 
-    @scraper_application_with_parser.group(selector=".custom-group")
-    @scraper_application_with_parser.select(selector=".title", url=r"example\.com")
+    @scraper_application_with_parser.group(css=".custom-group")
+    @scraper_application_with_parser.select(css=".title", url=r"example\.com")
     def url_dont_match(element: sync_api.ElementHandle) -> Dict:
         return {"item": element.text_content()}
 
@@ -104,41 +104,41 @@ def playwright_navigate(scraper_application: Scraper) -> None:
 
 @pytest.fixture()
 def async_playwright_select(scraper_application: Scraper) -> None:
-    @scraper_application.group(selector=".custom-group")
-    @scraper_application.select(selector=".title")
+    @scraper_application.group(css=".custom-group")
+    @scraper_application.select(css=".title")
     async def title(element: async_api.ElementHandle) -> Dict:
         return {"item": await element.text_content()}
 
-    @scraper_application.select(selector=".title", group=".custom-group")
+    @scraper_application.select(css=".title", group=".custom-group")
     async def empty(element: async_api.ElementHandle) -> Dict:
         return {}
 
-    @scraper_application.group(selector=".custom-group")
-    @scraper_application.select(selector=".title", url=r"example\.com")
+    @scraper_application.group(css=".custom-group")
+    @scraper_application.select(css=".title", url=r"example\.com")
     async def url_dont_match(element: async_api.ElementHandle) -> Dict:
         return {"item": await element.text_content()}
 
 
 @pytest.fixture()
 def async_bs4_select(scraper_application: Scraper) -> None:
-    @scraper_application.group(selector=".custom-group")
-    @scraper_application.select(selector=".title")
+    @scraper_application.group(css=".custom-group")
+    @scraper_application.select(css=".title")
     async def title(element: BeautifulSoup) -> Dict:
         return {"item": element.get_text()}
 
-    @scraper_application.select(selector=".title", group=".custom-group")
+    @scraper_application.select(css=".title", group=".custom-group")
     async def empty(element: BeautifulSoup) -> Dict:
         return {}
 
-    @scraper_application.group(selector=".custom-group")
-    @scraper_application.select(selector=".title", url=r"example\.com")
+    @scraper_application.group(css=".custom-group")
+    @scraper_application.select(css=".title", url=r"example\.com")
     async def url_dont_match(element: BeautifulSoup) -> Dict:
         return {"item": element.get_text()}
 
 
 @pytest.fixture()
 def async_playwright_setup(scraper_application: Scraper) -> None:
-    @scraper_application.select(selector=":root", setup=True)
+    @scraper_application.select(css=":root", setup=True)
     async def check_page(element: async_api.ElementHandle, page: async_api.Page) -> None:
         assert element is not None
         assert page is not None
@@ -146,7 +146,7 @@ def async_playwright_setup(scraper_application: Scraper) -> None:
 
 @pytest.fixture()
 def async_playwright_navigate(scraper_application: Scraper) -> None:
-    @scraper_application.select(selector=":root", navigate=True)
+    @scraper_application.select(css=":root", navigate=True)
     async def next_page(element: async_api.ElementHandle, page: async_api.Page) -> bool:
         assert element is not None
         assert page is not None

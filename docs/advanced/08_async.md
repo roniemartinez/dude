@@ -10,7 +10,7 @@ It is however, possible to have async and sync storage handlers at the same time
     from dude import save, select
     
     
-    @select(selector=".title")
+    @select(css=".title")
     async def result_title(element):
         return {"title": await element.text_content()}
     

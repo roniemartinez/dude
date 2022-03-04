@@ -16,7 +16,7 @@ Click on the annotations (+ sign) for more details.
     from dude import select
     
     
-    @select(selector="text=I agree", setup=True) # (1)
+    @select(text="I agree", setup=True) # (1)
     def agree(element, page):
         """
         Clicks "I agree" in order to use the website.

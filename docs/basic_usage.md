@@ -17,7 +17,7 @@ Click on the annotations (+ sign) for more details.
 === "Python"
 
     ```python
-    @select(selector="<put-your-selector-here>") # (1)
+    @select(css="<put-your-selector-here>") # (1)
     def handler(element): # (2)
         ... # (3)
         return {"<key>": "<value-extracted-from-element>"} # (4)
@@ -36,7 +36,7 @@ The example handler below extracts the text content of any element that matches 
     from dude import select
     
     
-    @select(selector=".title")
+    @select(css=".title")
     def result_title(element):
         """
         Result title.
@@ -52,7 +52,7 @@ It is possible to attach a single handler to multiple selectors.
     from dude import select
     
     
-    @select(selector="<a-selector>")
+    @select(css="<a-selector>")
     @select(selector="<another-selector>")
     def handler(element):
         return {"<key>": "<value-extracted-from-element>"}
@@ -71,8 +71,8 @@ Please take note that `css`, `xpath`, `text` and `regex` are specific and `selec
     
     @select(css="<css-selector>")     #(1)
     @select(xpath="<xpath-selector>") #(2)
-    @select(text="<xpath-selector>")  #(3)
-    @select(regex="<xpath-selector>") #(4)
+    @select(text="<text-selector>")  #(3)
+    @select(regex="<regex-selector>") #(4)
     def handler(element):
         return {"<key>": "<value-extracted-from-element>"}
     ```
