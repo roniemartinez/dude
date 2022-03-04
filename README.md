@@ -41,13 +41,12 @@ The simplest web scraper will look like this:
 from dude import select
 
 
-@select(selector="a")
+@select(css="a")
 def get_link(element):
     return {"url": element.get_attribute("href")}
 ```
 
 The example above will get all the [hyperlink](https://en.wikipedia.org/wiki/Hyperlink#HTML) elements in a page and calls the handler function `get_link()` for each element.
-To start scraping, just simply run in your terminal:
 
 ## How to run the scraper
 

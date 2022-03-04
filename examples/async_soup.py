@@ -10,17 +10,17 @@ To get the text, use:
 """
 
 
-@select(selector="a.url", priority=2)
+@select(css="a.url", priority=2)
 async def result_url(soup):
     return {"url": soup["href"]}
 
 
-@select(selector=".title", priority=1)
+@select(css=".title", priority=1)
 async def result_title(soup):
     return {"title": soup.get_text()}
 
 
-@select(selector=".description", priority=0)
+@select(css=".description", priority=0)
 async def result_description(soup):
     return {"description": soup.get_text()}
 

@@ -12,7 +12,7 @@ Click on the annotations (+ sign) for more details.
     from dude import select
     
     
-    @select(selector="text=Next", navigate=True) # (1)
+    @select(text="Next", navigate=True) # (1)
     def next_page(element, page):
         """
         Clicks the Next button/link to navigate to the next page.

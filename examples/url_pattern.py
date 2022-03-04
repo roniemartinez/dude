@@ -1,17 +1,17 @@
 from dude import select
 
 
-@select(selector="a.url", url=r".*\.html")
+@select(css="a.url", url=r".*\.html")
 def result_url(element):
     return {"url": element.get_attribute("href")}
 
 
-@select(selector=".title", url=r".*\.html")
+@select(css=".title", url=r".*\.html")
 def result_title(element):
     return {"title": element.text_content()}
 
 
-@select(selector=".description", url=r".*\.html")
+@select(css=".description", url=r".*\.html")
 def result_description(element):
     return {"description": element.text_content()}
 

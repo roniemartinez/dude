@@ -1,12 +1,12 @@
 from dude import select
 
 
-@select(selector=".title", group=".custom-group")
+@select(css=".title", group=".custom-group")
 def result_title(element):
     return {"title": element.text_content()}
 
 
-@select(selector=".description", group=".custom-group")
+@select(css=".description", group=".custom-group")
 def result_description(element):
     return {"description": element.text_content()}
 

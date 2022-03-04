@@ -230,6 +230,6 @@ def test_playwright_invalid_group(scraper_application: Scraper) -> None:
     with pytest.raises(Exception):
 
         @scraper_application.group()
-        @scraper_application.select(selector=".title")
+        @scraper_application.select(css=".title")
         def title(element: Any) -> Dict:
             return {}

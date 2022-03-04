@@ -2,19 +2,19 @@ from dude import group, select
 
 
 @group(css=".custom-group")
-@select(selector="a.url")
+@select(css="a.url")
 def result_url(element):
     return {"url": element.get_attribute("href")}
 
 
 @group(css=".custom-group")
-@select(selector=".title")
+@select(css=".title")
 def result_title(element):
     return {"title": element.text_content()}
 
 
 @group(css=".custom-group")
-@select(selector=".description")
+@select(css=".description")
 def result_description(element):
     return {"description": element.text_content()}
 

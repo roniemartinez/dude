@@ -30,7 +30,7 @@ The simplest web scraper will look like the example below. Click on the annotati
     from dude import select #(1)
     
     
-    @select(selector="a")  #(2)
+    @select(css="a")  #(2)
     def get_link(element): #(3)
         return {"url": element.get_attribute("href")} #(4)
     ```
