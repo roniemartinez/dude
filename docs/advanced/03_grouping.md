@@ -37,6 +37,51 @@ You can also specify groups by using the `@group()` decorator and passing the ar
 
     1. Group the results by the CSS selector `.custom-group`.
 
+## Supported group selector types
+
+The `@select()` decorator does not only accept `group` but also `group_css`, `group_xpath`, `group_text` and `group_regex`.
+Please take note that `group_css`, `group_xpath`, `group_text` and `group_regex` are specific and `group` can contain any of these types.
+
+=== "Python"
+
+    ```python
+    from dude import select
+    
+    
+    @select(selector=".title", group_css="<css-selector>")     #(1)
+    @select(selector=".title", group_xpath="<xpath-selector>") #(2)
+    @select(selector=".title", group_text="<xpath-selector>")  #(3)
+    @select(selector=".title", group_regex="<xpath-selector>") #(4)
+    def handler(element):
+        return {"<key>": "<value-extracted-from-element>"}
+    ```
+
+    1. Group CSS Selector
+    2. Group XPath Selector
+    3. Group Text Selector
+    4. Group Regular Expression Selector
+
+It is possible to use 2 or more of these types at the same time but only one will be used taking the precedence `group` -> `css` -> `xpath` -> `text` -> `regex`.
+
+Like the `@select()` decorator, the `@group()` decorator also accepts `selector`, `css`, `xpath`, `text` and `regex`.
+Similarly, `css`, `xpath`, `text` and `regex` are specific and `selector` can contain any of these types.
+
+=== "Python"
+
+    ```python
+    from dude import select
+    
+    
+    @group(css="<css-selector>") #(1)
+    @select(selector="<selector>") 
+    def handler(element):
+        return {"<key>": "<value-extracted-from-element>"}
+    ```
+
+    1. CSS Selector
+
+It is possible to use 2 or more of these types at the same time but only one will be used taking the precedence `selector` -> `css` -> `xpath` -> `text` -> `regex`.
+
 ## Why we need to group the results
 
 The `group` parameter or the `@group()` decorator has the advantage of making sure that items are in their correct group. 

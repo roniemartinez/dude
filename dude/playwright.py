@@ -100,7 +100,7 @@ class PlaywrightScraper(ScraperAbstract):
         """
         assert page is not None
         for rule in self.get_setup_rules():
-            for element in self._query_selector_all(page, rule.selector):
+            for element in self._query_selector_all(page, rule.selector.to_str(with_type=True)):
                 rule.handler(element, page)
 
     async def setup_async(self, page: async_api.Page = None) -> None:
@@ -111,7 +111,7 @@ class PlaywrightScraper(ScraperAbstract):
         """
         assert page is not None
         for rule in self.get_setup_rules():
-            for element in await page.query_selector_all(rule.selector):
+            for element in await page.query_selector_all(rule.selector.to_str(with_type=True)):
                 await rule.handler(element, page)
 
     def navigate(self, page: sync_api.Page = None) -> bool:
@@ -122,7 +122,7 @@ class PlaywrightScraper(ScraperAbstract):
         """
         assert page is not None
         for rule in self.get_navigate_rules():
-            for element in self._query_selector_all(page, rule.selector):
+            for element in self._query_selector_all(page, rule.selector.to_str(with_type=True)):
                 rule.handler(element, page)
                 logger.info("Navigated to %s", page.url)
                 return True
@@ -136,7 +136,7 @@ class PlaywrightScraper(ScraperAbstract):
         """
         assert page is not None
         for rule in self.get_navigate_rules():
-            for element in await page.query_selector_all(rule.selector):
+            for element in await page.query_selector_all(rule.selector.to_str(with_type=True)):
                 await rule.handler(element, page)
                 logger.info("Navigated to %s", page.url)
                 return True
@@ -217,7 +217,9 @@ class PlaywrightScraper(ScraperAbstract):
 
             for group_index, group in enumerate(page.query_selector_all(group_selector.to_str(with_type=True))):
                 for rule in rules:
-                    for element_index, element in enumerate(self._query_selector_all(group, rule.selector)):
+                    for element_index, element in enumerate(
+                        self._query_selector_all(group, rule.selector.to_str(with_type=True))
+                    ):
                         yield page_url, group_index, id(group), element_index, element, rule.handler
 
     async def collect_elements_async(
@@ -238,5 +240,7 @@ class PlaywrightScraper(ScraperAbstract):
 
             for group_index, group in enumerate(await page.query_selector_all(group_selector.to_str(with_type=True))):
                 for rule in rules:
-                    for element_index, element in enumerate(await group.query_selector_all(rule.selector)):
+                    for element_index, element in enumerate(
+                        await group.query_selector_all(rule.selector.to_str(with_type=True))
+                    ):
                         yield page_url, group_index, id(group), element_index, element, rule.handler

@@ -30,7 +30,7 @@ class Selector(NamedTuple):
 
 class Rule(NamedTuple):
     group: Selector
-    selector: str
+    selector: Selector
     url_pattern: str
     handler: Callable
     setup: bool
@@ -38,7 +38,7 @@ class Rule(NamedTuple):
     priority: int
 
 
-def rule_sorter(rule: Rule) -> Tuple[str, Selector, str]:
+def rule_sorter(rule: Rule) -> Tuple[str, Selector, Selector]:
     return rule.url_pattern, rule.group, rule.selector
 
 

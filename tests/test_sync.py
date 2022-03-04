@@ -63,6 +63,31 @@ def test_full_flow_bs4_httpx(
     mock_save.assert_called_with(expected_data, None)
 
 
+@mock.patch.object(httpx, "Client")
+def test_bs4_httpx_exception(
+    mock_client: mock.MagicMock,
+    scraper_application: Scraper,
+    bs4_select: None,
+    expected_data: List[Dict],
+) -> None:
+    assert scraper_application.has_async is False
+    assert len(scraper_application.rules) == 3
+    mock_save = mock.MagicMock()
+
+    response = mock_client.return_value.__enter__.return_value.get.return_value
+    response.raise_for_status.side_effect = httpx.HTTPStatusError(
+        message="Mock exception",
+        request=mock.MagicMock(),
+        response=mock.MagicMock(),
+    )
+
+    test_url = "https://dude.ron.sh"
+
+    scraper_application.save(format="custom")(mock_save)
+    scraper_application.run(urls=[test_url], pages=2, format="custom", parser="bs4")
+    mock_save.assert_called_with([], None)
+
+
 def test_custom_save(
     scraper_application: Scraper, playwright_select: None, expected_data: List[Dict], test_url: str
 ) -> None:

@@ -143,7 +143,7 @@ class BeautifulSoupScraper(ScraperAbstract):
 
             for group_index, group in enumerate(soup.select(group_selector.to_str())):
                 for rule in rules:
-                    for element_index, element in enumerate(group.select(rule.selector)):
+                    for element_index, element in enumerate(group.select(rule.selector.to_str())):
                         yield url, group_index, id(group), element_index, element, rule.handler
 
     async def collect_elements_async(self, **kwargs: Any) -> AsyncIterable[Tuple[str, int, int, int, Any, Callable]]:
