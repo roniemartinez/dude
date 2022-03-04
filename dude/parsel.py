@@ -5,18 +5,18 @@ import re
 from typing import Any, AsyncIterable, Callable, Iterable, Optional, Sequence, Tuple
 
 import httpx
-from bs4 import BeautifulSoup
+from parsel import Selector
 from playwright import sync_api
 
 from .base import ScraperAbstract
-from .rule import rule_grouper, rule_sorter
+from .rule import SelectorType, rule_grouper, rule_sorter
 
 logger = logging.getLogger(__name__)
 
 
-class BeautifulSoupScraper(ScraperAbstract):
+class ParselScraper(ScraperAbstract):
     """
-    Scraper using BeautifulSoup4 parser and HTTPX for requests
+    Scraper using Parsel parser and HTTPX for requests
     """
 
     def run(
@@ -29,7 +29,7 @@ class BeautifulSoupScraper(ScraperAbstract):
         **kwargs: Any,
     ) -> None:
         """
-        Executes BeautifulSoup4-based scraper.
+        Executes Parsel-based scraper.
 
         :param urls: List of website URLs.
         :param pages: Maximum number of pages to crawl before exiting (default=1). This is only used when a navigate handler is defined. # noqa
@@ -39,7 +39,7 @@ class BeautifulSoupScraper(ScraperAbstract):
         """
         self.update_rule_groups()
 
-        logger.info("Using BeautifulSoup4...")
+        logger.info("Using Parsel...")
         if self.has_async:
             logger.info("Using async mode...")
             loop = asyncio.get_event_loop()
@@ -72,9 +72,9 @@ class BeautifulSoupScraper(ScraperAbstract):
                             logger.exception(e)
                             break
 
-                    soup = BeautifulSoup(content, "html.parser")
+                    selector = Selector(content)
                     self.setup()  # does not do anything yet
-                    self.collected_data.extend(self.extract_all(page_number=i, soup=soup, url=url))
+                    self.collected_data.extend(self.extract_all(page_number=i, selector=selector, url=url))
                     if i == pages or not self.navigate():
                         break
         self._save(format, output)
@@ -101,10 +101,10 @@ class BeautifulSoupScraper(ScraperAbstract):
                             logger.exception(e)
                             break
 
-                    soup = BeautifulSoup(content, "html.parser")
+                    selector = Selector(content)
                     await self.setup_async()  # does not do anything yet
                     self.collected_data.extend(
-                        [data async for data in self.extract_all_async(page_number=i, soup=soup, url=url)]
+                        [data async for data in self.extract_all_async(page_number=i, selector=selector, url=url)]
                     )
                     if i == pages or not await self.navigate_async():
                         break
@@ -123,9 +123,9 @@ class BeautifulSoupScraper(ScraperAbstract):
         return False
 
     def collect_elements(
-        self, soup: BeautifulSoup = None, url: str = None
+        self, selector: Selector = None, url: str = None
     ) -> Iterable[Tuple[str, int, int, int, Any, Callable]]:
-        assert soup is not None
+        assert selector is not None
         assert url is not None
 
         for (url_pattern, group_selector), g in itertools.groupby(
@@ -136,10 +136,25 @@ class BeautifulSoupScraper(ScraperAbstract):
 
             rules = list(sorted(g, key=lambda r: r.priority))
 
-            for group_index, group in enumerate(soup.select(group_selector.to_str())):
+            for group_index, group in enumerate(self._get_elements(selector, group_selector)):
                 for rule in rules:
-                    for element_index, element in enumerate(group.select(rule.selector.to_str())):
+                    for element_index, element in enumerate(self._get_elements(group, rule.selector)):
                         yield url, group_index, id(group), element_index, element, rule.handler
+
+    @staticmethod
+    def _get_elements(selector, group_selector):
+        selector_str = group_selector.to_str()
+        if group_selector.selector_type() in (SelectorType.CSS, SelectorType.ANY):  # assume CSS
+            groups = selector.css(selector_str)
+        elif group_selector.selector_type() == SelectorType.XPATH:
+            groups = selector.xpath(selector_str)
+        elif group_selector.selector_type() == SelectorType.TEXT:
+            groups = selector.text(selector_str)
+        elif group_selector.selector_type() == SelectorType.TEXT:
+            groups = selector.re(selector_str)
+        else:
+            groups = []
+        return groups
 
     async def collect_elements_async(self, **kwargs: Any) -> AsyncIterable[Tuple[str, int, int, int, Any, Callable]]:
         for item in self.collect_elements(**kwargs):
