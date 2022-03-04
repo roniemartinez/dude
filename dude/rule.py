@@ -27,6 +27,9 @@ class Selector(NamedTuple):
     def __str__(self) -> str:
         return self.selector or self.css or self.xpath or self.text or self.regex or ""
 
+    def __lt__(self, other: "Selector") -> bool:
+        return self.to_str(with_type=True) < other.to_str(with_type=True)
+
 
 class Rule(NamedTuple):
     group: Selector
