@@ -65,4 +65,4 @@ You can run BeautifulSoup4 parser using the `--bs4` command-line argument or `pa
 
 ## Examples
 
-Examples are can be found at [examples/soup.py](https://github.com/roniemartinez/dude/tree/master/examples/soup.py) and [examples/async_soup.py](https://github.com/roniemartinez/dude/tree/master/examples/async_soup.py).
+Examples are can be found at [examples/bs4_sync.py](https://github.com/roniemartinez/dude/tree/master/examples/bs4_sync.py) and [examples/bs4_async.py](https://github.com/roniemartinez/dude/tree/master/examples/bs4_async.py).

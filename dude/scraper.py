@@ -44,7 +44,7 @@ class Scraper(ScraperBase):
 
         if not self.scraper:
             if parser == "bs4":
-                from .beautifulsoup import BeautifulSoupScraper
+                from .optional.bs4_parser import BeautifulSoupScraper
 
                 self.scraper = BeautifulSoupScraper(
                     rules=self.rules,
@@ -53,7 +53,7 @@ class Scraper(ScraperBase):
                     has_async=self.has_async,
                 )
             elif parser == "parsel":
-                from dude.parsel import ParselScraper
+                from .optional.parsel_parser import ParselScraper
 
                 self.scraper = ParselScraper(
                     rules=self.rules,
