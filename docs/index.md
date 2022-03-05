@@ -1,6 +1,6 @@
 # Getting Started
 
-Dude is a very simple framework for writing a web scraper using Python decorators. The design, inspired by [Flask](https://github.com/pallets/flask), was to easily build a web scraper in just a few lines of code. Dude has an easy to learn syntax.
+Dude is a very simple framework for writing a web scraper using Python decorators. The design, inspired by [Flask](https://github.com/pallets/flask), was to easily build a web scraper in just a few lines of code. Dude has an easy-to-learn syntax.
 
 !!! warning 
     

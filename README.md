@@ -29,7 +29,7 @@
 
 Dude is a very simple framework for writing a web scraper using Python decorators.
 The design, inspired by [Flask](https://github.com/pallets/flask), was to easily build a web scraper in just a few lines of code.
-Dude has an easy to learn syntax.
+Dude has an easy-to-learn syntax.
 
 > 🚨 Dude is currently in Pre-Alpha. Please expect breaking changes.
 
@@ -53,7 +53,7 @@ The example above will get all the [hyperlink](https://en.wikipedia.org/wiki/Hyp
 You can run your scraper from terminal/shell/command-line by supplying URLs, the output filename of your choice and the paths to your python codes to `dude scrape` command.
 
 ```bash
-dude scrape --url "<url>" --output data.json path/to/file.py #(1)
+dude scrape --url "<url>" --output data.json path/to/file.py
 ```
 
 ## Features

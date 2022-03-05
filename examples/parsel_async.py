@@ -5,7 +5,9 @@ This example demonstrates how to use Parsel + async HTTPX
 
 To access an attribute, use:
     selector.attrib["href"]
-To get the text, use ::text pseudo-selector, then:
+You can also access an attribute using the ::attr(name) pseudo-element, for example "a::attr(href)", then:
+    selector.get()
+To get the text, use ::text pseudo-element, then:
     selector.get()
 """
 
@@ -13,6 +15,12 @@ To get the text, use ::text pseudo-selector, then:
 @select(css="a.url", priority=2)
 async def result_url(selector):
     return {"url": selector.attrib["href"]}
+
+
+# Option to get url using ::attr(name) pseudo-element
+@select(css="a.url::attr(href)", priority=2)
+async def result_url2(selector):
+    return {"url2": selector.get()}
 
 
 @select(css=".title::text", priority=1)
