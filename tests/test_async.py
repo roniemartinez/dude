@@ -1,9 +1,8 @@
 import json
 import sys
-from typing import Any, Dict, List
+from typing import Dict, List
 from unittest import mock
 
-import httpx
 import pytest
 
 from dude import Scraper
@@ -18,86 +17,18 @@ def test_full_flow(
     test_url: str,
 ) -> None:
     assert scraper_application.has_async is True
-    assert len(scraper_application.rules) == 5
+    assert len(scraper_application.rules) == 6
     mock_save = mock.MagicMock()
     scraper_application.save(format="custom")(mock_save)
     scraper_application.run(urls=[test_url], pages=2, format="custom", parser="playwright")
     mock_save.assert_called_with(expected_data, None)
 
 
-def test_full_flow_bs4(
-    scraper_application: Scraper,
-    async_bs4_select: None,
-    expected_data: List[Dict],
-    test_url: str,
-) -> None:
-    assert scraper_application.has_async is True
-    assert len(scraper_application.rules) == 3
-    mock_save = mock.MagicMock()
-    scraper_application.save(format="custom")(mock_save)
-    scraper_application.run(urls=[test_url], pages=2, format="custom", parser="bs4")
-    mock_save.assert_called_with(expected_data, None)
-
-
-@pytest.mark.skipif(sys.version_info < (3, 8), reason="AsyncMock is not supported.")
-@mock.patch.object(httpx, "AsyncClient")
-def test_full_flow_bs4_httpx(
-    mock_client: Any,  # mock.AsyncMock
-    scraper_application: Scraper,
-    async_bs4_select: None,
-    expected_data: List[Dict],
-    test_url: str,
-) -> None:
-    assert scraper_application.has_async is True
-    assert len(scraper_application.rules) == 3
-    mock_save = mock.MagicMock()
-
-    with open(test_url[7:]) as f:
-        response = mock_client.return_value.__aenter__.return_value.get.return_value
-        response.raise_for_status = mock.MagicMock()
-        response.text = f.read()
-
-    test_url = "https://dude.ron.sh"
-    expected_data = [{**d, "_page_url": test_url} for d in expected_data]
-
-    scraper_application.save(format="custom")(mock_save)
-    scraper_application.run(urls=[test_url], pages=2, format="custom", parser="bs4")
-    mock_save.assert_called_with(expected_data, None)
-
-
-@pytest.mark.skipif(sys.version_info < (3, 8), reason="AsyncMock is not supported.")
-@mock.patch.object(httpx, "AsyncClient")
-def test_bs4_httpx_exception(
-    mock_client: Any,  # mock.AsyncMock
-    scraper_application: Scraper,
-    async_bs4_select: None,
-    expected_data: List[Dict],
-) -> None:
-    assert scraper_application.has_async is True
-    assert len(scraper_application.rules) == 3
-    mock_save = mock.MagicMock()
-
-    response = mock_client.return_value.__aenter__.return_value.get.return_value
-    response.raise_for_status = mock.MagicMock(
-        side_effect=httpx.HTTPStatusError(
-            message="Mock exception",
-            request=mock.MagicMock(),
-            response=mock.MagicMock(),
-        )
-    )
-
-    test_url = "https://dude.ron.sh"
-
-    scraper_application.save(format="custom")(mock_save)
-    scraper_application.run(urls=[test_url], pages=2, format="custom", parser="bs4")
-    mock_save.assert_called_with([], None)
-
-
 def test_custom_save(
     scraper_application: Scraper, async_playwright_select: None, expected_data: List[Dict], test_url: str
 ) -> None:
     assert scraper_application.has_async is True
-    assert len(scraper_application.rules) == 3
+    assert len(scraper_application.rules) == 4
     mock_save = mock.MagicMock()
     mock_save.return_value = True
     scraper_application.save(format="custom")(mock_save)
@@ -110,7 +41,7 @@ def test_async_save(
     scraper_application: Scraper, async_playwright_select: None, expected_data: List[Dict], test_url: str
 ) -> None:
     assert scraper_application.has_async is True
-    assert len(scraper_application.rules) == 3
+    assert len(scraper_application.rules) == 4
     mock_save = mock.AsyncMock()  # type: ignore[attr-defined]
     mock_save.return_value = True
     scraper_application.save(format="custom")(mock_save)
@@ -120,7 +51,7 @@ def test_async_save(
 
 def test_format_not_supported(scraper_application: Scraper, async_playwright_select: None, test_url: str) -> None:
     assert scraper_application.has_async is True
-    assert len(scraper_application.rules) == 3
+    assert len(scraper_application.rules) == 4
     with pytest.raises(KeyError):
         scraper_application.run(urls=[test_url], pages=2, format="custom", parser="playwright")
 
@@ -129,7 +60,7 @@ def test_failed_to_save(
     scraper_application: Scraper, async_playwright_select: None, expected_data: List[Dict], test_url: str
 ) -> None:
     assert scraper_application.has_async is True
-    assert len(scraper_application.rules) == 3
+    assert len(scraper_application.rules) == 4
     mock_save = mock.MagicMock()
     mock_save.return_value = False
     scraper_application.save(format="fail_db")(mock_save)
@@ -146,6 +77,6 @@ def test_save(
     test_url: str,
 ) -> None:
     assert scraper_application.has_async is True
-    assert len(scraper_application.rules) == 3
+    assert len(scraper_application.rules) == 4
     scraper_application.run(urls=[test_url], format="json")
     mock_dump.assert_called()

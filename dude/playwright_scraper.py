@@ -1,7 +1,6 @@
 import asyncio
 import itertools
 import logging
-import re
 from typing import Any, AsyncIterable, Callable, Iterable, Optional, Sequence, Tuple, Union
 
 from playwright import async_api, sync_api
@@ -99,7 +98,7 @@ class PlaywrightScraper(ScraperAbstract):
         :param page: Page.
         """
         assert page is not None
-        for rule in self.get_setup_rules():
+        for rule in self.get_setup_rules(page.url):
             for element in self._query_selector_all(page, rule.selector.to_str(with_type=True)):
                 rule.handler(element, page)
 
@@ -110,7 +109,7 @@ class PlaywrightScraper(ScraperAbstract):
         :param page: Page.
         """
         assert page is not None
-        for rule in self.get_setup_rules():
+        for rule in self.get_setup_rules(page.url):
             for element in await page.query_selector_all(rule.selector.to_str(with_type=True)):
                 await rule.handler(element, page)
 
@@ -121,7 +120,7 @@ class PlaywrightScraper(ScraperAbstract):
         :param page: Page.
         """
         assert page is not None
-        for rule in self.get_navigate_rules():
+        for rule in self.get_navigate_rules(page.url):
             for element in self._query_selector_all(page, rule.selector.to_str(with_type=True)):
                 rule.handler(element, page)
                 logger.info("Navigated to %s", page.url)
@@ -135,10 +134,11 @@ class PlaywrightScraper(ScraperAbstract):
         :param page: Page.
         """
         assert page is not None
-        for rule in self.get_navigate_rules():
+        page_url = page.url
+        for rule in self.get_navigate_rules(page_url):
             for element in await page.query_selector_all(rule.selector.to_str(with_type=True)):
                 await rule.handler(element, page)
-                logger.info("Navigated to %s", page.url)
+                logger.info("Navigated to %s", page_url)
                 return True
         return False
 
@@ -207,12 +207,9 @@ class PlaywrightScraper(ScraperAbstract):
         """
         assert page is not None
         page_url = page.url
-        for (url_pattern, group_selector), g in itertools.groupby(
-            sorted(self.get_scraping_rules(), key=rule_sorter), key=rule_grouper
+        for group_selector, g in itertools.groupby(
+            sorted(self.get_scraping_rules(page_url), key=rule_sorter), key=rule_grouper
         ):
-            if not re.search(url_pattern, page_url):
-                continue
-
             rules = list(sorted(g, key=lambda r: r.priority))
 
             for group_index, group in enumerate(page.query_selector_all(group_selector.to_str(with_type=True))):
@@ -230,14 +227,10 @@ class PlaywrightScraper(ScraperAbstract):
         """
         assert page is not None
         page_url = page.url
-        for (url_pattern, group_selector), g in itertools.groupby(
-            sorted(self.get_scraping_rules(), key=rule_sorter), key=rule_grouper
+        for group_selector, g in itertools.groupby(
+            sorted(self.get_scraping_rules(page_url), key=rule_sorter), key=rule_grouper
         ):
-            if not re.search(url_pattern, page_url):
-                continue
-
             rules = list(sorted(g, key=lambda r: r.priority))
-
             for group_index, group in enumerate(await page.query_selector_all(group_selector.to_str(with_type=True))):
                 for rule in rules:
                     for element_index, element in enumerate(

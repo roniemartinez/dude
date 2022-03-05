@@ -36,7 +36,7 @@ nav:
       - Custom Storage: advanced/06_custom_storage.md
       - The Scraper Application Class: advanced/07_the_scraper_application_class.md
       - Asynchronous Support: advanced/08_async.md
-      - BeautifulSoup4 Support: advanced/09_beautifulsoup4.md
+      - BeautifulSoup4 Scraper: advanced/09_beautifulsoup4.md
   - cli.md
   - reference.md
 
