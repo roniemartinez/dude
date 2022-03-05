@@ -2,11 +2,10 @@ from pathlib import Path
 from typing import Any, Dict, List
 
 import pytest
-from bs4 import BeautifulSoup
 from playwright import async_api, sync_api
 
 from dude import Scraper
-from dude.playwright import PlaywrightScraper
+from dude.playwright_scraper import PlaywrightScraper
 
 
 class IsInteger:
@@ -38,33 +37,20 @@ def playwright_select(scraper_application: Scraper) -> None:
     @scraper_application.group(css=".custom-group")
     @scraper_application.select(css=".title")
     def title(element: sync_api.ElementHandle) -> Dict:
-        return {"item": element.text_content()}
+        return {"title": element.text_content()}
 
-    @scraper_application.select(css=".title", group=".custom-group")
+    @scraper_application.select(css=".title", group_css=".custom-group")
     def empty(element: sync_api.ElementHandle) -> Dict:
         return {}
 
     @scraper_application.group(css=".custom-group")
     @scraper_application.select(css=".title", url=r"example\.com")
     def url_dont_match(element: sync_api.ElementHandle) -> Dict:
-        return {"item": element.text_content()}
+        return {"title": element.text_content()}
 
-
-@pytest.fixture()
-def bs4_select(scraper_application: Scraper) -> None:
-    @scraper_application.group(css=".custom-group")
-    @scraper_application.select(css=".title")
-    def title(element: BeautifulSoup) -> Dict:
-        return {"item": element.get_text()}
-
-    @scraper_application.select(css=".title", group=".custom-group")
-    def empty(element: BeautifulSoup) -> Dict:
-        return {}
-
-    @scraper_application.group(css=".custom-group")
-    @scraper_application.select(css=".title", url=r"example\.com")
-    def url_dont_match(element: BeautifulSoup) -> Dict:
-        return {"item": element.get_text()}
+    @scraper_application.select(css=".url", group_css=".custom-group")
+    def url(element: sync_api.ElementHandle) -> Dict:
+        return {"url": element.get_attribute("href")}
 
 
 @pytest.fixture()
@@ -73,16 +59,20 @@ def playwright_select_with_parser(scraper_application_with_parser: Scraper) -> N
     @scraper_application_with_parser.group(css=".custom-group")
     @scraper_application_with_parser.select(css=".title")
     def title(element: sync_api.ElementHandle) -> Dict:
-        return {"item": element.text_content()}
+        return {"title": element.text_content()}
 
-    @scraper_application_with_parser.select(css=".title", group=".custom-group")
+    @scraper_application_with_parser.select(css=".title", group_css=".custom-group")
     def empty(element: sync_api.ElementHandle) -> Dict:
         return {}
 
     @scraper_application_with_parser.group(css=".custom-group")
     @scraper_application_with_parser.select(css=".title", url=r"example\.com")
     def url_dont_match(element: sync_api.ElementHandle) -> Dict:
-        return {"item": element.text_content()}
+        return {"title": element.text_content()}
+
+    @scraper_application_with_parser.select(css=".url", group_css=".custom-group")
+    def url(element: sync_api.ElementHandle) -> Dict:
+        return {"url": element.get_attribute("href")}
 
 
 @pytest.fixture()
@@ -107,33 +97,20 @@ def async_playwright_select(scraper_application: Scraper) -> None:
     @scraper_application.group(css=".custom-group")
     @scraper_application.select(css=".title")
     async def title(element: async_api.ElementHandle) -> Dict:
-        return {"item": await element.text_content()}
+        return {"title": await element.text_content()}
 
-    @scraper_application.select(css=".title", group=".custom-group")
+    @scraper_application.select(css=".title", group_css=".custom-group")
     async def empty(element: async_api.ElementHandle) -> Dict:
         return {}
 
     @scraper_application.group(css=".custom-group")
     @scraper_application.select(css=".title", url=r"example\.com")
     async def url_dont_match(element: async_api.ElementHandle) -> Dict:
-        return {"item": await element.text_content()}
+        return {"title": await element.text_content()}
 
-
-@pytest.fixture()
-def async_bs4_select(scraper_application: Scraper) -> None:
-    @scraper_application.group(css=".custom-group")
-    @scraper_application.select(css=".title")
-    async def title(element: BeautifulSoup) -> Dict:
-        return {"item": element.get_text()}
-
-    @scraper_application.select(css=".title", group=".custom-group")
-    async def empty(element: BeautifulSoup) -> Dict:
-        return {}
-
-    @scraper_application.group(css=".custom-group")
-    @scraper_application.select(css=".title", url=r"example\.com")
-    async def url_dont_match(element: BeautifulSoup) -> Dict:
-        return {"item": element.get_text()}
+    @scraper_application.select(css=".url", group_css=".custom-group")
+    async def url(element: async_api.ElementHandle) -> Dict:
+        return {"url": await element.get_attribute("href")}
 
 
 @pytest.fixture()
@@ -163,7 +140,8 @@ def expected_data(test_url: str) -> List[Dict]:
             "_group_id": is_integer,
             "_group_index": 0,
             "_element_index": 0,
-            "item": "Title 1",
+            "url": "/url-1.html",
+            "title": "Title 1",
         },
         {
             "_page_number": 1,
@@ -171,7 +149,8 @@ def expected_data(test_url: str) -> List[Dict]:
             "_group_id": is_integer,
             "_group_index": 1,
             "_element_index": 0,
-            "item": "Title 2",
+            "url": "/url-2.html",
+            "title": "Title 2",
         },
         {
             "_page_number": 1,
@@ -179,6 +158,7 @@ def expected_data(test_url: str) -> List[Dict]:
             "_group_id": is_integer,
             "_group_index": 2,
             "_element_index": 0,
-            "item": "Title 3",
+            "url": "/url-3.html",
+            "title": "Title 3",
         },
     ]

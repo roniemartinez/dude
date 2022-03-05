@@ -1,3 +1,4 @@
+import re
 from enum import Enum, auto
 from typing import Callable, NamedTuple, Optional, Tuple
 
@@ -63,16 +64,16 @@ class Rule(NamedTuple):
     priority: int
 
 
-def rule_sorter(rule: Rule) -> Tuple[str, Selector, Selector]:
-    return rule.url_pattern, rule.group, rule.selector
+def rule_sorter(rule: Rule) -> Tuple[Selector, Selector]:
+    return rule.group, rule.selector
 
 
-def rule_grouper(rule: Rule) -> Tuple[str, Selector]:
-    return rule.url_pattern, rule.group
+def rule_grouper(rule: Rule) -> Selector:
+    return rule.group
 
 
-def rule_filter(setup: bool = False, navigate: bool = False) -> Callable:
+def rule_filter(url: str, setup: bool = False, navigate: bool = False) -> Callable:
     def wrapper(rule: Rule) -> bool:
-        return rule.setup is setup and rule.navigate is navigate
+        return re.search(rule.url_pattern, url) is not None and rule.setup is setup and rule.navigate is navigate
 
     return wrapper

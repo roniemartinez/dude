@@ -4,7 +4,7 @@ from typing import Optional, Sequence
 from playwright import sync_api
 
 from .base import ScraperBase
-from .playwright import PlaywrightScraper
+from .playwright_scraper import PlaywrightScraper
 
 logger = logging.getLogger(__name__)
 
@@ -44,7 +44,7 @@ class Scraper(ScraperBase):
 
         if not self.scraper:
             if parser == "bs4":
-                from .optional.bs4_parser import BeautifulSoupScraper
+                from .optional.beautifulsoup_scraper import BeautifulSoupScraper
 
                 self.scraper = BeautifulSoupScraper(
                     rules=self.rules,
@@ -53,7 +53,7 @@ class Scraper(ScraperBase):
                     has_async=self.has_async,
                 )
             elif parser == "parsel":
-                from .optional.parsel_parser import ParselScraper
+                from .optional.parsel_scraper import ParselScraper
 
                 self.scraper = ParselScraper(
                     rules=self.rules,
