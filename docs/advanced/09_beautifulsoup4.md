@@ -1,4 +1,4 @@
-# BeautifulSoup4 support
+# BeautifulSoup4 Scraper
 
 Option to use [BeautifulSoup4](https://www.crummy.com/software/BeautifulSoup/bs4/doc/) as parser instead of Playwright has been added in [Release 0.2.0](https://github.com/roniemartinez/dude/releases/tag/0.2.0).
 BeautifulSoup4 is an optional dependency and can only be installed via `pip` using the command below.
@@ -36,8 +36,6 @@ Instead of ElementHandle objects when using Playwright as parser, Soup objects a
 
 ## Running Dude with BeautifulSoup4 
 
-To use BeautifulSoup4 from the command line, just add the `--bs4` argument
-
 You can run BeautifulSoup4 parser using the `--bs4` command-line argument or `parser="bs4"` parameter to `run()`.
 
 
@@ -65,4 +63,4 @@ You can run BeautifulSoup4 parser using the `--bs4` command-line argument or `pa
 
 ## Examples
 
-Examples are can be found at [examples/soup.py](https://github.com/roniemartinez/dude/tree/master/examples/soup.py) and [examples/async_soup.py](https://github.com/roniemartinez/dude/tree/master/examples/async_soup.py).
+Examples are can be found at [examples/bs4_sync.py](https://github.com/roniemartinez/dude/tree/master/examples/bs4_sync.py) and [examples/bs4_async.py](https://github.com/roniemartinez/dude/tree/master/examples/bs4_async.py).

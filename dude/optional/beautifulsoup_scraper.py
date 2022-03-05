@@ -1,14 +1,14 @@
 import asyncio
 import itertools
 import logging
-import re
 from typing import Any, AsyncIterable, Callable, Iterable, Optional, Sequence, Tuple
 
+import httpx
 from bs4 import BeautifulSoup
 from playwright import sync_api
 
-from .base import ScraperAbstract
-from .rule import rule_grouper, rule_sorter
+from ..base import ScraperAbstract
+from ..rule import Selector, SelectorType, rule_grouper, rule_sorter
 
 logger = logging.getLogger(__name__)
 
@@ -56,9 +56,6 @@ class BeautifulSoupScraper(ScraperAbstract):
         output: Optional[str],
         format: str,
     ) -> None:
-        import httpx
-        from bs4 import BeautifulSoup
-
         with httpx.Client() as client:
             for url in urls:
                 for i in range(1, pages + 1):
@@ -88,9 +85,6 @@ class BeautifulSoupScraper(ScraperAbstract):
         output: Optional[str],
         format: str,
     ) -> None:
-        import httpx
-        from bs4 import BeautifulSoup
-
         async with httpx.AsyncClient() as client:
             for url in urls:
                 for i in range(1, pages + 1):
@@ -133,18 +127,20 @@ class BeautifulSoupScraper(ScraperAbstract):
         assert soup is not None
         assert url is not None
 
-        for (url_pattern, group_selector), g in itertools.groupby(
-            sorted(self.get_scraping_rules(), key=rule_sorter), key=rule_grouper
+        for group_selector, g in itertools.groupby(
+            sorted(self.get_scraping_rules(url), key=rule_sorter), key=rule_grouper
         ):
-            if not re.search(url_pattern, url):
-                continue
-
             rules = list(sorted(g, key=lambda r: r.priority))
 
-            for group_index, group in enumerate(soup.select(group_selector.to_str())):
+            for group_index, group in enumerate(self._get_elements(soup, group_selector)):
                 for rule in rules:
-                    for element_index, element in enumerate(group.select(rule.selector.to_str())):
+                    for element_index, element in enumerate(self._get_elements(group, rule.selector)):
                         yield url, group_index, id(group), element_index, element, rule.handler
+
+    @staticmethod
+    def _get_elements(soup: BeautifulSoup, selector: Selector) -> Iterable[BeautifulSoup]:
+        if selector.selector_type() in (SelectorType.CSS, SelectorType.ANY):  # assume CSS
+            yield from soup.select(selector.to_str())
 
     async def collect_elements_async(self, **kwargs: Any) -> AsyncIterable[Tuple[str, int, int, int, Any, Callable]]:
         for item in self.collect_elements(**kwargs):

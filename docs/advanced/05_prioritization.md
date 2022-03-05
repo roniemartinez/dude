@@ -2,10 +2,9 @@
 
 Handlers are sorted based on the following sequence:
 
-1. URL Pattern
-2. Group
-3. Selector
-4. Priority
+1. Group
+2. Selector
+3. Priority
 
 If all handlers have the same priority value, they will be executed based on which handler was inserted first into the rule list.
 This arrangement depends on how handlers are defined inside python files and which python files was imported first.

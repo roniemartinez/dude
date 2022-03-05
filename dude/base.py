@@ -283,14 +283,14 @@ class ScraperAbstract(ScraperBase):
             )
             yield scraped_data
 
-    def get_scraping_rules(self) -> Iterable[Rule]:
-        return filter(rule_filter(), self.rules)
+    def get_scraping_rules(self, url: str) -> Iterable[Rule]:
+        return filter(rule_filter(url), self.rules)
 
-    def get_setup_rules(self) -> Iterable[Rule]:
-        return sorted(filter(rule_filter(setup=True), self.rules), key=lambda r: r.priority)
+    def get_setup_rules(self, url: str) -> Iterable[Rule]:
+        return sorted(filter(rule_filter(url, setup=True), self.rules), key=lambda r: r.priority)
 
-    def get_navigate_rules(self) -> Iterable[Rule]:
-        return sorted(filter(rule_filter(navigate=True), self.rules), key=lambda r: r.priority)
+    def get_navigate_rules(self, url: str) -> Iterable[Rule]:
+        return sorted(filter(rule_filter(url, navigate=True), self.rules), key=lambda r: r.priority)
 
     def get_flattened_data(self) -> List[Dict]:
         items = []

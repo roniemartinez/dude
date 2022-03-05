@@ -4,28 +4,33 @@ import pytest
 from playwright import sync_api
 
 from dude import Scraper
-from dude.rule import Selector
+from dude.rule import Selector, SelectorType
 
 
 @pytest.mark.parametrize(
-    ("selector", "selector_str", "selector_str_with_type"),
+    ("selector", "selector_str", "selector_str_with_type", "expected_type"),
     (
-        (Selector(selector="test"), "test", "test"),
-        (Selector(css="test"), "test", "css=test"),
-        (Selector(xpath="test"), "test", "xpath=test"),
-        (Selector(text="test"), "test", "text=test"),
-        (Selector(regex="test"), "test", "text=/test/i"),
+        pytest.param(Selector(selector="test"), "test", "test", SelectorType.ANY, id="any"),
+        pytest.param(Selector(css="test"), "test", "css=test", SelectorType.CSS, id="css"),
+        pytest.param(Selector(xpath="test"), "test", "xpath=test", SelectorType.XPATH, id="xpath"),
+        pytest.param(Selector(text="test"), "test", "text=test", SelectorType.TEXT, id="text"),
+        pytest.param(Selector(regex="test"), "test", "text=/test/i", SelectorType.REGEX, id="regex"),
     ),
 )
-def test_to_str(selector: Selector, selector_str: str, selector_str_with_type: str) -> None:
+def test_to_str(
+    selector: Selector, selector_str: str, selector_str_with_type: str, expected_type: SelectorType
+) -> None:
     assert selector.to_str(with_type=False) == selector_str
     assert selector.to_str(with_type=True) == selector_str_with_type
+    assert selector.selector_type() == expected_type
 
 
 def test_invalid_to_str() -> None:
     selector = Selector()
     with pytest.raises(AssertionError):
         selector.to_str()
+    with pytest.raises(Exception):
+        selector.selector_type()
 
 
 def test_comparison() -> None:
