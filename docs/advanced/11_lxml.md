@@ -22,7 +22,7 @@ Instead of ElementHandle objects when using Playwright as parser,[ Element, "sma
 
     @select(xpath='.//a[contains(@class, "url")]/@href') # (1)
     def result_url(href):
-        return {"url": href} # (1)
+        return {"url": href} # (2)
     
     
     # Option to get url using cssselect
@@ -36,10 +36,10 @@ Instead of ElementHandle objects when using Playwright as parser,[ Element, "sma
         return {"title": element.text} # (4)
     ```
     
-    1. Attributes can be accessed using XPath @href.
-    2. When using @href (or text), "smart" strings are returned.
-    3. Attributes can also be accessed from lxml elements using element.attrib["href"].
-    4. Text content can be accessed from lxml elements using element.text.
+    1. Attributes can be accessed using XPath `@href`.
+    2. When using XPath `@href` (or `text`), "smart" strings are returned.
+    3. Attributes can also be accessed from lxml elements using `element.attrib["href"]`.
+    4. Text content can be accessed from lxml elements using `element.text`.
 
 
 ## Running Dude with lxml 
@@ -64,8 +64,9 @@ You can run lxml parser using the `--lxml` command-line argument or `parser="lxm
 
 ## Limitations
 
-1. Setup handlers are not supported.
-2. Navigate handlers are not supported.
+1. Only XPath and CSS selectors are supported.
+2. Setup handlers are not supported.
+3. Navigate handlers are not supported.
 
 
 ## Examples
