@@ -71,11 +71,13 @@ dude scrape --url "<url>" --output data.json path/to/file.py
   - [BeautifulSoup4](https://roniemartinez.github.io/dude/advanced/09_beautifulsoup4.html)
   - [Parsel](https://roniemartinez.github.io/dude/advanced/10_parsel.html)
   - [lxml](https://roniemartinez.github.io/dude/advanced/11_lxml.html)
+  - [Pyppeteer](https://roniemartinez.github.io/dude/advanced/12_pyppeteer.html)
 
 ## Supported Parsers
 
 By default, Dude uses Playwright but gives you an option to use parsers that you are familiar with.
-It is possible to use parser backends like [BeautifulSoup4](https://www.crummy.com/software/BeautifulSoup/bs4/doc/), [Parsel](https://github.com/scrapy/parsel) and [lxml](https://lxml.de/).
+It is possible to use parser backends like [BeautifulSoup4](https://www.crummy.com/software/BeautifulSoup/bs4/doc/), 
+[Parsel](https://github.com/scrapy/parsel), [lxml](https://lxml.de/) and [Pyppeteer](https://github.com/pyppeteer/pyppeteer).
 
 Here is the summary of features supported by each parser.
 
@@ -141,6 +143,17 @@ Here is the summary of features supported by each parser.
     <td>🚫</td>
     <td>🚫</td>
   </tr>
+  <tr>
+    <td>Pyppeteer</td>
+    <td>🚫</td>
+    <td>✅</td>
+    <td>✅</td>
+    <td>✅</td>
+    <td>✅</td>
+    <td>✅</td>
+    <td>✅</td>
+    <td>✅</td>
+  </tr>
 </tbody>
 </table>
 
@@ -165,18 +178,6 @@ Here is the summary of features supported by each parser.
   </tr>
 </thead>
 <tbody>
-  <tr>
-    <td>Pyppeteer</td>
-    <td>🚫</td>
-    <td>✅</td>
-    <td>✅</td>
-    <td>✅</td>
-    <td>✅</td>
-    <td>✅</td>
-    <td>✅</td>
-    <td>✅</td>
-    <td><a href="https://github.com/roniemartinez/dude/issues/58">#58</a></td>
-  </tr>
   <tr>
     <td>Selenium</td>
     <td>✅</td>

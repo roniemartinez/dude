@@ -71,6 +71,13 @@ def cli() -> None:  # pragma: no cover
         action="store_true",
         help="Use lxml.",
     )
+    parser_group.add_argument(
+        "--pyppeteer",
+        dest="pyppeteer",
+        default=False,
+        action="store_true",
+        help="Use Pyppeteer.",
+    )
     optional.add_argument(
         "--headed",
         dest="headed",
@@ -158,6 +165,8 @@ def cli() -> None:  # pragma: no cover
         parser_type = "parsel"
     elif arguments.lxml:
         parser_type = "lxml"
+    elif arguments.pyppeteer:
+        parser_type = "pyppeteer"
 
     run(
         urls=arguments.urls,

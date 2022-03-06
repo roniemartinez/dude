@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "pydude"
-version = "0.7.1"
+version = "0.8.0"
 repository = "https://github.com/roniemartinez/dude"
 description = "dude uncomplicated data extraction"
 authors = ["Ronie Martinez <ronmarti18@gmail.com>"]
@@ -39,6 +39,7 @@ httpx = { version = "^0.22.0", optional = true }
 lxml = {version = "^4.8.0", optional = true}
 parsel = {version = "^1.6.0", optional = true}
 playwright = "^1.19.0"
+pyppeteer = {version = "^1.0.2", optional = true}
 PyYAML = "^6.0"
 
 [tool.poetry.dev-dependencies]
@@ -58,8 +59,9 @@ types-PyYAML = "^6.0.4"
 
 [tool.poetry.extras]
 bs4 = ["beautifulsoup4", "httpx"]
-parsel = ["parsel", "httpx"]
 lxml = ["lxml", "cssselect", "httpx"]
+parsel = ["parsel", "httpx"]
+pyppeteer = ["pyppeteer"]
 
 [tool.isort]
 line_length = 120
