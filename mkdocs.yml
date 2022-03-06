@@ -37,6 +37,7 @@ nav:
       - The Scraper Application Class: advanced/07_the_scraper_application_class.md
       - Asynchronous Support: advanced/08_async.md
       - BeautifulSoup4 Scraper: advanced/09_beautifulsoup4.md
+      - Parsel Scraper: advanced/10_parsel.md
   - cli.md
   - reference.md
 

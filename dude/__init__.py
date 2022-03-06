@@ -57,6 +57,13 @@ def cli() -> None:  # pragma: no cover
         action="store_true",
         help="Use BeautifulSoup4.",
     )
+    parser_group.add_argument(
+        "--parsel",
+        dest="parsel",
+        default=False,
+        action="store_true",
+        help="Use Parsel.",
+    )
     optional.add_argument(
         "--headed",
         dest="headed",
@@ -140,6 +147,8 @@ def cli() -> None:  # pragma: no cover
     parser_type = "playwright"
     if arguments.bs4:
         parser_type = "bs4"
+    elif arguments.parsel:
+        parser_type = "parsel"
 
     run(
         urls=arguments.urls,

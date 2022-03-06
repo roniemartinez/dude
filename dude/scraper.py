@@ -35,7 +35,7 @@ class Scraper(ScraperBase):
         :param output: Output file. If not provided, prints in the terminal.
         :param format: Output file format. If not provided, uses the extension of the output file or defaults to json.
 
-        :param parser: Parser type ["playwright" (default) or "bs4"]
+        :param parser: Parser type ["playwright" (default), "bs4" or "parsel"]
         :param headless: Enables headless browser. (default=True)
         :param browser_type: Playwright supported browser types ("chromium", "webkit" or "firefox").
         """
@@ -47,6 +47,15 @@ class Scraper(ScraperBase):
                 from .optional.beautifulsoup_scraper import BeautifulSoupScraper
 
                 self.scraper = BeautifulSoupScraper(
+                    rules=self.rules,
+                    groups=self.groups,
+                    save_rules=self.save_rules,
+                    has_async=self.has_async,
+                )
+            elif parser == "parsel":
+                from .optional.parsel_scraper import ParselScraper
+
+                self.scraper = ParselScraper(
                     rules=self.rules,
                     groups=self.groups,
                     save_rules=self.save_rules,
