@@ -67,7 +67,9 @@ dude scrape --url "<url>" --output data.json path/to/file.py
 - Navigate function - enable navigation steps to move to other pages.
 - Custom storage - option to save data to other formats or database.
 - Async support - write async handlers.
-- BeautifulSoup4 - option to use BeautifulSoup4 instead of Playwright.
+- Option to use other parsers aside from Playwright.
+  - [BeautifulSoup4](https://roniemartinez.github.io/dude/advanced/09_beautifulsoup4.html)
+  - [Parsel](https://roniemartinez.github.io/dude/advanced/10_parsel.html)
 
 ## Documentation
 
