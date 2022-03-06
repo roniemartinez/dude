@@ -9,6 +9,7 @@ Here is the summary of features supported by each parser.
 <thead>
   <tr>
     <td rowspan="2" style='text-align:center;'>Parser Backend</td>
+    <td rowspan="2" style='text-align:center;'>Supports<br>Sync?</td>
     <td rowspan="2" style='text-align:center;'>Supports<br>Async?</td>
     <td colspan="4" style='text-align:center;'>Selectors</td>
     <td rowspan="2" style='text-align:center;'><a href="https://roniemartinez.github.io/dude/advanced/01_setup.html">Setup<br>Handler</a></td>
@@ -31,9 +32,11 @@ Here is the summary of features supported by each parser.
     <td>✅</td>
     <td>✅</td>
     <td>✅</td>
+    <td>✅</td>
   </tr>
   <tr>
     <td>BeautifulSoup4</td>
+    <td>✅</td>
     <td>✅</td>
     <td>✅</td>
     <td>🚫</td>
@@ -49,11 +52,13 @@ Here is the summary of features supported by each parser.
     <td>✅</td>
     <td>✅</td>
     <td>✅</td>
+    <td>✅</td>
     <td>🚫</td>
     <td>🚫</td>
   </tr>
   <tr>
     <td>lxml</td>
+    <td>✅</td>
     <td>✅</td>
     <td>✅</td>
     <td>✅</td>
@@ -71,6 +76,7 @@ Here is the summary of features supported by each parser.
 <thead>
   <tr>
     <td rowspan="2" style='text-align:center;'>Parser Backend</td>
+    <td rowspan="2" style='text-align:center;'>Supports<br>Sync?</td>
     <td rowspan="2" style='text-align:center;'>Supports<br>Async?</td>
     <td colspan="4" style='text-align:center;'>Selectors</td>
     <td rowspan="2" style='text-align:center;'><a href="https://roniemartinez.github.io/dude/advanced/01_setup.html">Setup<br>Handler</a></td>
@@ -87,6 +93,7 @@ Here is the summary of features supported by each parser.
 <tbody>
   <tr>
     <td>Pyppeteer</td>
+    <td>🚫</td>
     <td>✅</td>
     <td>✅</td>
     <td>✅</td>
@@ -98,6 +105,7 @@ Here is the summary of features supported by each parser.
   </tr>
   <tr>
     <td>Selenium</td>
+    <td>✅</td>
     <td>✅</td>
     <td>✅</td>
     <td>✅</td>
