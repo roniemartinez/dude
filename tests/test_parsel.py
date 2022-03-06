@@ -10,50 +10,87 @@ from dude import Scraper
 
 
 @pytest.fixture()
-def parsel_select(scraper_application: Scraper) -> None:
+def parsel_css(scraper_application: Scraper) -> None:
     @scraper_application.group(css=".custom-group")
     @scraper_application.select(css=".title::text")
-    def title(element: parsel.Selector) -> Dict:
-        return {"title": element.get()}
+    def title(selector: parsel.Selector) -> Dict:
+        return {"title": selector.get()}
 
     @scraper_application.select(css=".title::text", group_css=".custom-group")
-    def empty(element: parsel.Selector) -> Dict:
+    def empty(selector: parsel.Selector) -> Dict:
         return {}
 
     @scraper_application.group(css=".custom-group")
     @scraper_application.select(css=".title::text", url=r"example\.com")
-    def url_dont_match(element: parsel.Selector) -> Dict:
-        return {"title": element.get()}
+    def url_dont_match(selector: parsel.Selector) -> Dict:
+        return {"title": selector.get()}
 
     @scraper_application.select(css=".url::attr(href)", group_css=".custom-group")
-    def url(element: parsel.Selector) -> Dict:
-        return {"url": element.get()}
+    def url(selector: parsel.Selector) -> Dict:
+        return {"url": selector.get()}
 
 
 @pytest.fixture()
-def async_parsel_select(scraper_application: Scraper) -> None:
+def async_parsel_css(scraper_application: Scraper) -> None:
     @scraper_application.group(css=".custom-group")
     @scraper_application.select(css=".title::text")
-    async def title(element: parsel.Selector) -> Dict:
-        return {"title": element.get()}
+    async def title(selector: parsel.Selector) -> Dict:
+        return {"title": selector.get()}
 
     @scraper_application.select(css=".title::text", group_css=".custom-group")
-    async def empty(element: parsel.Selector) -> Dict:
+    async def empty(selector: parsel.Selector) -> Dict:
         return {}
 
     @scraper_application.group(css=".custom-group")
     @scraper_application.select(css=".title::text", url=r"example\.com")
-    async def url_dont_match(element: parsel.Selector) -> Dict:
-        return {"title": element.get()}
+    async def url_dont_match(selector: parsel.Selector) -> Dict:
+        return {"title": selector.get()}
 
     @scraper_application.select(css=".url::attr(href)", group_css=".custom-group")
-    async def url(element: parsel.Selector) -> Dict:
-        return {"url": element.get()}
+    async def url(selector: parsel.Selector) -> Dict:
+        return {"url": selector.get()}
+
+
+@pytest.fixture()
+def parsel_xpath(scraper_application: Scraper) -> None:
+    @scraper_application.select(
+        xpath='.//p[contains(@class, "title")]/text()', group_xpath='.//div[contains(@class, "custom-group")]'
+    )
+    def title(selector: parsel.Selector) -> Dict:
+        return {"title": selector.get()}
+
+    @scraper_application.select(
+        xpath='.//a[contains(@class, "url")]/@href', group_xpath='.//div[contains(@class, "custom-group")]'
+    )
+    def url(selector: parsel.Selector) -> Dict:
+        return {"url": selector.get()}
+
+
+@pytest.fixture()
+def parsel_text(scraper_application: Scraper) -> None:
+    @scraper_application.select(text="Title", group_css=".custom-group")
+    def title(text: str) -> Dict:
+        return {"title": text}
+
+    @scraper_application.select(css=".url::attr(href)", group_css=".custom-group")
+    def url(selector: parsel.Selector) -> Dict:
+        return {"url": selector.get()}
+
+
+@pytest.fixture()
+def parsel_regex(scraper_application: Scraper) -> None:
+    @scraper_application.select(regex=r"Title\s\d", group_css=".custom-group")
+    def title(text: str) -> Dict:
+        return {"title": text}
+
+    @scraper_application.select(css=".url::attr(href)", group_css=".custom-group")
+    def url(selector: parsel.Selector) -> Dict:
+        return {"url": selector.get()}
 
 
 def test_full_flow_parsel(
     scraper_application: Scraper,
-    parsel_select: None,
+    parsel_css: None,
     expected_data: List[Dict],
     test_url: str,
 ) -> None:
@@ -69,7 +106,7 @@ def test_full_flow_parsel(
 def test_full_flow_parsel_httpx(
     mock_client: mock.MagicMock,
     scraper_application: Scraper,
-    parsel_select: None,
+    parsel_css: None,
     expected_data: List[Dict],
     test_url: str,
 ) -> None:
@@ -92,7 +129,7 @@ def test_full_flow_parsel_httpx(
 def test_parsel_httpx_exception(
     mock_client: mock.MagicMock,
     scraper_application: Scraper,
-    parsel_select: None,
+    parsel_css: None,
     expected_data: List[Dict],
 ) -> None:
     assert scraper_application.has_async is False
@@ -115,7 +152,7 @@ def test_parsel_httpx_exception(
 
 def test_full_flow_parsel_async(
     scraper_application: Scraper,
-    async_parsel_select: None,
+    async_parsel_css: None,
     expected_data: List[Dict],
     test_url: str,
 ) -> None:
@@ -132,7 +169,7 @@ def test_full_flow_parsel_async(
 def test_full_flow_parsel_httpx_async(
     mock_client: Any,  # mock.AsyncMock
     scraper_application: Scraper,
-    async_parsel_select: None,
+    async_parsel_css: None,
     expected_data: List[Dict],
     test_url: str,
 ) -> None:
@@ -158,7 +195,7 @@ def test_full_flow_parsel_httpx_async(
 def test_parsel_httpx_exception_async(
     mock_client: Any,  # mock.AsyncMock
     scraper_application: Scraper,
-    async_parsel_select: None,
+    async_parsel_css: None,
     expected_data: List[Dict],
 ) -> None:
     assert scraper_application.has_async is True
@@ -179,3 +216,45 @@ def test_parsel_httpx_exception_async(
     scraper_application.save(format="custom")(mock_save)
     scraper_application.run(urls=[test_url], pages=2, format="custom", parser="parsel")
     mock_save.assert_called_with([], None)
+
+
+def test_full_flow_parsel_xpath(
+    scraper_application: Scraper,
+    parsel_xpath: None,
+    expected_data: List[Dict],
+    test_url: str,
+) -> None:
+    assert scraper_application.has_async is False
+    assert len(scraper_application.rules) == 2
+    mock_save = mock.MagicMock()
+    scraper_application.save(format="custom")(mock_save)
+    scraper_application.run(urls=[test_url], pages=2, format="custom", parser="parsel")
+    mock_save.assert_called_with(expected_data, None)
+
+
+def test_full_flow_parsel_text(
+    scraper_application: Scraper,
+    parsel_text: None,
+    expected_data: List[Dict],
+    test_url: str,
+) -> None:
+    assert scraper_application.has_async is False
+    assert len(scraper_application.rules) == 2
+    mock_save = mock.MagicMock()
+    scraper_application.save(format="custom")(mock_save)
+    scraper_application.run(urls=[test_url], pages=2, format="custom", parser="parsel")
+    mock_save.assert_called_with(expected_data, None)
+
+
+def test_full_flow_parsel_regex(
+    scraper_application: Scraper,
+    parsel_regex: None,
+    expected_data: List[Dict],
+    test_url: str,
+) -> None:
+    assert scraper_application.has_async is False
+    assert len(scraper_application.rules) == 2
+    mock_save = mock.MagicMock()
+    scraper_application.save(format="custom")(mock_save)
+    scraper_application.run(urls=[test_url], pages=2, format="custom", parser="parsel")
+    mock_save.assert_called_with(expected_data, None)

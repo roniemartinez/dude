@@ -1,6 +1,7 @@
 import asyncio
 import itertools
 import logging
+import re
 from typing import Any, AsyncIterable, Callable, Iterable, Optional, Sequence, Tuple
 
 import httpx
@@ -146,7 +147,7 @@ class ParselScraper(ScraperAbstract):
         elif selector_type == SelectorType.XPATH:
             yield from parsel_selector.xpath(selector_str)
         elif selector_type == SelectorType.TEXT:
-            yield from parsel_selector.text(selector_str)
+            yield from parsel_selector.re(f">([^<>]*{re.escape(selector_str)}[^<>]*)<")
         elif selector_type == SelectorType.REGEX:
             yield from parsel_selector.re(selector_str)
 
