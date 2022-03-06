@@ -131,6 +131,36 @@ def async_playwright_navigate(scraper_application: Scraper) -> None:
 
 
 @pytest.fixture()
+def playwright_xpath(scraper_application: Scraper) -> None:
+    @scraper_application.select(
+        xpath='.//p[contains(@class, "title")]', group_xpath='.//div[contains(@class, "custom-group")]'
+    )
+    def title(element: sync_api.ElementHandle) -> Dict:
+        return {"title": element.text_content()}
+
+    @scraper_application.select(
+        xpath='.//a[contains(@class, "url")]', group_xpath='.//div[contains(@class, "custom-group")]'
+    )
+    def url(element: sync_api.ElementHandle) -> Dict:
+        return {"url": element.get_attribute("href")}
+
+
+@pytest.fixture()
+def async_playwright_xpath(scraper_application: Scraper) -> None:
+    @scraper_application.select(
+        xpath='.//p[contains(@class, "title")]', group_xpath='.//div[contains(@class, "custom-group")]'
+    )
+    async def title(element: async_api.ElementHandle) -> Dict:
+        return {"title": await element.text_content()}
+
+    @scraper_application.select(
+        xpath='.//a[contains(@class, "url")]', group_xpath='.//div[contains(@class, "custom-group")]'
+    )
+    async def url(element: async_api.ElementHandle) -> Dict:
+        return {"url": await element.get_attribute("href")}
+
+
+@pytest.fixture()
 def expected_data(test_url: str) -> List[Dict]:
     is_integer = IsInteger()
     return [

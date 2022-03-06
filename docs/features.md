@@ -12,4 +12,4 @@
 - Option to use other parsers aside from Playwright.
     - [BeautifulSoup4](https://www.crummy.com/software/BeautifulSoup/bs4/doc/) - `pip install pydude[bs4]`
     - [Parsel](https://github.com/scrapy/parsel) - `pip install pydude[parsel]`
-    - [lxml]https://lxml.de/) - `pip install pydude[lxml]`
+    - [lxml](https://lxml.de/) - `pip install pydude[lxml]`
