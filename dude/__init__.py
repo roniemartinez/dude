@@ -64,6 +64,13 @@ def cli() -> None:  # pragma: no cover
         action="store_true",
         help="Use Parsel.",
     )
+    parser_group.add_argument(
+        "--lxml",
+        dest="lxml",
+        default=False,
+        action="store_true",
+        help="Use lxml.",
+    )
     optional.add_argument(
         "--headed",
         dest="headed",
@@ -149,6 +156,8 @@ def cli() -> None:  # pragma: no cover
         parser_type = "bs4"
     elif arguments.parsel:
         parser_type = "parsel"
+    elif arguments.lxml:
+        parser_type = "lxml"
 
     run(
         urls=arguments.urls,

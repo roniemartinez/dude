@@ -79,7 +79,7 @@ class ScraperBase(ABC):
         :param group: (Optional) Element selector where the matched element should be grouped. Defaults to ":root".
         :param setup: Flag to register a setup handler.
         :param navigate: Flag to register a navigate handler.
-        :param url: URL pattern. Run the handler function only when the pattern matches (default None).
+        :param url: URL pattern. Run the handler function only when the pattern matches (defaults to empty string).
         :param priority: Priority, the lowest value will be executed first (default 100).
         :param css: CSS selector.
         :param xpath: XPath selector.

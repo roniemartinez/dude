@@ -38,6 +38,7 @@ nav:
       - Asynchronous Support: advanced/08_async.md
       - BeautifulSoup4 Scraper: advanced/09_beautifulsoup4.md
       - Parsel Scraper: advanced/10_parsel.md
+      - lxml Scraper: advanced/11_lxml.md
   - cli.md
   - reference.md
 
