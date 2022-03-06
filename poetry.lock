@@ -901,12 +901,13 @@ testing = ["pytest (>=6)", "pytest-checkdocs (>=2.4)", "pytest-flake8", "pytest-
 
 [extras]
 bs4 = ["beautifulsoup4", "httpx"]
+lxml = ["lxml", "cssselect", "httpx"]
 parsel = ["parsel", "httpx"]
 
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.7"
-content-hash = "c63af8d6f1c6d6d941e0fb511a81ad985ce219c667552aec1f7abd0f1b08a258"
+content-hash = "7a1212201a0450f1a774026c4f1542d0e41e9f24baf85e95d1d7618fdc0aa72f"
 
 [metadata.files]
 anyio = [

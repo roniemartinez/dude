@@ -70,6 +70,7 @@ dude scrape --url "<url>" --output data.json path/to/file.py
 - Option to use other parsers aside from Playwright.
   - [BeautifulSoup4](https://roniemartinez.github.io/dude/advanced/09_beautifulsoup4.html)
   - [Parsel](https://roniemartinez.github.io/dude/advanced/10_parsel.html)
+  - [lxml](https://roniemartinez.github.io/dude/advanced/11_lxml.html)
 
 ## Documentation
 
