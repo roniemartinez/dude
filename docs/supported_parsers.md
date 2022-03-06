@@ -106,7 +106,7 @@ Here is the summary of features supported by each parser.
   <tr>
     <td>Selenium</td>
     <td>✅</td>
-    <td>✅</td>
+    <td>🚫</td>
     <td>✅</td>
     <td>✅</td>
     <td>✅</td>
