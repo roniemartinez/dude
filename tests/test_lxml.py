@@ -66,6 +66,28 @@ def lxml_xpath(scraper_application: Scraper) -> None:
         return {"url": href}
 
 
+@pytest.fixture()
+def lxml_text(scraper_application: Scraper) -> None:
+    @scraper_application.select(text="Title", group_css=".custom-group")
+    def title(element: _Element) -> Dict:
+        return {"title": element.text}
+
+    @scraper_application.select(css=".url", group_css=".custom-group")
+    def url(element: _Element) -> Dict:
+        return {"url": element.attrib["href"]}
+
+
+@pytest.fixture()
+def lxml_regex(scraper_application: Scraper) -> None:
+    @scraper_application.select(regex=r"Title\s\d", group_css=".custom-group")
+    def title(element: _Element) -> Dict:
+        return {"title": element.text}
+
+    @scraper_application.select(css=".url", group_css=".custom-group")
+    def url(element: _Element) -> Dict:
+        return {"url": element.attrib["href"]}
+
+
 def test_full_flow_lxml(
     scraper_application: Scraper,
     lxml_css: None,
@@ -199,6 +221,34 @@ def test_lxml_httpx_exception_async(
 def test_full_flow_lxml_xpath(
     scraper_application: Scraper,
     lxml_xpath: None,
+    expected_data: List[Dict],
+    test_url: str,
+) -> None:
+    assert scraper_application.has_async is False
+    assert len(scraper_application.rules) == 2
+    mock_save = mock.MagicMock()
+    scraper_application.save(format="custom")(mock_save)
+    scraper_application.run(urls=[test_url], pages=2, format="custom", parser="lxml")
+    mock_save.assert_called_with(expected_data, None)
+
+
+def test_full_flow_lxml_text(
+    scraper_application: Scraper,
+    lxml_text: None,
+    expected_data: List[Dict],
+    test_url: str,
+) -> None:
+    assert scraper_application.has_async is False
+    assert len(scraper_application.rules) == 2
+    mock_save = mock.MagicMock()
+    scraper_application.save(format="custom")(mock_save)
+    scraper_application.run(urls=[test_url], pages=2, format="custom", parser="lxml")
+    mock_save.assert_called_with(expected_data, None)
+
+
+def test_full_flow_lxml_regex(
+    scraper_application: Scraper,
+    lxml_regex: None,
     expected_data: List[Dict],
     test_url: str,
 ) -> None:
