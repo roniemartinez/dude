@@ -64,9 +64,8 @@ You can run lxml parser using the `--lxml` command-line argument or `parser="lxm
 
 ## Limitations
 
-1. Only XPath and CSS selectors are supported.
-2. Setup handlers are not supported.
-3. Navigate handlers are not supported.
+1. Setup handlers are not supported.
+2. Navigate handlers are not supported.
 
 
 ## Examples

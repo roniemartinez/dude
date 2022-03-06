@@ -1,6 +1,7 @@
 import asyncio
 import itertools
 import logging
+import re
 from typing import Any, AsyncIterable, Callable, Iterable, Optional, Sequence, Tuple
 
 import httpx
@@ -146,6 +147,16 @@ class LxmlScraper(ScraperAbstract):
             yield from tree.cssselect(selector_str)
         elif selector_type == SelectorType.XPATH:
             yield from tree.xpath(selector_str)
+        elif selector_type == SelectorType.TEXT:
+            yield from tree.xpath(
+                f".//*[re:test(text(), '{re.escape(selector_str)}', 'i')]",
+                namespaces={"re": "http://exslt.org/regular-expressions"},
+            )
+        elif selector_type == SelectorType.REGEX:
+            yield from tree.xpath(
+                f".//*[re:test(text(), '{selector_str}', 'i')]",
+                namespaces={"re": "http://exslt.org/regular-expressions"},
+            )
 
     async def collect_elements_async(self, **kwargs: Any) -> AsyncIterable[Tuple[str, int, int, int, Any, Callable]]:
         for item in self.collect_elements(**kwargs):
