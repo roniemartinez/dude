@@ -74,7 +74,7 @@ Here is the summary of features supported by each parser.
     <td>✅</td>
     <td>✅</td>
     <td>✅</td>
-    <td>✅</td>
+    <td>🚫</td>
     <td>✅</td>
     <td>✅</td>
   </tr>

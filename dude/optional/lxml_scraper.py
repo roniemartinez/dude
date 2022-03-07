@@ -1,7 +1,6 @@
 import asyncio
 import itertools
 import logging
-import re
 from typing import Any, AsyncIterable, Callable, Iterable, Optional, Sequence, Tuple
 
 import httpx
@@ -148,10 +147,8 @@ class LxmlScraper(ScraperAbstract):
         elif selector_type == SelectorType.XPATH:
             yield from tree.xpath(selector_str)
         elif selector_type == SelectorType.TEXT:
-            yield from tree.xpath(
-                f".//*[re:test(text(), '{re.escape(selector_str)}', 'i')]",
-                namespaces={"re": "http://exslt.org/regular-expressions"},
-            )
+            escaped_selector = selector_str.replace('"', '\\"')
+            yield from tree.xpath(f".//*[contains(text(), '{escaped_selector}')]")
         elif selector_type == SelectorType.REGEX:
             yield from tree.xpath(
                 f".//*[re:test(text(), '{selector_str}', 'i')]",

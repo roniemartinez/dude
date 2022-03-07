@@ -1,14 +1,15 @@
 import asyncio
 import itertools
 import logging
-from typing import Any, AsyncIterable, Callable, Dict, Iterable, Optional, Sequence, Tuple
+from typing import Any, AsyncIterable, Callable, Dict, Iterable, List, Optional, Sequence, Tuple, Union
 
 from playwright import sync_api
 from pyppeteer import launch
+from pyppeteer.element_handle import ElementHandle
 from pyppeteer.page import Page
 
 from ..base import ScraperAbstract
-from ..rule import rule_grouper, rule_sorter
+from ..rule import Selector, SelectorType, rule_grouper, rule_sorter
 from ..scraped_data import ScrapedData
 
 logger = logging.getLogger(__name__)
@@ -171,9 +172,19 @@ class PyppeteerScraper(ScraperAbstract):
             sorted(self.get_scraping_rules(page_url), key=rule_sorter), key=rule_grouper
         ):
             rules = list(sorted(g, key=lambda r: r.priority))
-            for group_index, group in enumerate(await page.querySelectorAll(group_selector.to_str(with_type=False))):
+            for group_index, group in enumerate(await self._get_elements(page, group_selector)):
                 for rule in rules:
-                    for element_index, element in enumerate(
-                        await group.querySelectorAll(rule.selector.to_str(with_type=False))
-                    ):
+                    for element_index, element in enumerate(await self._get_elements(group, rule.selector)):
                         yield page_url, group_index, id(group), element_index, element, rule.handler
+
+    @staticmethod
+    async def _get_elements(parent: Union[ElementHandle, Page], selector: Selector) -> List[ElementHandle]:
+        selector_str = selector.to_str()
+        selector_type = selector.selector_type()
+        if selector_type in (SelectorType.CSS, SelectorType.ANY):  # assume CSS
+            return await parent.querySelectorAll(selector_str)
+        elif selector_type == SelectorType.XPATH:
+            return await parent.xpath(selector_str)
+        elif selector_type == SelectorType.TEXT:
+            escaped_selector = selector_str.replace('"', '\\"')
+            return await parent.xpath(f".//*[contains(text(), '{escaped_selector}')]")

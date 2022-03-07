@@ -69,8 +69,8 @@ def parsel_xpath(scraper_application: Scraper) -> None:
 @pytest.fixture()
 def parsel_text(scraper_application: Scraper) -> None:
     @scraper_application.select(text="Title", group_css=".custom-group")
-    def title(text: str) -> Dict:
-        return {"title": text}
+    def title(selector: parsel.Selector) -> Dict:
+        return {"title": selector.get()}
 
     @scraper_application.select(css=".url::attr(href)", group_css=".custom-group")
     def url(selector: parsel.Selector) -> Dict:
