@@ -962,7 +962,7 @@ pyppeteer = ["pyppeteer"]
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.7"
-content-hash = "9991b32a9d207d7baa51fae6710b7f22d997bfcefca39928ab6300809b893284"
+content-hash = "ac764ffbca2eca81a2b36366ed8fa63bc30ac6d73fef285e2b7fe498396a5c66"
 
 [metadata.files]
 anyio = [
