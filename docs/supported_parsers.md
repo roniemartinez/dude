@@ -67,6 +67,17 @@ Here is the summary of features supported by each parser.
     <td>🚫</td>
     <td>🚫</td>
   </tr>
+  <tr>
+    <td>Pyppeteer</td>
+    <td>🚫</td>
+    <td>✅</td>
+    <td>✅</td>
+    <td>✅</td>
+    <td>✅</td>
+    <td>🚫</td>
+    <td>✅</td>
+    <td>✅</td>
+  </tr>
 </tbody>
 </table>
 
@@ -91,18 +102,6 @@ Here is the summary of features supported by each parser.
   </tr>
 </thead>
 <tbody>
-  <tr>
-    <td>Pyppeteer</td>
-    <td>🚫</td>
-    <td>✅</td>
-    <td>✅</td>
-    <td>✅</td>
-    <td>✅</td>
-    <td>✅</td>
-    <td>✅</td>
-    <td>✅</td>
-    <td><a href="https://github.com/roniemartinez/dude/issues/58">#58</a></td>
-  </tr>
   <tr>
     <td>Selenium</td>
     <td>✅</td>

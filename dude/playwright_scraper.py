@@ -134,11 +134,10 @@ class PlaywrightScraper(ScraperAbstract):
         :param page: Page.
         """
         assert page is not None
-        page_url = page.url
-        for rule in self.get_navigate_rules(page_url):
+        for rule in self.get_navigate_rules(page.url):
             for element in await page.query_selector_all(rule.selector.to_str(with_type=True)):
                 await rule.handler(element, page)
-                logger.info("Navigated to %s", page_url)
+                logger.info("Navigated to %s", page.url)
                 return True
         return False
 

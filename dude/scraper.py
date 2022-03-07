@@ -35,7 +35,7 @@ class Scraper(ScraperBase):
         :param output: Output file. If not provided, prints in the terminal.
         :param format: Output file format. If not provided, uses the extension of the output file or defaults to json.
 
-        :param parser: Parser type ["playwright" (default), "bs4", "parsel, or "lxml"]
+        :param parser: Parser type ["playwright" (default), "bs4", "parsel, "lxml" or "pyppeteer"]
         :param headless: Enables headless browser. (default=True)
         :param browser_type: Playwright supported browser types ("chromium", "webkit" or "firefox").
         """
@@ -65,6 +65,15 @@ class Scraper(ScraperBase):
                 from .optional.lxml_scraper import LxmlScraper
 
                 self.scraper = LxmlScraper(
+                    rules=self.rules,
+                    groups=self.groups,
+                    save_rules=self.save_rules,
+                    has_async=self.has_async,
+                )
+            elif parser == "pyppeteer":
+                from .optional.pyppeteer_scraper import PyppeteerScraper
+
+                self.scraper = PyppeteerScraper(
                     rules=self.rules,
                     groups=self.groups,
                     save_rules=self.save_rules,

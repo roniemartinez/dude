@@ -39,6 +39,7 @@ nav:
       - BeautifulSoup4 Scraper: advanced/09_beautifulsoup4.md
       - Parsel Scraper: advanced/10_parsel.md
       - lxml Scraper: advanced/11_lxml.md
+      - Pyppeteer Scraper: advanced/12_pyppeteer.md
   - supported_parsers.md
   - cli.md
   - reference.md
