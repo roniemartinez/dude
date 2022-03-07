@@ -188,3 +188,5 @@ class PyppeteerScraper(ScraperAbstract):
         elif selector_type == SelectorType.TEXT:
             escaped_selector = selector_str.replace('"', '\\"')
             return await parent.xpath(f".//*[contains(text(), '{escaped_selector}')]")
+        else:
+            raise Exception("Regex selector is not supported.")
