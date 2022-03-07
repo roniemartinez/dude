@@ -61,6 +61,7 @@ def test_full_flow(
     scraper_application.save(format="custom")(mock_save)
     scraper_application.run(urls=[test_url], pages=2, format="custom", parser="pyppeteer")
 
+    # Pyppeteer prepends "file://" when loading a file
     expected_data = [{**d, "url": "file://" + d["url"]} for d in expected_data]
     mock_save.assert_called_with(expected_data, None)
 

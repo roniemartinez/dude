@@ -1,8 +1,9 @@
 import asyncio
 import itertools
 import logging
-from typing import Any, AsyncIterable, Callable, Iterable, Optional, Sequence, Tuple
+from typing import Any, AsyncIterable, Callable, Dict, Iterable, Optional, Sequence, Tuple
 
+from playwright import sync_api
 from pyppeteer import launch
 from pyppeteer.page import Page
 
@@ -22,6 +23,7 @@ class PyppeteerScraper(ScraperAbstract):
         self,
         urls: Sequence[str],
         pages: int = 1,
+        proxy: Optional[sync_api.ProxySettings] = None,
         output: Optional[str] = None,
         format: str = "json",
         headless: bool = True,
@@ -32,6 +34,7 @@ class PyppeteerScraper(ScraperAbstract):
 
         :param urls: List of website URLs.
         :param pages: Maximum number of pages to crawl before exiting (default=1). This is only used when a navigate handler is defined. # noqa
+        :param proxy: Proxy settings. (see https://playwright.dev/python/docs/api/class-apirequest#api-request-new-context-option-proxy)  # noqa
         :param output: Output file. If not provided, prints in the terminal.
         :param format: Output file format. If not provided, uses the extension of the output file or defaults to json.
 
@@ -46,6 +49,7 @@ class PyppeteerScraper(ScraperAbstract):
                 urls=urls,
                 headless=headless,
                 pages=pages,
+                proxy=proxy,
                 output=output,
                 format=format,
             )
@@ -56,6 +60,7 @@ class PyppeteerScraper(ScraperAbstract):
         #         urls=urls,
         #         headless=headless,
         #         pages=pages,
+        #         proxy=proxy,
         #         output=output,
         #         format=format,
         #     )
@@ -85,11 +90,10 @@ class PyppeteerScraper(ScraperAbstract):
         :param page: Page.
         """
         assert page is not None
-        page_url = page.url
-        for rule in self.get_navigate_rules(page_url):
+        for rule in self.get_navigate_rules(page.url):
             for element in await page.querySelectorAll(rule.selector.to_str(with_type=False)):
                 await rule.handler(element, page)
-                logger.info("Navigated to %s", page_url)
+                logger.info("Navigated to %s", page.url)
                 return True
         return False
 
@@ -98,11 +102,20 @@ class PyppeteerScraper(ScraperAbstract):
         urls: Sequence[str],
         headless: bool,
         pages: int,
+        proxy: Optional[sync_api.ProxySettings],
         output: Optional[str],
         format: str,
     ) -> None:
-        browser = await launch(headless=headless)
+        launch_args: Dict[str, Any] = {"headless": headless}
+        if proxy:
+            launch_args["args"] = [f"--proxy-server={proxy['server']}"]
+
+        browser = await launch(options=launch_args)
         page = await browser.newPage()
+
+        if proxy and proxy["username"] and proxy["password"]:
+            await page.authenticate(credentials={"username": proxy["username"], "password": proxy["password"]})
+
         for url in urls:
             await page.goto(url)
             logger.info("Loaded page %s", page.url)
