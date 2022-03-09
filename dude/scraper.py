@@ -24,7 +24,7 @@ class Scraper(ScraperBase):
         # extra args
         parser: str = "playwright",
         headless: bool = True,
-        browser_type: str = None,
+        browser_type: str = "chromium",
     ) -> None:
         """
         Convenience method to handle switching between different types of parsers.
@@ -37,7 +37,7 @@ class Scraper(ScraperBase):
 
         :param parser: Parser type ["playwright" (default), "bs4", "parsel, "lxml", "pyppeteer" or "selenium"]
         :param headless: Enables headless browser. (default=True)
-        :param browser_type: Playwright supported browser types ("chromium", "webkit", "firefox" or "safari").
+        :param browser_type: Playwright supported browser types ("chromium", "chrome", "webkit", or "firefox").
         """
 
         logger.info("Scraper started...")

@@ -95,13 +95,11 @@ def cli() -> None:  # pragma: no cover
     optional.add_argument(
         "--browser",
         dest="browser",
+        default="chromium",
         choices=(
             "chromium",
             "firefox",
-            # Applies only to Playwright
-            "webkit",
-            # Applies only to Selenium
-            "safari",
+            "webkit",  # Applies only to Playwright
         ),
         help="Browser type to use.",
     )

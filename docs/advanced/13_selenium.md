@@ -54,9 +54,8 @@ You can run Selenium parser using the `--selenium` command-line argument or `par
 
 ## Limitations
 
-1. Selenium only supports sync.
-2. Selenium does not support XPath 2.0, therefore not allowing regular expression.
+1Selenium does not support XPath 2.0, therefore not allowing regular expression.
 
 ## Examples
 
-Examples are can be found at [examples/selenium_sync.py](https://github.com/roniemartinez/dude/tree/master/examples/selenium_sync.py).
+Examples are can be found at [examples/selenium_sync.py](https://github.com/roniemartinez/dude/tree/master/examples/selenium_sync.py) and [examples/selenium_async.py](https://github.com/roniemartinez/dude/tree/master/examples/selenium_async.py).
