@@ -70,6 +70,8 @@ jobs:
         run: |
           make lint
       - name: Test
+        env:
+          CHROMEDRIVER_VERSION: 98.0.4758.102
         run: |
           make test
       - name: Code Coverage

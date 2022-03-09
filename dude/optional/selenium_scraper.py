@@ -1,6 +1,7 @@
 import asyncio
 import itertools
 import logging
+import os
 from typing import Any, AsyncIterable, Callable, Iterable, Optional, Sequence, Tuple, Union
 
 from playwright.async_api import ProxySettings
@@ -214,7 +215,9 @@ class SeleniumScraper(ScraperAbstract):
 
         chrome_options = ChromeOptions()
         chrome_options.headless = headless
-        executable_path = ChromeDriverManager(chrome_type=ChromeType.CHROMIUM).install()
+        executable_path = ChromeDriverManager(
+            chrome_type=ChromeType.CHROMIUM, version=os.getenv("CHROMEDRIVER_VERSION", "latest")
+        ).install()
         return webdriver.Chrome(service=ChromeService(executable_path=executable_path), options=chrome_options)
 
     def collect_elements(self, driver: WebDriver = None) -> Iterable[Tuple[str, int, int, int, Any, Callable]]:
