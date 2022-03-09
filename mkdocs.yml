@@ -40,6 +40,7 @@ nav:
       - Parsel Scraper: advanced/10_parsel.md
       - lxml Scraper: advanced/11_lxml.md
       - Pyppeteer Scraper: advanced/12_pyppeteer.md
+      - Selenium Scraper: advanced/13_selenium.md
   - supported_parsers.md
   - cli.md
   - reference.md

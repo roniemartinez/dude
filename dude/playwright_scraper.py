@@ -44,6 +44,10 @@ class PlaywrightScraper(ScraperAbstract):
         self.update_rule_groups()
 
         logger.info("Using Playwright...")
+
+        if browser_type is None:
+            browser_type = "chromium"
+
         if self.has_async:
             logger.info("Using async mode...")
             loop = asyncio.get_event_loop()

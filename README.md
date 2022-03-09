@@ -72,12 +72,17 @@ dude scrape --url "<url>" --output data.json path/to/file.py
   - [Parsel](https://roniemartinez.github.io/dude/advanced/10_parsel.html)
   - [lxml](https://roniemartinez.github.io/dude/advanced/11_lxml.html)
   - [Pyppeteer](https://roniemartinez.github.io/dude/advanced/12_pyppeteer.html)
+  - [Selenium](https://roniemartinez.github.io/dude/advanced/13_selenium.html)
 
 ## Supported Parsers
 
 By default, Dude uses Playwright but gives you an option to use parsers that you are familiar with.
-It is possible to use parser backends like [BeautifulSoup4](https://www.crummy.com/software/BeautifulSoup/bs4/doc/), 
-[Parsel](https://github.com/scrapy/parsel), [lxml](https://lxml.de/) and [Pyppeteer](https://github.com/pyppeteer/pyppeteer).
+It is possible to use parser backends like 
+[BeautifulSoup4](https://www.crummy.com/software/BeautifulSoup/bs4/doc/), 
+[Parsel](https://github.com/scrapy/parsel),
+[lxml](https://lxml.de/),
+[Pyppeteer](https://github.com/pyppeteer/pyppeteer), 
+and [Selenium](https://github.com/SeleniumHQ/Selenium).
 
 Here is the summary of features supported by each parser.
 
@@ -154,30 +159,6 @@ Here is the summary of features supported by each parser.
     <td>✅</td>
     <td>✅</td>
   </tr>
-</tbody>
-</table>
-
-### Planned Parser Support
-
-<table>
-<thead>
-  <tr>
-    <td rowspan="2" style='text-align:center;'>Parser Backend</td>
-    <td rowspan="2" style='text-align:center;'>Supports<br>Sync?</td>
-    <td rowspan="2" style='text-align:center;'>Supports<br>Async?</td>
-    <td colspan="4" style='text-align:center;'>Selectors</td>
-    <td rowspan="2" style='text-align:center;'><a href="https://roniemartinez.github.io/dude/advanced/01_setup.html">Setup<br>Handler</a></td>
-    <td rowspan="2" style='text-align:center;'><a href="https://roniemartinez.github.io/dude/advanced/02_navigate.html">Navigate<br>Handler</a></td>
-    <td rowspan="2" style='text-align:center;'>Issue</td>
-  </tr>
-  <tr>
-    <td>CSS</td>
-    <td>XPath</td>
-    <td>Text</td>
-    <td>Regex</td>
-  </tr>
-</thead>
-<tbody>
   <tr>
     <td>Selenium</td>
     <td>✅</td>
@@ -185,10 +166,9 @@ Here is the summary of features supported by each parser.
     <td>✅</td>
     <td>✅</td>
     <td>✅</td>
+    <td>🚫</td>
     <td>✅</td>
     <td>✅</td>
-    <td>✅</td>
-    <td colspan="5"><a href="https://github.com/roniemartinez/dude/issues/54">#54</a></td>
   </tr>
 </tbody>
 </table>

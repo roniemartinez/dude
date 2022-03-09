@@ -78,6 +78,13 @@ def cli() -> None:  # pragma: no cover
         action="store_true",
         help="Use Pyppeteer.",
     )
+    parser_group.add_argument(
+        "--selenium",
+        dest="selenium",
+        default=False,
+        action="store_true",
+        help="Use Selenium.",
+    )
     optional.add_argument(
         "--headed",
         dest="headed",
@@ -88,8 +95,14 @@ def cli() -> None:  # pragma: no cover
     optional.add_argument(
         "--browser",
         dest="browser",
-        default="chromium",
-        choices=("chromium", "webkit", "firefox"),
+        choices=(
+            "chromium",
+            "firefox",
+            # Applies only to Playwright
+            "webkit",
+            # Applies only to Selenium
+            "safari",
+        ),
         help="Browser type to use.",
     )
     optional.add_argument(
@@ -167,6 +180,8 @@ def cli() -> None:  # pragma: no cover
         parser_type = "lxml"
     elif arguments.pyppeteer:
         parser_type = "pyppeteer"
+    elif arguments.selenium:
+        parser_type = "selenium"
 
     run(
         urls=arguments.urls,

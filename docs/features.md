@@ -14,3 +14,4 @@
     - [Parsel](https://github.com/scrapy/parsel) - `pip install pydude[parsel]`
     - [lxml](https://lxml.de/) - `pip install pydude[lxml]`
     - [Pyppeteer](https://github.com/pyppeteer/pyppeteer) - `pip install pydude[pyppeteer]`
+    - [Selenium](https://github.com/SeleniumHQ/Selenium) - `pip install pydude[selenium]`

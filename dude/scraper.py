@@ -24,7 +24,7 @@ class Scraper(ScraperBase):
         # extra args
         parser: str = "playwright",
         headless: bool = True,
-        browser_type: str = "chromium",
+        browser_type: str = None,
     ) -> None:
         """
         Convenience method to handle switching between different types of parsers.
@@ -35,9 +35,9 @@ class Scraper(ScraperBase):
         :param output: Output file. If not provided, prints in the terminal.
         :param format: Output file format. If not provided, uses the extension of the output file or defaults to json.
 
-        :param parser: Parser type ["playwright" (default), "bs4", "parsel, "lxml" or "pyppeteer"]
+        :param parser: Parser type ["playwright" (default), "bs4", "parsel, "lxml", "pyppeteer" or "selenium"]
         :param headless: Enables headless browser. (default=True)
-        :param browser_type: Playwright supported browser types ("chromium", "webkit" or "firefox").
+        :param browser_type: Playwright supported browser types ("chromium", "webkit", "firefox" or "safari").
         """
 
         logger.info("Scraper started...")
@@ -74,6 +74,15 @@ class Scraper(ScraperBase):
                 from .optional.pyppeteer_scraper import PyppeteerScraper
 
                 self.scraper = PyppeteerScraper(
+                    rules=self.rules,
+                    groups=self.groups,
+                    save_rules=self.save_rules,
+                    has_async=self.has_async,
+                )
+            elif parser == "selenium":
+                from .optional.selenium_scraper import SeleniumScraper
+
+                self.scraper = SeleniumScraper(
                     rules=self.rules,
                     groups=self.groups,
                     save_rules=self.save_rules,

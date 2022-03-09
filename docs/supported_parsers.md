@@ -78,30 +78,6 @@ Here is the summary of features supported by each parser.
     <td>✅</td>
     <td>✅</td>
   </tr>
-</tbody>
-</table>
-
-## Planned Parser Support
-
-<table>
-<thead>
-  <tr>
-    <td rowspan="2" style='text-align:center;'>Parser Backend</td>
-    <td rowspan="2" style='text-align:center;'>Supports<br>Sync?</td>
-    <td rowspan="2" style='text-align:center;'>Supports<br>Async?</td>
-    <td colspan="4" style='text-align:center;'>Selectors</td>
-    <td rowspan="2" style='text-align:center;'><a href="https://roniemartinez.github.io/dude/advanced/01_setup.html">Setup<br>Handler</a></td>
-    <td rowspan="2" style='text-align:center;'><a href="https://roniemartinez.github.io/dude/advanced/02_navigate.html">Navigate<br>Handler</a></td>
-    <td rowspan="2" style='text-align:center;'>Issue</td>
-  </tr>
-  <tr>
-    <td>CSS</td>
-    <td>XPath</td>
-    <td>Text</td>
-    <td>Regex</td>
-  </tr>
-</thead>
-<tbody>
   <tr>
     <td>Selenium</td>
     <td>✅</td>
@@ -109,10 +85,9 @@ Here is the summary of features supported by each parser.
     <td>✅</td>
     <td>✅</td>
     <td>✅</td>
+    <td>🚫</td>
     <td>✅</td>
     <td>✅</td>
-    <td>✅</td>
-    <td colspan="5"><a href="https://github.com/roniemartinez/dude/issues/54">#54</a></td>
   </tr>
 </tbody>
 </table>
