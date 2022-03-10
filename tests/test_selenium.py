@@ -165,6 +165,23 @@ def test_full_flow(
     mock_save.assert_called_with(expected_data, None)
 
 
+def test_full_flow_without_setup_and_navigate(
+    scraper_application: Scraper,
+    selenium_select: None,
+    expected_data: List[Dict],
+    test_url: str,
+) -> None:
+    assert scraper_application.has_async is False
+    assert len(scraper_application.rules) == 4
+    mock_save = mock.MagicMock()
+    scraper_application.save(format="custom")(mock_save)
+    scraper_application.run(urls=[test_url], pages=2, format="custom", parser="selenium")
+
+    # Pyppeteer prepends "file://" when loading a file
+    expected_data = [{**d, "url": "file://" + d["url"]} for d in expected_data]
+    mock_save.assert_called_with(expected_data, None)
+
+
 def test_full_flow_xpath(
     scraper_application: Scraper,
     selenium_xpath: None,
