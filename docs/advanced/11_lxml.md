@@ -50,7 +50,7 @@ You can run lxml parser using the `--lxml` command-line argument or `parser="lxm
 === "Terminal"
 
     ```commandline
-    dude scrape --url "<url>" --lxml --output data.json path/to/file.py
+    dude scrape --url "<url>" --lxml --output data.json path/to/script.py
     ```
 
 === "Python"

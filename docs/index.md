@@ -37,7 +37,7 @@ The simplest web scraper will look like the example below. Click on the annotati
 
     1. Import the `@select()` decorator
     2. Decorate the function `get_link()` with `@select()` and specify the selector for finding the element in the page.
-    3. It is required that decorator functions should accept 1 argument. This can be an object or a string. This can be of type `ElementHandle` or `BeautifulSoup` depending on which backend was used.
+    3. It is required that decorator functions should accept 1 argument (2 for Pyppeteer). This can be an object or a string depending on which backend was used.
     4. Return a dictionary with information obtained from the argument object. The dictionary can contain multiple key-value pairs or can be empty.
 
 The example above will get all the [hyperlink](https://en.wikipedia.org/wiki/Hyperlink#HTML) elements in a page and calls the handler function `get_link()` for each element.
@@ -49,7 +49,7 @@ To start scraping, use any of the following options. Click on the annotations (+
 === "Terminal"
 
     ```bash
-    dude scrape --url "<url>" --output data.json path/to/file.py #(1)
+    dude scrape --url "<url>" --output data.json path/to/script.py #(1)
     ```
     
     1. You can run your scraper from terminal/shell/command-line by supplying URLs, the output filename of your choice and the paths to your python codes to `dude scrape` command.
@@ -63,4 +63,4 @@ To start scraping, use any of the following options. Click on the annotations (+
         dude.run(urls=["https://dude.ron.sh/"]) #(1)
     ```
 
-    1. You can also use **dude.run()** function and run **python path/to/file.py** from terminal.
+    1. You can also use **dude.run()** function and run **python path/to/script.py** from terminal.

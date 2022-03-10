@@ -1,7 +1,5 @@
 import logging
-from typing import Optional, Sequence
-
-from playwright import sync_api
+from typing import Any, Optional, Sequence
 
 from .base import ScraperBase
 from .playwright_scraper import PlaywrightScraper
@@ -18,7 +16,7 @@ class Scraper(ScraperBase):
         self,
         urls: Sequence[str],
         pages: int = 1,
-        proxy: Optional[sync_api.ProxySettings] = None,
+        proxy: Optional[Any] = None,
         output: Optional[str] = None,
         format: str = "json",
         # extra args
@@ -31,13 +29,13 @@ class Scraper(ScraperBase):
 
         :param urls: List of website URLs.
         :param pages: Maximum number of pages to crawl before exiting (default=1). This is only used when a navigate handler is defined. # noqa
-        :param proxy: Proxy settings. (see https://playwright.dev/python/docs/api/class-apirequest#api-request-new-context-option-proxy)  # noqa
+        :param proxy: Proxy settings.
         :param output: Output file. If not provided, prints in the terminal.
         :param format: Output file format. If not provided, uses the extension of the output file or defaults to json.
 
-        :param parser: Parser type ["playwright" (default), "bs4", "parsel, "lxml" or "pyppeteer"]
+        :param parser: Parser type ["playwright" (default), "bs4", "parsel, "lxml", "pyppeteer" or "selenium"]
         :param headless: Enables headless browser. (default=True)
-        :param browser_type: Playwright supported browser types ("chromium", "webkit" or "firefox").
+        :param browser_type: Playwright supported browser types ("chromium", "chrome", "webkit", or "firefox").
         """
 
         logger.info("Scraper started...")
@@ -74,6 +72,15 @@ class Scraper(ScraperBase):
                 from .optional.pyppeteer_scraper import PyppeteerScraper
 
                 self.scraper = PyppeteerScraper(
+                    rules=self.rules,
+                    groups=self.groups,
+                    save_rules=self.save_rules,
+                    has_async=self.has_async,
+                )
+            elif parser == "selenium":
+                from .optional.selenium_scraper import SeleniumScraper
+
+                self.scraper = SeleniumScraper(
                     rules=self.rules,
                     groups=self.groups,
                     save_rules=self.save_rules,

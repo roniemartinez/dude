@@ -1,8 +1,7 @@
 import logging
 import sys
 from pathlib import Path
-
-from playwright.sync_api import ProxySettings
+from typing import Any
 
 from .context import group, run, save, select  # noqa: F401
 from .scraper import Scraper  # noqa: F401
@@ -78,6 +77,13 @@ def cli() -> None:  # pragma: no cover
         action="store_true",
         help="Use Pyppeteer.",
     )
+    parser_group.add_argument(
+        "--selenium",
+        dest="selenium",
+        default=False,
+        action="store_true",
+        help="Use Selenium.",
+    )
     optional.add_argument(
         "--headed",
         dest="headed",
@@ -89,7 +95,11 @@ def cli() -> None:  # pragma: no cover
         "--browser",
         dest="browser",
         default="chromium",
-        choices=("chromium", "webkit", "firefox"),
+        choices=(
+            "chromium",
+            "firefox",
+            "webkit",  # Applies only to Playwright
+        ),
         help="Browser type to use.",
     )
     optional.add_argument(
@@ -150,14 +160,6 @@ def cli() -> None:  # pragma: no cover
             module = importlib.util.module_from_spec(spec)
             spec.loader.exec_module(module)
 
-    proxy = None
-    if arguments.proxy_server:
-        proxy = ProxySettings(  # type: ignore
-            server=arguments.proxy_server,
-            username=arguments.proxy_user or "",
-            password=arguments.proxy_pass or "",
-        )
-
     parser_type = "playwright"
     if arguments.bs4:
         parser_type = "bs4"
@@ -167,6 +169,23 @@ def cli() -> None:  # pragma: no cover
         parser_type = "lxml"
     elif arguments.pyppeteer:
         parser_type = "pyppeteer"
+    elif arguments.selenium:
+        parser_type = "selenium"
+
+    proxy: Any = None
+    if arguments.proxy_server:
+        if parser_type in ("playwright", "pyppeteer"):
+            proxy = {
+                "server": arguments.proxy_server,
+                "username": arguments.proxy_user or "",
+                "password": arguments.proxy_pass or "",
+            }
+        elif parser_type in ("bs4", "parsel", "lxml"):
+            user_info = ""
+            if arguments.proxy_user and arguments.proxy_pass:
+                user_info = f"{arguments.proxy_user}:{arguments.proxy_pass}@"
+
+            proxy = f"http://{user_info}{arguments.proxy_server}"
 
     run(
         urls=arguments.urls,

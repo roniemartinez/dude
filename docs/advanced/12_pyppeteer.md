@@ -51,7 +51,7 @@ You can run Pyppeteer parser using the `--pyppeteer` command-line argument or `p
 === "Terminal"
 
     ```commandline
-    dude scrape --url "<url>" --pyppeteer --output data.json path/to/file.py
+    dude scrape --url "<url>" --pyppeteer --output data.json path/to/script.py
     ```
 
 === "Python"

@@ -63,6 +63,10 @@ jobs:
           key: ${{ runner.os }}-${{ matrix.python-version }}-ms-playwright-${{ hashFiles('**/poetry.lock') }}
           restore-keys: |
             ${{ runner.os }}-${{ matrix.python-version }}-ms-playwright-
+      - uses: actions/cache@v2
+        with:
+          path: ~/.wdm
+          key: ${{ runner.os }}-webdriver-manager
       - name: Install dependencies
         run: |
           make install-actions
@@ -70,6 +74,9 @@ jobs:
         run: |
           make lint
       - name: Test
+        env:
+          CHROMEDRIVER_VERSION: 98.0.4758.102
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
         run: |
           make test
       - name: Code Coverage

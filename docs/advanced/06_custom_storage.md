@@ -31,7 +31,7 @@ The custom storage above can then be called using any of the options below.
 === "Terminal"
 
     ```bash
-    dude scrape --url "<url>" path/to/file.py --format table
+    dude scrape --url "<url>" path/to/script.py --format table
     ```
 
 === "Python"

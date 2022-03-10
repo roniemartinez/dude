@@ -42,7 +42,7 @@ You can run BeautifulSoup4 parser using the `--bs4` command-line argument or `pa
 === "Terminal"
 
     ```commandline
-    dude scrape --url "<url>" --bs4 --output data.json path/to/file.py
+    dude scrape --url "<url>" --bs4 --output data.json path/to/script.py
     ```
 
 === "Python"

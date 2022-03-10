@@ -5,8 +5,6 @@ from abc import ABC, abstractmethod
 from pathlib import Path
 from typing import Any, AsyncIterable, Callable, Coroutine, Dict, Iterable, List, Optional, Sequence, Tuple, Union
 
-from playwright import sync_api
-
 from .rule import Rule, Selector, rule_filter
 from .scraped_data import ScrapedData, scraped_data_grouper, scraped_data_sorter
 from .storage import save_json
@@ -40,7 +38,7 @@ class ScraperBase(ABC):
         self,
         urls: Sequence[str],
         pages: int,
-        proxy: Optional[sync_api.ProxySettings],
+        proxy: Optional[Any],
         output: Optional[str],
         format: str,
     ) -> None:
@@ -49,7 +47,7 @@ class ScraperBase(ABC):
 
         :param urls: List of website URLs.
         :param pages: Maximum number of pages to crawl before exiting (default=1). This is only used when a navigate handler is defined. # noqa
-        :param proxy: Proxy settings. (see https://playwright.dev/python/docs/api/class-apirequest#api-request-new-context-option-proxy)  # noqa
+        :param proxy: Proxy settings.
         :param output: Output file. If not provided, prints in the terminal.
         :param format: Output file format. If not provided, uses the extension of the output file or defaults to json.
         """

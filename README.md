@@ -62,7 +62,7 @@ The example above will get all the [hyperlink](https://en.wikipedia.org/wiki/Hyp
 You can run your scraper from terminal/shell/command-line by supplying URLs, the output filename of your choice and the paths to your python codes to `dude scrape` command.
 
 ```bash
-dude scrape --url "<url>" --output data.json path/to/file.py
+dude scrape --url "<url>" --output data.json path/to/script.py
 ```
 
 ## Features
@@ -77,16 +77,21 @@ dude scrape --url "<url>" --output data.json path/to/file.py
 - Custom storage - option to save data to other formats or database.
 - Async support - write async handlers.
 - Option to use other parsers aside from Playwright.
-  - [BeautifulSoup4](https://roniemartinez.github.io/dude/advanced/09_beautifulsoup4.html)
-  - [Parsel](https://roniemartinez.github.io/dude/advanced/10_parsel.html)
-  - [lxml](https://roniemartinez.github.io/dude/advanced/11_lxml.html)
-  - [Pyppeteer](https://roniemartinez.github.io/dude/advanced/12_pyppeteer.html)
+  - [BeautifulSoup4](https://roniemartinez.github.io/dude/advanced/09_beautifulsoup4.html) - `pip install pydude[bs4]`
+  - [Parsel](https://roniemartinez.github.io/dude/advanced/10_parsel.html) - `pip install pydude[parsel]`
+  - [lxml](https://roniemartinez.github.io/dude/advanced/11_lxml.html) - `pip install pydude[lxml]`
+  - [Pyppeteer](https://roniemartinez.github.io/dude/advanced/12_pyppeteer.html) - `pip install pydude[pyppeteer]`
+  - [Selenium](https://roniemartinez.github.io/dude/advanced/13_selenium.html) - `pip install pydude[selenium]`
 
 ## Supported Parsers
 
 By default, Dude uses Playwright but gives you an option to use parsers that you are familiar with.
-It is possible to use parser backends like [BeautifulSoup4](https://www.crummy.com/software/BeautifulSoup/bs4/doc/), 
-[Parsel](https://github.com/scrapy/parsel), [lxml](https://lxml.de/) and [Pyppeteer](https://github.com/pyppeteer/pyppeteer).
+It is possible to use parser backends like 
+[BeautifulSoup4](https://www.crummy.com/software/BeautifulSoup/bs4/doc/), 
+[Parsel](https://github.com/scrapy/parsel),
+[lxml](https://lxml.de/),
+[Pyppeteer](https://github.com/pyppeteer/pyppeteer), 
+and [Selenium](https://github.com/SeleniumHQ/Selenium).
 
 Here is the summary of features supported by each parser.
 
@@ -163,41 +168,16 @@ Here is the summary of features supported by each parser.
     <td>✅</td>
     <td>✅</td>
   </tr>
-</tbody>
-</table>
-
-### Planned Parser Support
-
-<table>
-<thead>
-  <tr>
-    <td rowspan="2" style='text-align:center;'>Parser Backend</td>
-    <td rowspan="2" style='text-align:center;'>Supports<br>Sync?</td>
-    <td rowspan="2" style='text-align:center;'>Supports<br>Async?</td>
-    <td colspan="4" style='text-align:center;'>Selectors</td>
-    <td rowspan="2" style='text-align:center;'><a href="https://roniemartinez.github.io/dude/advanced/01_setup.html">Setup<br>Handler</a></td>
-    <td rowspan="2" style='text-align:center;'><a href="https://roniemartinez.github.io/dude/advanced/02_navigate.html">Navigate<br>Handler</a></td>
-    <td rowspan="2" style='text-align:center;'>Issue</td>
-  </tr>
-  <tr>
-    <td>CSS</td>
-    <td>XPath</td>
-    <td>Text</td>
-    <td>Regex</td>
-  </tr>
-</thead>
-<tbody>
   <tr>
     <td>Selenium</td>
+    <td>✅</td>
+    <td>✅</td>
+    <td>✅</td>
+    <td>✅</td>
     <td>✅</td>
     <td>🚫</td>
     <td>✅</td>
     <td>✅</td>
-    <td>✅</td>
-    <td>✅</td>
-    <td>✅</td>
-    <td>✅</td>
-    <td colspan="5"><a href="https://github.com/roniemartinez/dude/issues/54">#54</a></td>
   </tr>
 </tbody>
 </table>

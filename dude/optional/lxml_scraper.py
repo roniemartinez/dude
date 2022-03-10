@@ -4,9 +4,9 @@ import logging
 from typing import Any, AsyncIterable, Callable, Iterable, Optional, Sequence, Tuple
 
 import httpx
+from httpx._types import ProxiesTypes
 from lxml import etree
 from lxml.etree import _Element
-from playwright import sync_api
 
 from ..base import ScraperAbstract
 from ..rule import Selector, SelectorType, rule_grouper, rule_sorter
@@ -23,7 +23,7 @@ class LxmlScraper(ScraperAbstract):
         self,
         urls: Sequence[str],
         pages: int = 1,
-        proxy: Optional[sync_api.ProxySettings] = None,
+        proxy: ProxiesTypes = None,
         output: Optional[str] = None,
         format: str = "json",
         **kwargs: Any,
@@ -33,7 +33,7 @@ class LxmlScraper(ScraperAbstract):
 
         :param urls: List of website URLs.
         :param pages: Maximum number of pages to crawl before exiting (default=1). This is only used when a navigate handler is defined. # noqa
-        :param proxy: Proxy settings. (see https://playwright.dev/python/docs/api/class-apirequest#api-request-new-context-option-proxy)  # noqa
+        :param proxy: Proxy settings. (see https://www.python-httpx.org/advanced/#http-proxying)  # noqa
         :param output: Output file. If not provided, prints in the terminal.
         :param format: Output file format. If not provided, uses the extension of the output file or defaults to json.
         """
@@ -43,21 +43,22 @@ class LxmlScraper(ScraperAbstract):
         if self.has_async:
             logger.info("Using async mode...")
             loop = asyncio.get_event_loop()
-            loop.run_until_complete(self._run_async(urls=urls, pages=pages, output=output, format=format))
+            loop.run_until_complete(self._run_async(urls=urls, pages=pages, proxy=proxy, output=output, format=format))
             # FIXME: Tests fail on Python 3.7 when using asyncio.run()
-            # asyncio.run(self._run_async((urls=urls, pages=pages, output=output, format=format))
+            # asyncio.run(self._run_async((urls=urls, pages=pages, proxy=proxy, output=output, format=format))
         else:
             logger.info("Using sync mode...")
-            self._run_sync(urls=urls, pages=pages, output=output, format=format)
+            self._run_sync(urls=urls, pages=pages, proxy=proxy, output=output, format=format)
 
     def _run_sync(
         self,
         urls: Sequence[str],
         pages: int,
+        proxy: Optional[ProxiesTypes],
         output: Optional[str],
         format: str,
     ) -> None:
-        with httpx.Client() as client:
+        with httpx.Client(proxies=proxy) as client:
             for url in urls:
                 for i in range(1, pages + 1):
                     if url.startswith("file://"):
@@ -83,10 +84,11 @@ class LxmlScraper(ScraperAbstract):
         self,
         urls: Sequence[str],
         pages: int,
+        proxy: Optional[ProxiesTypes],
         output: Optional[str],
         format: str,
     ) -> None:
-        async with httpx.AsyncClient() as client:
+        async with httpx.AsyncClient(proxies=proxy) as client:
             for url in urls:
                 for i in range(1, pages + 1):
                     if url.startswith("file://"):
