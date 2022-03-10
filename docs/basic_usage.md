@@ -91,7 +91,7 @@ To start scraping, use any of the following options. Click on the annotations (+
 === "Terminal"
 
     ```bash
-    dude scrape --url "<url>" --output data.json path/to/file.py #(1)
+    dude scrape --url "<url>" --output data.json path/to/script.py #(1)
     ```
     
     1. You can run your scraper from terminal/shell/command-line by supplying URLs, the output filename of your choice and the paths to your python codes to `dude scrape` command.
@@ -105,7 +105,7 @@ To start scraping, use any of the following options. Click on the annotations (+
         dude.run(urls=["https://dude.ron.sh/"]) #(1)
     ```
 
-    1. You can also use **dude.run()** function and run **python path/to/file.py** from terminal.
+    1. You can also use **dude.run()** function and run **python path/to/script.py** from terminal.
 
 ## Examples
 

@@ -53,7 +53,7 @@ The example above will get all the [hyperlink](https://en.wikipedia.org/wiki/Hyp
 You can run your scraper from terminal/shell/command-line by supplying URLs, the output filename of your choice and the paths to your python codes to `dude scrape` command.
 
 ```bash
-dude scrape --url "<url>" --output data.json path/to/file.py
+dude scrape --url "<url>" --output data.json path/to/script.py
 ```
 
 ## Features
@@ -68,11 +68,11 @@ dude scrape --url "<url>" --output data.json path/to/file.py
 - Custom storage - option to save data to other formats or database.
 - Async support - write async handlers.
 - Option to use other parsers aside from Playwright.
-  - [BeautifulSoup4](https://roniemartinez.github.io/dude/advanced/09_beautifulsoup4.html)
-  - [Parsel](https://roniemartinez.github.io/dude/advanced/10_parsel.html)
-  - [lxml](https://roniemartinez.github.io/dude/advanced/11_lxml.html)
-  - [Pyppeteer](https://roniemartinez.github.io/dude/advanced/12_pyppeteer.html)
-  - [Selenium](https://roniemartinez.github.io/dude/advanced/13_selenium.html)
+  - [BeautifulSoup4](https://roniemartinez.github.io/dude/advanced/09_beautifulsoup4.html) - `pip install pydude[bs4]`
+  - [Parsel](https://roniemartinez.github.io/dude/advanced/10_parsel.html) - `pip install pydude[parsel]`
+  - [lxml](https://roniemartinez.github.io/dude/advanced/11_lxml.html) - `pip install pydude[lxml]`
+  - [Pyppeteer](https://roniemartinez.github.io/dude/advanced/12_pyppeteer.html) - `pip install pydude[pyppeteer]`
+  - [Selenium](https://roniemartinez.github.io/dude/advanced/13_selenium.html) - `pip install pydude[selenium]`
 
 ## Supported Parsers
 

@@ -13,10 +13,6 @@ Selenium is an optional dependency and can only be installed via `pip` using the
 
 Instead of Playwright's `ElementHandle` objects when using Playwright as parser, `WebElement` objects are passed to the decorated functions.
 
-!!! info
-
-    Selenium only supports sync
-
 === "Python"
 
     ```python
@@ -40,7 +36,7 @@ You can run Selenium parser using the `--selenium` command-line argument or `par
 === "Terminal"
 
     ```commandline
-    dude scrape --url "<url>" --selenium --output data.json path/to/file.py
+    dude scrape --url "<url>" --selenium --output data.json path/to/script.py
     ```
 
 === "Python"

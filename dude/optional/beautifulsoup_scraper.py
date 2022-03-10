@@ -139,8 +139,15 @@ class BeautifulSoupScraper(ScraperAbstract):
 
     @staticmethod
     def _get_elements(soup: BeautifulSoup, selector: Selector) -> Iterable[BeautifulSoup]:
-        if selector.selector_type() in (SelectorType.CSS, SelectorType.ANY):  # assume CSS
+        selector_type = selector.selector_type()
+        if selector_type in (SelectorType.CSS, SelectorType.ANY):  # assume CSS
             yield from soup.select(selector.to_str())
+        elif selector_type == SelectorType.XPATH:
+            raise Exception("XPath selector is not supported.")
+        elif selector_type == SelectorType.TEXT:
+            raise Exception("Text selector is not supported.")
+        else:
+            raise Exception("Regex selector is not supported.")
 
     async def collect_elements_async(self, **kwargs: Any) -> AsyncIterable[Tuple[str, int, int, int, Any, Callable]]:
         for item in self.collect_elements(**kwargs):

@@ -43,7 +43,7 @@ You can run Parsel parser using the `--parsel` command-line argument or `parser=
 === "Terminal"
 
     ```commandline
-    dude scrape --url "<url>" --parsel --output data.json path/to/file.py
+    dude scrape --url "<url>" --parsel --output data.json path/to/script.py
     ```
 
 === "Python"

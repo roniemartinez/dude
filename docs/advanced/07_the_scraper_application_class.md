@@ -7,7 +7,7 @@ It is possible to create your own scraper application object using the example b
 
     🚨 This is not currently supported by the command-line interface!
 
-    Please use the command `python path/to/file.py` to run the scraper application.
+    Please use the command `python path/to/script.py` to run the scraper application.
 
 === "Python"
 

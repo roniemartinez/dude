@@ -45,6 +45,13 @@ pyppeteer = {version = "^1.0.2", optional = true}
 selenium = {version = "^4.1.3", optional = true}
 webdriver-manager = {version = "^3.5.3", optional = true}
 
+[tool.poetry.extras]
+bs4 = ["beautifulsoup4", "httpx"]
+lxml = ["lxml", "cssselect", "httpx"]
+parsel = ["parsel", "httpx"]
+pyppeteer = ["pyppeteer"]
+selenium = ["selenium", "webdriver-manager"]
+
 [tool.poetry.dev-dependencies]
 autoflake = "^1.3.1"
 black = "^22.1"
@@ -59,13 +66,6 @@ pytest-clarity = "^1.0.1"
 pytest-cov = "^3.0.0"
 tabulate = { git = "https://github.com/astanin/python-tabulate" }
 types-PyYAML = "^6.0.4"
-
-[tool.poetry.extras]
-bs4 = ["beautifulsoup4", "httpx"]
-lxml = ["lxml", "cssselect", "httpx"]
-parsel = ["parsel", "httpx"]
-pyppeteer = ["pyppeteer"]
-selenium = ["selenium", "webdriver-manager"]
 
 [tool.isort]
 line_length = 120
