@@ -33,6 +33,15 @@ Dude has an easy-to-learn syntax.
 
 > 🚨 Dude is currently in Pre-Alpha. Please expect breaking changes.
 
+## Installation
+
+To install, simply run the following from terminal.
+
+```bash
+pip install pydude
+playwright install  # Install playwright binaries for Chrome, Firefox and Webkit.
+```
+
 ## Minimal web scraper
 
 The simplest web scraper will look like this:
