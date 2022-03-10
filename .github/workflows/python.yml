@@ -66,7 +66,7 @@ jobs:
       - uses: actions/cache@v2
         with:
           path: ~/.wdm
-          key: ${{ runner.os }-webdriver-manager
+          key: ${{ runner.os }}-webdriver-manager
       - name: Install dependencies
         run: |
           make install-actions
