@@ -59,6 +59,13 @@ def async_pyppeteer_text(scraper_application: Scraper) -> None:
 
 
 @pytest.fixture()
+def async_pyppeteer_regex(scraper_application: Scraper) -> None:
+    @scraper_application.select(regex=".*", group_css=".custom-group")
+    async def url(element: ElementHandle, page: Page) -> Dict:
+        return {}
+
+
+@pytest.fixture()
 def async_pyppeteer_setup(scraper_application: Scraper) -> None:
     @scraper_application.select(css=":root", setup=True)
     async def check_page(element: ElementHandle, page: Page) -> None:
@@ -85,6 +92,23 @@ def test_full_flow(
 ) -> None:
     assert scraper_application.has_async is True
     assert len(scraper_application.rules) == 6
+    mock_save = mock.MagicMock()
+    scraper_application.save(format="custom")(mock_save)
+    scraper_application.run(urls=[test_url], pages=2, format="custom", parser="pyppeteer")
+
+    # Pyppeteer prepends "file://" when loading a file
+    expected_data = [{**d, "url": "file://" + d["url"]} for d in expected_data]
+    mock_save.assert_called_with(expected_data, None)
+
+
+def test_full_flow_async_without_setup_and_navigate(
+    scraper_application: Scraper,
+    async_pyppeteer_select: None,
+    expected_data: List[Dict],
+    test_url: str,
+) -> None:
+    assert scraper_application.has_async is True
+    assert len(scraper_application.rules) == 4
     mock_save = mock.MagicMock()
     scraper_application.save(format="custom")(mock_save)
     scraper_application.run(urls=[test_url], pages=2, format="custom", parser="pyppeteer")
@@ -130,3 +154,17 @@ def test_full_flow_text(
     # Pyppeteer prepends "file://" when loading a file
     expected_data = [{**d, "url": "file://" + d["url"]} for d in expected_data]
     mock_save.assert_called_with(expected_data, None)
+
+
+def test_unsupported_regex(
+    scraper_application: Scraper,
+    async_pyppeteer_regex: None,
+    expected_data: List[Dict],
+    test_url: str,
+) -> None:
+    assert scraper_application.has_async is True
+    assert len(scraper_application.rules) == 1
+    mock_save = mock.MagicMock()
+    scraper_application.save(format="custom")(mock_save)
+    with pytest.raises(Exception):
+        scraper_application.run(urls=[test_url], pages=2, format="custom", parser="pyppeteer")

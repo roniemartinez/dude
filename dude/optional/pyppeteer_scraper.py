@@ -78,7 +78,7 @@ class PyppeteerScraper(ScraperAbstract):
         """
         assert page is not None
         for rule in self.get_setup_rules(page.url):
-            for element in await page.querySelectorAll(rule.selector.to_str(with_type=False)):
+            for element in await self._get_elements(page, rule.selector):
                 await rule.handler(element, page)
 
     def navigate(self, page: Page = None) -> bool:
@@ -92,7 +92,7 @@ class PyppeteerScraper(ScraperAbstract):
         """
         assert page is not None
         for rule in self.get_navigate_rules(page.url):
-            for element in await page.querySelectorAll(rule.selector.to_str(with_type=False)):
+            for element in await self._get_elements(page, rule.selector):
                 await rule.handler(element, page)
                 logger.info("Navigated to %s", page.url)
                 return True
