@@ -1,8 +1,7 @@
 import logging
 import sys
 from pathlib import Path
-
-from playwright.sync_api import ProxySettings
+from typing import Any
 
 from .context import group, run, save, select  # noqa: F401
 from .scraper import Scraper  # noqa: F401
@@ -161,14 +160,6 @@ def cli() -> None:  # pragma: no cover
             module = importlib.util.module_from_spec(spec)
             spec.loader.exec_module(module)
 
-    proxy = None
-    if arguments.proxy_server:
-        proxy = ProxySettings(  # type: ignore
-            server=arguments.proxy_server,
-            username=arguments.proxy_user or "",
-            password=arguments.proxy_pass or "",
-        )
-
     parser_type = "playwright"
     if arguments.bs4:
         parser_type = "bs4"
@@ -180,6 +171,21 @@ def cli() -> None:  # pragma: no cover
         parser_type = "pyppeteer"
     elif arguments.selenium:
         parser_type = "selenium"
+
+    proxy: Any = None
+    if arguments.proxy_server:
+        if parser_type in ("playwright", "pyppeteer"):
+            proxy = {
+                "server": arguments.proxy_server,
+                "username": arguments.proxy_user or "",
+                "password": arguments.proxy_pass or "",
+            }
+        elif parser_type in ("bs4", "parsel", "lxml"):
+            user_info = ""
+            if arguments.proxy_user and arguments.proxy_pass:
+                user_info = f"{arguments.proxy_user}:{arguments.proxy_pass}@"
+
+            proxy = f"http://{user_info}{arguments.proxy_server}"
 
     run(
         urls=arguments.urls,

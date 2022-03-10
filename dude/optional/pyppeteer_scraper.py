@@ -3,7 +3,6 @@ import itertools
 import logging
 from typing import Any, AsyncIterable, Callable, Dict, Iterable, List, Optional, Sequence, Tuple, Union
 
-from playwright import sync_api
 from pyppeteer import launch
 from pyppeteer.element_handle import ElementHandle
 from pyppeteer.page import Page
@@ -24,7 +23,7 @@ class PyppeteerScraper(ScraperAbstract):
         self,
         urls: Sequence[str],
         pages: int = 1,
-        proxy: Optional[sync_api.ProxySettings] = None,
+        proxy: Optional[Dict] = None,
         output: Optional[str] = None,
         format: str = "json",
         headless: bool = True,
@@ -35,7 +34,7 @@ class PyppeteerScraper(ScraperAbstract):
 
         :param urls: List of website URLs.
         :param pages: Maximum number of pages to crawl before exiting (default=1). This is only used when a navigate handler is defined. # noqa
-        :param proxy: Proxy settings. (see https://playwright.dev/python/docs/api/class-apirequest#api-request-new-context-option-proxy)  # noqa
+        :param proxy: Proxy settings.
         :param output: Output file. If not provided, prints in the terminal.
         :param format: Output file format. If not provided, uses the extension of the output file or defaults to json.
 
@@ -103,7 +102,7 @@ class PyppeteerScraper(ScraperAbstract):
         urls: Sequence[str],
         headless: bool,
         pages: int,
-        proxy: Optional[sync_api.ProxySettings],
+        proxy: Optional[Dict],
         output: Optional[str],
         format: str,
     ) -> None:

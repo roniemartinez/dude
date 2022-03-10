@@ -4,7 +4,6 @@ import logging
 import os
 from typing import Any, AsyncIterable, Callable, Iterable, Optional, Sequence, Tuple, Union
 
-from playwright.async_api import ProxySettings
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options as ChromeOptions
 from selenium.webdriver.chrome.service import Service as ChromeService
@@ -32,7 +31,7 @@ class SeleniumScraper(ScraperAbstract):
         self,
         urls: Sequence[str],
         pages: int = 1,
-        proxy: Optional[ProxySettings] = None,
+        proxy: Optional[Any] = None,
         output: Optional[str] = None,
         format: str = "json",
         headless: bool = True,
@@ -44,7 +43,7 @@ class SeleniumScraper(ScraperAbstract):
 
         :param urls: List of website URLs.
         :param pages: Maximum number of pages to crawl before exiting (default=1). This is only used when a navigate handler is defined. # noqa
-        :param proxy: Proxy settings. (see https://playwright.dev/python/docs/api/class-apirequest#api-request-new-context-option-proxy)  # noqa
+        :param proxy: Proxy settings.
         :param output: Output file. If not provided, prints in the terminal.
         :param format: Output file format. If not provided, uses the extension of the output file or defaults to json.
 
@@ -154,7 +153,7 @@ class SeleniumScraper(ScraperAbstract):
         headless: bool,
         browser_type: str,
         pages: int,
-        proxy: Optional[ProxySettings],
+        proxy: Optional[Any],
         output: Optional[str],
         format: str,
     ) -> None:
@@ -181,7 +180,7 @@ class SeleniumScraper(ScraperAbstract):
         headless: bool,
         browser_type: str,
         pages: int,
-        proxy: Optional[ProxySettings],
+        proxy: Optional[Any],
         output: Optional[str],
         format: str,
     ) -> None:

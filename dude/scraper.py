@@ -1,7 +1,5 @@
 import logging
-from typing import Optional, Sequence
-
-from playwright import sync_api
+from typing import Any, Optional, Sequence
 
 from .base import ScraperBase
 from .playwright_scraper import PlaywrightScraper
@@ -18,7 +16,7 @@ class Scraper(ScraperBase):
         self,
         urls: Sequence[str],
         pages: int = 1,
-        proxy: Optional[sync_api.ProxySettings] = None,
+        proxy: Optional[Any] = None,
         output: Optional[str] = None,
         format: str = "json",
         # extra args
@@ -31,7 +29,7 @@ class Scraper(ScraperBase):
 
         :param urls: List of website URLs.
         :param pages: Maximum number of pages to crawl before exiting (default=1). This is only used when a navigate handler is defined. # noqa
-        :param proxy: Proxy settings. (see https://playwright.dev/python/docs/api/class-apirequest#api-request-new-context-option-proxy)  # noqa
+        :param proxy: Proxy settings.
         :param output: Output file. If not provided, prints in the terminal.
         :param format: Output file format. If not provided, uses the extension of the output file or defaults to json.
 
