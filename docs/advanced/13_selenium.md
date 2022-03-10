@@ -54,7 +54,7 @@ You can run Selenium parser using the `--selenium` command-line argument or `par
 
 ## Limitations
 
-1Selenium does not support XPath 2.0, therefore not allowing regular expression.
+1. Selenium does not support XPath 2.0, therefore not allowing regular expression.
 
 ## Examples
 
