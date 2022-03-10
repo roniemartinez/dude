@@ -9,6 +9,14 @@ from dude import Scraper, storage
 from dude.storage import save_csv, save_json, save_yaml
 
 
+@pytest.mark.parametrize(
+    "browser_type",
+    (
+        "chromium",
+        "firefox",
+        "webkit",
+    ),
+)
 def test_full_flow(
     scraper_application: Scraper,
     playwright_select: None,
@@ -16,12 +24,13 @@ def test_full_flow(
     playwright_navigate: None,
     expected_data: List[Dict],
     test_url: str,
+    browser_type: str,
 ) -> None:
     assert scraper_application.has_async is False
     assert len(scraper_application.rules) == 6
     mock_save = mock.MagicMock()
     scraper_application.save(format="custom")(mock_save)
-    scraper_application.run(urls=[test_url], pages=2, format="custom", parser="playwright")
+    scraper_application.run(urls=[test_url], pages=2, format="custom", parser="playwright", browser_type=browser_type)
     mock_save.assert_called_with(expected_data, None)
 
 
