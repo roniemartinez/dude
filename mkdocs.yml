@@ -41,7 +41,9 @@ nav:
       - lxml Scraper: advanced/11_lxml.md
       - Pyppeteer Scraper: advanced/12_pyppeteer.md
       - Selenium Scraper: advanced/13_selenium.md
-  - supported_parsers.md
+  - Supported Parsers:
+      - supported_parsers/index.md
+      - Migrating Your Web Scrapers to Dude: supported_parsers/migrating.md
   - cli.md
   - reference.md
 

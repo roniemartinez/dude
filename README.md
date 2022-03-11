@@ -59,7 +59,7 @@ The example above will get all the [hyperlink](https://en.wikipedia.org/wiki/Hyp
 
 ## How to run the scraper
 
-You can run your scraper from terminal/shell/command-line by supplying URLs, the output filename of your choice and the paths to your python codes to `dude scrape` command.
+You can run your scraper from terminal/shell/command-line by supplying URLs, the output filename of your choice and the paths to your python scripts to `dude scrape` command.
 
 ```bash
 dude scrape --url "<url>" --output data.json path/to/script.py

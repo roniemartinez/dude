@@ -9,7 +9,7 @@ Parsel is an optional dependency and can only be installed via `pip` using the c
     pip install pydude[parsel]
     ```
 
-## Required changes to your code in order to use Parsel
+## Required changes to your script in order to use Parsel
 
 Instead of ElementHandle objects when using Playwright as parser, Selector objects are passed to the decorated functions.
 

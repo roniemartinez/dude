@@ -3,13 +3,13 @@
 === "CLI"
 
     ```commandline
-    usage: dude scrape [-h] --url URL [--playwright | --bs4] [--headed] [--browser {chromium,webkit,firefox}] [--pages PAGES] [--output OUTPUT] [--format FORMAT] [--proxy-server PROXY_SERVER]
-                       [--proxy-user PROXY_USER] [--proxy-pass PROXY_PASS]
+    usage: dude scrape [-h] --url URL [--playwright | --bs4 | --parsel | --lxml | --pyppeteer | --selenium] [--headed] [--browser {chromium,firefox,webkit}] [--pages PAGES] [--output OUTPUT]
+                       [--format FORMAT] [--proxy-server PROXY_SERVER] [--proxy-user PROXY_USER] [--proxy-pass PROXY_PASS]
                        PATH [PATH ...]
     
     Run the dude scraper.
     
-    options:
+    optional arguments:
       -h, --help            show this help message and exit
     
     required arguments:
@@ -19,8 +19,12 @@
     optional arguments:
       --playwright          Use Playwright.
       --bs4                 Use BeautifulSoup4.
+      --parsel              Use Parsel.
+      --lxml                Use lxml.
+      --pyppeteer           Use Pyppeteer.
+      --selenium            Use Selenium.
       --headed              Run headed browser.
-      --browser {chromium,webkit,firefox}
+      --browser {chromium,firefox,webkit}
                             Browser type to use.
       --pages PAGES         Maximum number of pages to crawl before exiting (default=1). This is only valid when a navigate handler is defined.
       --output OUTPUT       Output file. If not provided, prints into the terminal.

@@ -9,7 +9,7 @@ BeautifulSoup4 is an optional dependency and can only be installed via `pip` usi
     pip install pydude[bs4]
     ```
 
-## Required changes to your code in order to use BeautifulSoup4
+## Required changes to your script in order to use BeautifulSoup4
 
 Instead of ElementHandle objects when using Playwright as parser, Soup objects are passed to the decorated functions.
 

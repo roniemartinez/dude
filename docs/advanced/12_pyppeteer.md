@@ -12,7 +12,7 @@ Pyppeteer is an optional dependency and can only be installed via `pip` using th
 
     1. Download recent version of Chromium
 
-## Required changes to your code in order to use Pyppeteer
+## Required changes to your script in order to use Pyppeteer
 
 Instead of Playwright's `ElementHandle` objects when using Playwright as parser, Pyppeteer has its own `ElementHandle` objects that are passed to the decorated functions.
 The decorated functions will need to accept 2 arguments, `element` and `page` objects. 
