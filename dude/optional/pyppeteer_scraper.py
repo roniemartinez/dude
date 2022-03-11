@@ -128,7 +128,6 @@ class PyppeteerScraper(ScraperAbstract):
                 if i == pages or not await self.navigate_async(page=page) or current_page == page.url:
                     break
 
-        await page.close()
         await browser.close()
         await self._save_async(format, output)
 
