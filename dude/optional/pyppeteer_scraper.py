@@ -106,7 +106,7 @@ class PyppeteerScraper(ScraperAbstract):
         output: Optional[str],
         format: str,
     ) -> None:
-        launch_args: Dict[str, Any] = {"headless": headless}
+        launch_args: Dict[str, Any] = {"headless": headless, "args": ["--no-sandbox"]}
         if proxy:
             launch_args["args"] = [f"--proxy-server={proxy['server']}"]
 
@@ -127,6 +127,7 @@ class PyppeteerScraper(ScraperAbstract):
                 # TODO: Add option to save data per page
                 if i == pages or not await self.navigate_async(page=page) or current_page == page.url:
                     break
+
         await browser.close()
         await self._save_async(format, output)
 

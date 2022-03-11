@@ -9,7 +9,7 @@ lxml is an optional dependency and can only be installed via `pip` using the com
     pip install pydude[lxml]
     ```
 
-## Required changes to your code in order to use lxml
+## Required changes to your script in order to use lxml
 
 Instead of ElementHandle objects when using Playwright as parser, [Element, "smart" strings, etc.](https://lxml.de/xpathxslt.html#xpath-return-values) objects are passed to the decorated functions.
 

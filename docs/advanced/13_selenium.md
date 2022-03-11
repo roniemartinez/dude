@@ -9,7 +9,7 @@ Selenium is an optional dependency and can only be installed via `pip` using the
     pip install pydude[selenium]
     ```
 
-## Required changes to your code in order to use Selenium
+## Required changes to your script in order to use Selenium
 
 Instead of Playwright's `ElementHandle` objects when using Playwright as parser, `WebElement` objects are passed to the decorated functions.
 

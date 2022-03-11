@@ -8,12 +8,12 @@ async def result_url(element):
 
 @select(css=".title")
 async def result_title(element):
-    return {"url": element.text}
+    return {"title": element.text}
 
 
 @select(css=".description")
 async def result_description(element):
-    return {"url": element.text}
+    return {"description": element.text}
 
 
 if __name__ == "__main__":

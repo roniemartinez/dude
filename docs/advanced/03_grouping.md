@@ -155,11 +155,11 @@ By specifying the group in `@select(..., group=".custom-group")`, we will be abl
     ]
     ```
 
-## Groups simplify how you write your code
+## Groups simplify how you write your script
 
 !!! info
 
-    The examples below are both acceptable way to write a scraper. You have the option to choose how you write your code.
+    The examples below are both acceptable way to write a scraper. You have the option to choose how you write your script.
 
 A common way developers write scraper can be illustrated using this example below (see [examples/single_handler.py](https://github.com/roniemartinez/dude/tree/master/examples/single_handler.py) for the complete script).
 
