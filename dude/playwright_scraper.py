@@ -153,7 +153,10 @@ class PlaywrightScraper(ScraperAbstract):
     ) -> None:
         # FIXME: Coverage fails to cover anything within this context manager block
         with sync_playwright() as p:
-            browser = p[browser_type].launch(headless=headless, proxy=proxy, args=["--disable-notifications"])
+            args = []
+            if browser_type != "webkit":
+                args.append("--disable-notifications")
+            browser = p[browser_type].launch(headless=headless, proxy=proxy, args=args)
             page = browser.new_page()
             self._scrape_sync(page, urls, pages)
             browser.close()
@@ -182,7 +185,10 @@ class PlaywrightScraper(ScraperAbstract):
         format: str,
     ) -> None:
         async with async_playwright() as p:
-            browser = await p[browser_type].launch(headless=headless, proxy=proxy, args=["--disable-notifications"])
+            args = []
+            if browser_type != "webkit":
+                args.append("--disable-notifications")
+            browser = await p[browser_type].launch(headless=headless, proxy=proxy, args=args)
             page = await browser.new_page()
             for url in urls:
                 await page.goto(url)
