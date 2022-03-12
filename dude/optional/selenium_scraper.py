@@ -210,10 +210,12 @@ class SeleniumScraper(ScraperAbstract):
             executable_path = GeckoDriverManager().install()
             firefox_options = FirefoxOptions()
             firefox_options.headless = headless
+            firefox_options.set_preference("dom.webnotifications.enabled", False)
             return webdriver.Firefox(service=FirefoxService(executable_path=executable_path), options=firefox_options)
 
         chrome_options = ChromeOptions()
         chrome_options.headless = headless
+        chrome_options.add_argument("disable-notifications")
         executable_path = ChromeDriverManager(
             chrome_type=ChromeType.CHROMIUM, version=os.getenv("CHROMEDRIVER_VERSION", "latest")
         ).install()

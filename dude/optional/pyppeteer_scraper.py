@@ -106,7 +106,7 @@ class PyppeteerScraper(ScraperAbstract):
         output: Optional[str],
         format: str,
     ) -> None:
-        launch_args: Dict[str, Any] = {"headless": headless, "args": ["--no-sandbox"]}
+        launch_args: Dict[str, Any] = {"headless": headless, "args": ["--no-sandbox", "--disable-notifications"]}
         if proxy:
             launch_args["args"] = [f"--proxy-server={proxy['server']}"]
 
