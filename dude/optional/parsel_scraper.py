@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 
 class ParselScraper(ScraperAbstract):
     """
-    Scraper using Parsel parser and HTTPX for requests
+    Scraper using Parsel parser backend and HTTPX for requests
     """
 
     def run(
