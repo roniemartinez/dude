@@ -1,3 +1,4 @@
+import platform
 from pathlib import Path
 from typing import Any, Dict, List
 
@@ -17,9 +18,33 @@ class IsInteger:
         return "IsInteger"
 
 
+class IsUrl:
+    def __init__(self, url: str):
+        self.url = url
+
+    def __eq__(self, other: Any) -> bool:
+        """
+        When loading an HTML file from local, Pyppeteer and Selenium prepends "file://" to href.
+        On Windows, "file:///<Drive>:" is prepended, e.g. "file:///D:".
+        """
+        return isinstance(other, str) and (
+            other == self.url or (other.startswith("file://") and other.endswith(self.url))
+        )
+
+    def __repr__(self) -> str:
+        return f"IsUrl: {self.url}"
+
+
 @pytest.fixture()
-def test_url() -> str:
-    return f"file://{(Path(__file__).resolve().parent.parent / 'examples/dude.html').absolute()}"
+def test_html_path() -> str:
+    return str((Path(__file__).resolve().parent.parent / "examples/dude.html").absolute())
+
+
+@pytest.fixture()
+def test_url(test_html_path: str) -> str:
+    if platform.system() == "Windows":
+        return f"file:///{test_html_path}".replace("\\", "/")
+    return f"file://{test_html_path}"
 
 
 @pytest.fixture()
@@ -173,7 +198,7 @@ def expected_data(test_url: str) -> List[Dict]:
             "_group_id": is_integer,
             "_group_index": 0,
             "_element_index": 0,
-            "url": "/url-1.html",
+            "url": IsUrl(url="/url-1.html"),
             "title": "Title 1",
         },
         {
@@ -182,7 +207,7 @@ def expected_data(test_url: str) -> List[Dict]:
             "_group_id": is_integer,
             "_group_index": 1,
             "_element_index": 0,
-            "url": "/url-2.html",
+            "url": IsUrl(url="/url-2.html"),
             "title": "Title 2",
         },
         {
@@ -191,7 +216,7 @@ def expected_data(test_url: str) -> List[Dict]:
             "_group_id": is_integer,
             "_group_index": 2,
             "_element_index": 0,
-            "url": "/url-3.html",
+            "url": IsUrl(url="/url-3.html"),
             "title": "Title 3",
         },
     ]

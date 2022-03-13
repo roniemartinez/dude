@@ -126,9 +126,6 @@ def test_full_flow(
     mock_save = mock.MagicMock()
     scraper_application.save(format="custom")(mock_save)
     scraper_application.run(urls=[test_url], pages=2, format="custom", parser="pyppeteer")
-
-    # Pyppeteer prepends "file://" when loading a file
-    expected_data = [{**d, "url": "file://" + d["url"]} for d in expected_data]
     mock_save.assert_called_with(expected_data, None)
 
 
@@ -143,9 +140,6 @@ def test_full_flow_async_without_setup_and_navigate(
     mock_save = mock.MagicMock()
     scraper_application.save(format="custom")(mock_save)
     scraper_application.run(urls=[test_url], pages=2, format="custom", parser="pyppeteer")
-
-    # Pyppeteer prepends "file://" when loading a file
-    expected_data = [{**d, "url": "file://" + d["url"]} for d in expected_data]
     mock_save.assert_called_with(expected_data, None)
 
 
@@ -162,9 +156,6 @@ def test_full_flow_xpath(
     mock_save = mock.MagicMock()
     scraper_application.save(format="custom")(mock_save)
     scraper_application.run(urls=[test_url], pages=2, format="custom", parser="pyppeteer")
-
-    # Pyppeteer prepends "file://" when loading a file
-    expected_data = [{**d, "url": "file://" + d["url"]} for d in expected_data]
     mock_save.assert_called_with(expected_data, None)
 
 
@@ -181,9 +172,6 @@ def test_full_flow_text(
     mock_save = mock.MagicMock()
     scraper_application.save(format="custom")(mock_save)
     scraper_application.run(urls=[test_url], pages=2, format="custom", parser="pyppeteer")
-
-    # Pyppeteer prepends "file://" when loading a file
-    expected_data = [{**d, "url": "file://" + d["url"]} for d in expected_data]
     mock_save.assert_called_with(expected_data, None)
 
 
@@ -213,7 +201,4 @@ def test_scraper_with_parser(
     mock_save = mock.MagicMock()
     scraper_application_with_pyppeteer_parser.save(format="custom")(mock_save)
     scraper_application_with_pyppeteer_parser.run(urls=[test_url], pages=2, format="custom", parser="pyppeteer")
-
-    # Pyppeteer prepends "file://" when loading a file
-    expected_data = [{**d, "url": "file://" + d["url"]} for d in expected_data]
     mock_save.assert_called_with(expected_data, None)

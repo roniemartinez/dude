@@ -61,7 +61,8 @@ class ParselScraper(ScraperAbstract):
             for url in urls:
                 for i in range(1, pages + 1):
                     if url.startswith("file://"):
-                        with open(url[7:]) as f:
+                        path = self.file_url_to_path(url)
+                        with open(path) as f:
                             content = f.read()
                     else:
                         try:
@@ -91,7 +92,8 @@ class ParselScraper(ScraperAbstract):
             for url in urls:
                 for i in range(1, pages + 1):
                     if url.startswith("file://"):
-                        with open(url[7:]) as f:
+                        path = self.file_url_to_path(url)
+                        with open(path) as f:
                             content = f.read()
                     else:
                         try:

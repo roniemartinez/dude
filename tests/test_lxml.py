@@ -109,12 +109,13 @@ def test_full_flow_lxml_httpx(
     lxml_css: None,
     expected_data: List[Dict],
     test_url: str,
+    test_html_path: str,
 ) -> None:
     assert scraper_application.has_async is False
     assert len(scraper_application.rules) == 4
     mock_save = mock.MagicMock()
 
-    with open(test_url[7:]) as f:
+    with open(test_html_path) as f:
         mock_client.return_value.__enter__.return_value.get.return_value.text = f.read()
 
     test_url = "https://dude.ron.sh"
@@ -172,12 +173,13 @@ def test_full_flow_lxml_httpx_async(
     async_lxml_css: None,
     expected_data: List[Dict],
     test_url: str,
+    test_html_path: str,
 ) -> None:
     assert scraper_application.has_async is True
     assert len(scraper_application.rules) == 4
     mock_save = mock.MagicMock()
 
-    with open(test_url[7:]) as f:
+    with open(test_html_path) as f:
         response = mock_client.return_value.__aenter__.return_value.get.return_value
         response.raise_for_status = mock.MagicMock()
         response.text = f.read()
