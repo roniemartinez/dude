@@ -1,6 +1,6 @@
 # Selenium Scraper
 
-Option to use [Selenium](https://github.com/SeleniumHQ/Selenium) as parser instead of Playwright has been added in [Release 0.9.0](https://github.com/roniemartinez/dude/releases/tag/0.9.0).
+Option to use [Selenium](https://github.com/SeleniumHQ/Selenium) as parser backend instead of Playwright has been added in [Release 0.9.0](https://github.com/roniemartinez/dude/releases/tag/0.9.0).
 Selenium is an optional dependency and can only be installed via `pip` using the command below.
 
 === "Terminal"
@@ -11,7 +11,7 @@ Selenium is an optional dependency and can only be installed via `pip` using the
 
 ## Required changes to your script in order to use Selenium
 
-Instead of Playwright's `ElementHandle` objects when using Playwright as parser, `WebElement` objects are passed to the decorated functions.
+Instead of Playwright's `ElementHandle` objects when using Playwright as parser backend, `WebElement` objects are passed to the decorated functions.
 
 === "Python"
 
@@ -31,7 +31,7 @@ Instead of Playwright's `ElementHandle` objects when using Playwright as parser,
 
 ## Running Dude with Selenium 
 
-You can run Selenium parser using the `--selenium` command-line argument or `parser="selenium"` parameter to `run()`.
+You can run Selenium parser backend using the `--selenium` command-line argument or `parser="selenium"` parameter to `run()`.
 
 === "Terminal"
 

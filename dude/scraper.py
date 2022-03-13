@@ -25,7 +25,7 @@ class Scraper(ScraperBase):
         browser_type: str = "chromium",
     ) -> None:
         """
-        Convenience method to handle switching between different types of parsers.
+        Convenience method to handle switching between different types of parser backends.
 
         :param urls: List of website URLs.
         :param pages: Maximum number of pages to crawl before exiting (default=1). This is only used when a navigate handler is defined. # noqa
@@ -33,7 +33,7 @@ class Scraper(ScraperBase):
         :param output: Output file. If not provided, prints in the terminal.
         :param format: Output file format. If not provided, uses the extension of the output file or defaults to json.
 
-        :param parser: Parser type ["playwright" (default), "bs4", "parsel, "lxml", "pyppeteer" or "selenium"]
+        :param parser: Parser backend ["playwright" (default), "bs4", "parsel, "lxml", "pyppeteer" or "selenium"]
         :param headless: Enables headless browser. (default=True)
         :param browser_type: Playwright supported browser types ("chromium", "chrome", "webkit", or "firefox").
         """

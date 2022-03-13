@@ -1,6 +1,6 @@
 # Parsel Scraper
 
-Option to use [Parsel](https://github.com/scrapy/parsel) as parser instead of Playwright has been added in [Release 0.5.0](https://github.com/roniemartinez/dude/releases/tag/0.5.0).
+Option to use [Parsel](https://github.com/scrapy/parsel) as parser backend instead of Playwright has been added in [Release 0.5.0](https://github.com/roniemartinez/dude/releases/tag/0.5.0).
 Parsel is an optional dependency and can only be installed via `pip` using the command below.
 
 === "Terminal"
@@ -11,7 +11,7 @@ Parsel is an optional dependency and can only be installed via `pip` using the c
 
 ## Required changes to your script in order to use Parsel
 
-Instead of ElementHandle objects when using Playwright as parser, Selector objects are passed to the decorated functions.
+Instead of ElementHandle objects when using Playwright as parser backend, Selector objects are passed to the decorated functions.
 
 
 === "Python"
@@ -37,7 +37,7 @@ Instead of ElementHandle objects when using Playwright as parser, Selector objec
 
 ## Running Dude with Parsel 
 
-You can run Parsel parser using the `--parsel` command-line argument or `parser="parsel"` parameter to `run()`.
+You can run Parsel parser backend using the `--parsel` command-line argument or `parser="parsel"` parameter to `run()`.
 
 
 === "Terminal"

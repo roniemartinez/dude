@@ -1,7 +1,7 @@
 import asyncio
 import itertools
 import logging
-from typing import Any, AsyncIterable, Callable, Iterable, Optional, Sequence, Tuple, Union
+from typing import Any, AsyncIterable, Callable, Dict, Iterable, Optional, Sequence, Tuple, Union
 
 from playwright import async_api, sync_api
 from playwright.async_api import async_playwright
@@ -141,6 +141,13 @@ class PlaywrightScraper(ScraperAbstract):
                 return True
         return False
 
+    @staticmethod
+    def _get_launch_kwargs(browser_type: str) -> Dict[str, Any]:
+        args = []
+        if browser_type == "chromium":
+            args.append("--disable-notifications")
+        return {"args": args, "firefox_user_prefs": {"dom.webnotifications.enabled": False}}
+
     def _run_sync(
         self,
         urls: Sequence[str],
@@ -151,14 +158,10 @@ class PlaywrightScraper(ScraperAbstract):
         output: Optional[str],
         format: str,
     ) -> None:
+        launch_kwargs = self._get_launch_kwargs(browser_type)
         # FIXME: Coverage fails to cover anything within this context manager block
         with sync_playwright() as p:
-            args = []
-            if browser_type == "chromium":
-                args.append("--disable-notifications")
-            browser = p[browser_type].launch(
-                headless=headless, proxy=proxy, args=args, firefox_user_prefs={"dom.webnotifications.enabled": False}
-            )
+            browser = p[browser_type].launch(headless=headless, proxy=proxy, **launch_kwargs)
             page = browser.new_page()
             self._scrape_sync(page, urls, pages)
             browser.close()
@@ -186,13 +189,9 @@ class PlaywrightScraper(ScraperAbstract):
         output: Optional[str],
         format: str,
     ) -> None:
+        launch_kwargs = self._get_launch_kwargs(browser_type)
         async with async_playwright() as p:
-            args = []
-            if browser_type == "chromium":
-                args.append("--disable-notifications")
-            browser = await p[browser_type].launch(
-                headless=headless, proxy=proxy, args=args, firefox_user_prefs={"dom.webnotifications.enabled": False}
-            )
+            browser = await p[browser_type].launch(headless=headless, proxy=proxy, **launch_kwargs)
             page = await browser.new_page()
             for url in urls:
                 await page.goto(url)

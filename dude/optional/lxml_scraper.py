@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 
 class LxmlScraper(ScraperAbstract):
     """
-    Scraper using lxml parser and HTTPX for requests
+    Scraper using lxml parser backend and HTTPX for requests
     """
 
     def run(

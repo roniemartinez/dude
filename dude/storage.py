@@ -27,7 +27,7 @@ def _save_json(data: List[Dict], output: str) -> None:  # pragma: no cover
 
     with open(output, "w") as f:
         json.dump(data, f, indent=2)
-    logger.info("Data saved to %s", output)
+    logger.info("%d items saved to %s.", len(data), output)
 
 
 def save_csv(data: List[Dict], output: Optional[str]) -> bool:
@@ -79,7 +79,7 @@ def _save_csv(data: List[Dict], output: str) -> None:  # pragma: no cover
         writer = csv.DictWriter(f, fieldnames=headers)
         writer.writeheader()
         writer.writerows(rows)
-    logger.info("Data saved to %s", output)
+    logger.info("%d items saved to %s.", len(data), output)
 
 
 def _save_yaml(data: List[Dict], output: str) -> None:  # pragma: no cover
@@ -87,4 +87,4 @@ def _save_yaml(data: List[Dict], output: str) -> None:  # pragma: no cover
 
     with open(output, "w") as f:
         yaml.safe_dump(data, f)
-    logger.info("Data saved to %s", output)
+    logger.info("%d items saved to %s.", len(data), output)
