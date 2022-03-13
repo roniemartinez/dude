@@ -3,6 +3,7 @@ import itertools
 import logging
 from typing import Any, AsyncIterable, Callable, Dict, Iterable, Optional, Sequence, Tuple, Union
 
+from braveblock import Adblocker
 from playwright import async_api, sync_api
 from playwright.async_api import async_playwright
 from playwright.sync_api import sync_playwright
@@ -17,6 +18,10 @@ class PlaywrightScraper(ScraperAbstract):
     """
     Playwright-based scraper
     """
+
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        super(PlaywrightScraper, self).__init__(*args, **kwargs)
+        self.adblock = Adblocker()
 
     def run(
         self,
@@ -148,6 +153,23 @@ class PlaywrightScraper(ScraperAbstract):
             args.append("--disable-notifications")
         return {"args": args, "firefox_user_prefs": {"dom.webnotifications.enabled": False}}
 
+    def _block_url_if_needed(self, route: Union[sync_api.Route, async_api.Route]) -> Any:
+        url = route.request.url
+        source_url = (
+            route.request.headers.get("referer")
+            or route.request.headers.get("origin")
+            or route.request.headers.get("host")
+            or url
+        )
+        if self.adblock.check_network_urls(
+            url=url,
+            source_url=source_url,
+            request_type=route.request.resource_type,
+        ):
+            logger.info("URL %s has been blocked.", url)
+            return route.abort()
+        return route.continue_()
+
     def _run_sync(
         self,
         urls: Sequence[str],
@@ -163,6 +185,7 @@ class PlaywrightScraper(ScraperAbstract):
         with sync_playwright() as p:
             browser = p[browser_type].launch(headless=headless, proxy=proxy, **launch_kwargs)
             page = browser.new_page()
+            page.route("**/*", self._block_url_if_needed)
             self._scrape_sync(page, urls, pages)
             browser.close()
         self._save(format, output)
@@ -193,6 +216,7 @@ class PlaywrightScraper(ScraperAbstract):
         async with async_playwright() as p:
             browser = await p[browser_type].launch(headless=headless, proxy=proxy, **launch_kwargs)
             page = await browser.new_page()
+            await page.route("**/*", self._block_url_if_needed)
             for url in urls:
                 await page.goto(url)
                 logger.info("Loaded page %s", page.url)

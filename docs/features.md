@@ -2,7 +2,7 @@
 
 - Simple [Flask](https://github.com/pallets/flask)-inspired design - build a scraper with decorators.
 - Uses [Playwright](https://playwright.dev/python/) API - run your scraper in Chrome, Firefox and Webkit and leverage Playwright's powerful selector engine supporting CSS, XPath, text, regex, etc.
-- Data grouping - group related scraping data.
+- Data grouping - group related results.
 - URL pattern matching - run functions on specific URLs.
 - Priority - reorder functions based on priority.
 - Setup function - enable setup steps (clicking dialogs or login).

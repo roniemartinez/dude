@@ -2,10 +2,19 @@ from typing import Dict, List
 from unittest import mock
 
 import pytest
+from braveblock import Adblocker
 from pyppeteer.element_handle import ElementHandle
 from pyppeteer.page import Page
 
 from dude import Scraper
+from dude.optional.pyppeteer_scraper import PyppeteerScraper
+
+
+@pytest.fixture()
+def scraper_application_with_pyppeteer_parser() -> Scraper:
+    scraper = PyppeteerScraper()
+    scraper.adblock = Adblocker(rules=["https://dude.ron.sh/blockme.css"])
+    return Scraper(scraper=scraper)
 
 
 @pytest.fixture()
@@ -25,6 +34,28 @@ def async_pyppeteer_select(scraper_application: Scraper) -> None:
         return {"title": await page.evaluate("(element) => element.textContent", element)}
 
     @scraper_application.select(css=".url", group_css=".custom-group")
+    async def url(element: ElementHandle, page: Page) -> Dict:
+        handle = await element.getProperty("href")
+        return {"url": await handle.jsonValue()}
+
+
+@pytest.fixture()
+def async_pyppeteer_select_with_parser(scraper_application_with_pyppeteer_parser: Scraper) -> None:
+    @scraper_application_with_pyppeteer_parser.group(css=".custom-group")
+    @scraper_application_with_pyppeteer_parser.select(css=".title")
+    async def title(element: ElementHandle, page: Page) -> Dict:
+        return {"title": await page.evaluate("(element) => element.textContent", element)}
+
+    @scraper_application_with_pyppeteer_parser.select(css=".title", group_css=".custom-group")
+    async def empty(element: ElementHandle, page: Page) -> Dict:
+        return {}
+
+    @scraper_application_with_pyppeteer_parser.group(css=".custom-group")
+    @scraper_application_with_pyppeteer_parser.select(css=".title", url=r"example\.com")
+    async def url_dont_match(element: ElementHandle, page: Page) -> Dict:
+        return {"title": await page.evaluate("(element) => element.textContent", element)}
+
+    @scraper_application_with_pyppeteer_parser.select(css=".url", group_css=".custom-group")
     async def url(element: ElementHandle, page: Page) -> Dict:
         handle = await element.getProperty("href")
         return {"url": await handle.jsonValue()}
@@ -168,3 +199,21 @@ def test_unsupported_regex(
     scraper_application.save(format="custom")(mock_save)
     with pytest.raises(Exception):
         scraper_application.run(urls=[test_url], pages=2, format="custom", parser="pyppeteer")
+
+
+def test_scraper_with_parser(
+    scraper_application_with_pyppeteer_parser: Scraper,
+    async_pyppeteer_select_with_parser: None,
+    expected_data: List[Dict],
+    test_url: str,
+) -> None:
+    assert scraper_application_with_pyppeteer_parser.has_async is True
+    assert scraper_application_with_pyppeteer_parser.scraper is not None
+    assert len(scraper_application_with_pyppeteer_parser.scraper.rules) == 4
+    mock_save = mock.MagicMock()
+    scraper_application_with_pyppeteer_parser.save(format="custom")(mock_save)
+    scraper_application_with_pyppeteer_parser.run(urls=[test_url], pages=2, format="custom", parser="pyppeteer")
+
+    # Pyppeteer prepends "file://" when loading a file
+    expected_data = [{**d, "url": "file://" + d["url"]} for d in expected_data]
+    mock_save.assert_called_with(expected_data, None)

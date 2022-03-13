@@ -7,7 +7,7 @@ Setup handlers could perform any of the following:
 2. Click on dialogs buttons
 
 To create a Setup handler, you can pass `setup=True` parameter to `@select()` decorator. 
-The only difference with Setup and normal element handler is that setup functions should accept 2 parameters, the element matched by the selector and the Page object.
+The only difference with Setup and normal element handler is that setup functions should accept 2 parameters, the element matched by the selector and the Page object (or WebDriver object in Selenium).
 Click on the annotations (+ sign) for more details.
 
 === "Python"

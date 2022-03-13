@@ -4,7 +4,7 @@ import logging
 import os
 from typing import Any, AsyncIterable, Callable, Iterable, Optional, Sequence, Tuple, Union
 
-from selenium import webdriver
+from braveblock import Adblocker
 from selenium.webdriver.chrome.options import Options as ChromeOptions
 from selenium.webdriver.chrome.service import Service as ChromeService
 from selenium.webdriver.common.by import By
@@ -12,6 +12,8 @@ from selenium.webdriver.firefox.options import Options as FirefoxOptions
 from selenium.webdriver.firefox.service import Service as FirefoxService
 from selenium.webdriver.remote.webdriver import WebDriver
 from selenium.webdriver.remote.webelement import WebElement
+from seleniumwire.request import Request
+from seleniumwire.webdriver import Chrome, Firefox
 from webdriver_manager.chrome import ChromeDriverManager
 from webdriver_manager.firefox import GeckoDriverManager
 from webdriver_manager.utils import ChromeType
@@ -26,6 +28,10 @@ class SeleniumScraper(ScraperAbstract):
     """
     Selenium-based scraper
     """
+
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        super(SeleniumScraper, self).__init__(*args, **kwargs)
+        self.adblock = Adblocker()
 
     def run(
         self,
@@ -100,7 +106,7 @@ class SeleniumScraper(ScraperAbstract):
         assert driver is not None
         for rule in self.get_setup_rules(driver.current_url):
             for element in self._get_elements(driver, rule.selector):
-                rule.handler(element)
+                rule.handler(element, driver)
 
     async def setup_async(self, driver: WebDriver = None) -> None:
         """
@@ -112,9 +118,9 @@ class SeleniumScraper(ScraperAbstract):
         for rule in self.get_setup_rules(driver.current_url):
             for element in self._get_elements(driver, rule.selector):
                 if asyncio.iscoroutinefunction(rule.handler):
-                    await rule.handler(element)
+                    await rule.handler(element, driver)
                 else:
-                    rule.handler(element)
+                    rule.handler(element, driver)
 
     def navigate(self, driver: WebDriver = None) -> bool:
         """
@@ -125,7 +131,7 @@ class SeleniumScraper(ScraperAbstract):
         assert driver is not None
         for rule in self.get_navigate_rules(driver.current_url):
             for element in self._get_elements(driver, rule.selector):
-                rule.handler(element)
+                rule.handler(element, driver)
                 logger.info("Navigated to %s", driver.current_url)
                 return True
         return False
@@ -140,9 +146,9 @@ class SeleniumScraper(ScraperAbstract):
         for rule in self.get_navigate_rules(driver.current_url):
             for element in self._get_elements(driver, rule.selector):
                 if asyncio.iscoroutinefunction(rule.handler):
-                    await rule.handler(element)
+                    await rule.handler(element, driver)
                 else:
-                    rule.handler(element)
+                    rule.handler(element, driver)
                 logger.info("Navigated to %s", driver.current_url)
                 return True
         return False
@@ -203,23 +209,40 @@ class SeleniumScraper(ScraperAbstract):
         driver.close()
         await self._save_async(format, output)
 
-    @staticmethod
-    def _get_driver(browser_type: str, headless: bool) -> WebDriver:
+    def _block_url_if_needed(self, request: Request) -> None:
+        url = request.url
+        source_url = (
+            request.headers.get("referer") or request.headers.get("origin") or request.headers.get("host") or url
+        )
+        if self.adblock.check_network_urls(
+            url=url,
+            source_url=source_url,
+            request_type=request.headers.get("sec-fetch-dest") or "other",
+        ):
+            logger.info("URL %s has been blocked.", url)
+            request.abort()
+
+    def _get_driver(self, browser_type: str, headless: bool) -> WebDriver:
         # TODO: Add more drivers: https://github.com/SergeyPirogov/webdriver_manager#webdriver-manager-for-python
         if browser_type == "firefox":
             executable_path = GeckoDriverManager().install()
             firefox_options = FirefoxOptions()
             firefox_options.headless = headless
             firefox_options.set_preference("dom.webnotifications.enabled", False)
-            return webdriver.Firefox(service=FirefoxService(executable_path=executable_path), options=firefox_options)
+            driver = Firefox(service=FirefoxService(executable_path=executable_path), options=firefox_options)
+        else:
+            chrome_options = ChromeOptions()
+            chrome_options.headless = headless
+            chrome_options.add_argument("disable-notifications")
+            executable_path = ChromeDriverManager(
+                chrome_type=ChromeType.CHROMIUM, version=os.getenv("CHROMEDRIVER_VERSION", "latest")
+            ).install()
+            driver = Chrome(service=ChromeService(executable_path=executable_path), options=chrome_options)
 
-        chrome_options = ChromeOptions()
-        chrome_options.headless = headless
-        chrome_options.add_argument("disable-notifications")
-        executable_path = ChromeDriverManager(
-            chrome_type=ChromeType.CHROMIUM, version=os.getenv("CHROMEDRIVER_VERSION", "latest")
-        ).install()
-        return webdriver.Chrome(service=ChromeService(executable_path=executable_path), options=chrome_options)
+        driver.implicitly_wait(10)
+        driver.request_interceptor = self._block_url_if_needed
+
+        return driver
 
     def collect_elements(self, driver: WebDriver = None) -> Iterable[Tuple[str, int, int, int, Any, Callable]]:
         """
