@@ -2,6 +2,7 @@ from typing import Dict, List
 from unittest import mock
 
 import pytest
+from selenium.webdriver.remote.webdriver import WebDriver
 from selenium.webdriver.remote.webelement import WebElement
 
 from dude import Scraper
@@ -64,14 +65,14 @@ def selenium_regex(scraper_application: Scraper) -> None:
 @pytest.fixture()
 def selenium_setup(scraper_application: Scraper) -> None:
     @scraper_application.select(css=":root", setup=True)
-    def check_page(element: WebElement) -> None:
+    def check_page(element: WebElement, driver: WebDriver) -> None:
         assert element is not None
 
 
 @pytest.fixture()
 def selenium_navigate(scraper_application: Scraper) -> None:
     @scraper_application.select(css=":root", navigate=True)
-    def next_page(element: WebElement) -> bool:
+    def next_page(element: WebElement, driver: WebDriver) -> bool:
         assert element is not None
         return True
 
@@ -126,14 +127,14 @@ def async_selenium_text(scraper_application: Scraper) -> None:
 @pytest.fixture()
 def async_selenium_setup(scraper_application: Scraper) -> None:
     @scraper_application.select(css=":root", setup=True)
-    async def check_page(element: WebElement) -> None:
+    async def check_page(element: WebElement, driver: WebDriver) -> None:
         assert element is not None
 
 
 @pytest.fixture()
 def async_selenium_navigate(scraper_application: Scraper) -> None:
     @scraper_application.select(css=":root", navigate=True)
-    async def next_page(element: WebElement) -> bool:
+    async def next_page(element: WebElement, driver: WebDriver) -> bool:
         assert element is not None
         return True
 
