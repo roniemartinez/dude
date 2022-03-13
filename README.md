@@ -76,24 +76,24 @@ dude scrape --url "<url>" --output data.json path/to/script.py
 - Navigate function - enable navigation steps to move to other pages.
 - Custom storage - option to save data to other formats or database.
 - Async support - write async handlers.
-- Option to use other parsers aside from Playwright.
+- Option to use other parser backends aside from Playwright.
   - [BeautifulSoup4](https://roniemartinez.github.io/dude/advanced/09_beautifulsoup4.html) - `pip install pydude[bs4]`
   - [Parsel](https://roniemartinez.github.io/dude/advanced/10_parsel.html) - `pip install pydude[parsel]`
   - [lxml](https://roniemartinez.github.io/dude/advanced/11_lxml.html) - `pip install pydude[lxml]`
   - [Pyppeteer](https://roniemartinez.github.io/dude/advanced/12_pyppeteer.html) - `pip install pydude[pyppeteer]`
   - [Selenium](https://roniemartinez.github.io/dude/advanced/13_selenium.html) - `pip install pydude[selenium]`
 
-## Supported Parsers
+## Supported Parser Backends
 
-By default, Dude uses Playwright but gives you an option to use parsers that you are familiar with.
+By default, Dude uses Playwright but gives you an option to use parser backends that you are familiar with.
 It is possible to use parser backends like 
-[BeautifulSoup4](https://www.crummy.com/software/BeautifulSoup/bs4/doc/), 
-[Parsel](https://github.com/scrapy/parsel),
-[lxml](https://lxml.de/),
-[Pyppeteer](https://github.com/pyppeteer/pyppeteer), 
-and [Selenium](https://github.com/SeleniumHQ/Selenium).
+[BeautifulSoup4](https://roniemartinez.github.io/dude/advanced/09_beautifulsoup4.html), 
+[Parsel](https://roniemartinez.github.io/dude/advanced/10_parsel.html),
+[lxml](https://roniemartinez.github.io/dude/advanced/11_lxml.html),
+[Pyppeteer](https://roniemartinez.github.io/dude/advanced/12_pyppeteer.html), 
+and [Selenium](https://roniemartinez.github.io/dude/advanced/13_selenium.html).
 
-Here is the summary of features supported by each parser.
+Here is the summary of features supported by each parser backend.
 
 <table>
 <thead>

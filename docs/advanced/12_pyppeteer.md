@@ -1,6 +1,6 @@
 # Pyppeteer Scraper
 
-Option to use [Pyppeteer](https://github.com/pyppeteer/pyppeteer) as parser instead of Playwright has been added in [Release 0.8.0](https://github.com/roniemartinez/dude/releases/tag/0.8.0).
+Option to use [Pyppeteer](https://github.com/pyppeteer/pyppeteer) as parser backend instead of Playwright has been added in [Release 0.8.0](https://github.com/roniemartinez/dude/releases/tag/0.8.0).
 Pyppeteer is an optional dependency and can only be installed via `pip` using the command below.
 
 === "Terminal"
@@ -14,7 +14,7 @@ Pyppeteer is an optional dependency and can only be installed via `pip` using th
 
 ## Required changes to your script in order to use Pyppeteer
 
-Instead of Playwright's `ElementHandle` objects when using Playwright as parser, Pyppeteer has its own `ElementHandle` objects that are passed to the decorated functions.
+Instead of Playwright's `ElementHandle` objects when using Playwright as parser backend, Pyppeteer has its own `ElementHandle` objects that are passed to the decorated functions.
 The decorated functions will need to accept 2 arguments, `element` and `page` objects. 
 This is needed because Pyppeteer elements does not expose a convenient function to get the text content.
 
@@ -46,7 +46,7 @@ This is needed because Pyppeteer elements does not expose a convenient function 
 
 ## Running Dude with Pyppeteer 
 
-You can run Pyppeteer parser using the `--pyppeteer` command-line argument or `parser="pyppeteer"` parameter to `run()`.
+You can run Pyppeteer parser backend using the `--pyppeteer` command-line argument or `parser="pyppeteer"` parameter to `run()`.
 
 === "Terminal"
 

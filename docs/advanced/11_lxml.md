@@ -1,6 +1,6 @@
 # lxml Scraper
 
-Option to use [lxml](https://lxml.de/) as parser instead of Playwright has been added in [Release 0.6.0](https://github.com/roniemartinez/dude/releases/tag/0.6.0).
+Option to use [lxml](https://lxml.de/) as parser backend instead of Playwright has been added in [Release 0.6.0](https://github.com/roniemartinez/dude/releases/tag/0.6.0).
 lxml is an optional dependency and can only be installed via `pip` using the command below.
 
 === "Terminal"
@@ -11,7 +11,7 @@ lxml is an optional dependency and can only be installed via `pip` using the com
 
 ## Required changes to your script in order to use lxml
 
-Instead of ElementHandle objects when using Playwright as parser, [Element, "smart" strings, etc.](https://lxml.de/xpathxslt.html#xpath-return-values) objects are passed to the decorated functions.
+Instead of ElementHandle objects when using Playwright as parser backend, [Element, "smart" strings, etc.](https://lxml.de/xpathxslt.html#xpath-return-values) objects are passed to the decorated functions.
 
 
 === "Python"
@@ -24,10 +24,10 @@ Instead of ElementHandle objects when using Playwright as parser, [Element, "sma
     def result_url(href):
         return {"url": href} # (2)
     
-    
-    # Option to get url using cssselect
-    @select(css="a.url", priority=2)
-    def result_url(element):
+
+    """Option to get url using cssselect"""  # style.css hides a comment
+    @select(css="a.url")
+    def result_url_css(element):
         return {"url_css": element.attrib["href"]} # (3)
     
     
@@ -44,7 +44,7 @@ Instead of ElementHandle objects when using Playwright as parser, [Element, "sma
 
 ## Running Dude with lxml 
 
-You can run lxml parser using the `--lxml` command-line argument or `parser="lxml"` parameter to `run()`.
+You can run lxml parser backend using the `--lxml` command-line argument or `parser="lxml"` parameter to `run()`.
 
 
 === "Terminal"
