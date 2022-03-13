@@ -2,6 +2,7 @@ from pathlib import Path
 from typing import Any, Dict, List
 
 import pytest
+from braveblock import Adblocker
 from playwright import async_api, sync_api
 
 from dude import Scraper
@@ -28,7 +29,9 @@ def scraper_application() -> Scraper:
 
 @pytest.fixture()
 def scraper_application_with_parser() -> Scraper:
-    return Scraper(scraper=PlaywrightScraper())
+    scraper = PlaywrightScraper()
+    scraper.adblock = Adblocker(rules=["https://dude.ron.sh/blockme.css"])
+    return Scraper(scraper=scraper)
 
 
 @pytest.fixture()
