@@ -1,6 +1,7 @@
 import asyncio
 import itertools
 import logging
+import platform
 from abc import ABC, abstractmethod
 from pathlib import Path
 from typing import Any, AsyncIterable, Callable, Coroutine, Dict, Iterable, List, Optional, Sequence, Tuple, Union
@@ -338,3 +339,11 @@ class ScraperAbstract(ScraperBase):
         except KeyError:
             self.collected_data.clear()
             raise
+
+    @staticmethod
+    def file_url_to_path(url: str) -> str:
+        if platform.system() == "Windows":
+            path = url[8:].replace("/", "\\")
+        else:
+            path = url[7:]
+        return path
