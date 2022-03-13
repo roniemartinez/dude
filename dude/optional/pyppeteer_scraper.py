@@ -3,8 +3,10 @@ import itertools
 import logging
 from typing import Any, AsyncIterable, Callable, Dict, Iterable, List, Optional, Sequence, Tuple, Union
 
+from braveblock import Adblocker
 from pyppeteer import launch
 from pyppeteer.element_handle import ElementHandle
+from pyppeteer.network_manager import Request
 from pyppeteer.page import Page
 
 from ..base import ScraperAbstract
@@ -18,6 +20,10 @@ class PyppeteerScraper(ScraperAbstract):
     """
     Pyppeteer-based scraper
     """
+
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        super(PyppeteerScraper, self).__init__(*args, **kwargs)
+        self.adblock = Adblocker()
 
     def run(
         self,
@@ -97,6 +103,21 @@ class PyppeteerScraper(ScraperAbstract):
                 return True
         return False
 
+    async def _block_url_if_needed(self, request: Request) -> Any:
+        url = request.url
+        source_url = (
+            request.headers.get("referer") or request.headers.get("origin") or request.headers.get("host") or url
+        )
+        if self.adblock.check_network_urls(
+            url=url,
+            source_url=source_url,
+            request_type=request.resourceType,
+        ):
+            logger.info("URL %s has been blocked.", url)
+            return await request.abort()
+        else:
+            return await request.continue_()
+
     async def _run_async(
         self,
         urls: Sequence[str],
@@ -106,7 +127,7 @@ class PyppeteerScraper(ScraperAbstract):
         output: Optional[str],
         format: str,
     ) -> None:
-        launch_args: Dict[str, Any] = {"headless": headless, "args": ["--no-sandbox", "--disable-notifications"]}
+        launch_args: Dict[str, Any] = {"headless": headless, "args": ["--disable-notifications"]}
         if proxy:
             launch_args["args"] = [f"--proxy-server={proxy['server']}"]
 
@@ -115,6 +136,9 @@ class PyppeteerScraper(ScraperAbstract):
 
         if proxy and proxy["username"] and proxy["password"]:
             await page.authenticate(credentials={"username": proxy["username"], "password": proxy["password"]})
+
+        await page.setRequestInterception(True)
+        page.on("request", lambda res: asyncio.ensure_future(self._block_url_if_needed(res)))
 
         for url in urls:
             await page.goto(url)

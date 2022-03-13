@@ -155,9 +155,15 @@ class PlaywrightScraper(ScraperAbstract):
 
     def _block_url_if_needed(self, route: Union[sync_api.Route, async_api.Route]) -> Any:
         url = route.request.url
+        source_url = (
+            route.request.headers.get("referer")
+            or route.request.headers.get("origin")
+            or route.request.headers.get("host")
+            or url
+        )
         if self.adblock.check_network_urls(
             url=url,
-            source_url=route.request.headers.get("host") or route.request.headers.get("referer") or url,
+            source_url=source_url,
             request_type=route.request.resource_type,
         ):
             logger.info("URL %s has been blocked.", url)
