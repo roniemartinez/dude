@@ -76,7 +76,7 @@ jobs:
       - name: Test
         env:
           CHROMEDRIVER_VERSION: 98.0.4758.102
-          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           make test
       - name: Code Coverage
