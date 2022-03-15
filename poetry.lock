@@ -124,7 +124,7 @@ python-versions = "*"
 
 [[package]]
 name = "braveblock"
-version = "0.1.13"
+version = "0.2.0"
 description = "A fast and easy adblockplus parser and matcher based on adblock-rust package"
 category = "main"
 optional = false
@@ -1288,7 +1288,7 @@ selenium = ["selenium-wire", "webdriver-manager"]
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.7"
-content-hash = "489679a00d04325d88b4d3fcbad3ef730e9ddbc3eaa4f0cc48fca861db080e7c"
+content-hash = "f744af5c678c5bcce23747f4570b04b33870e941cd156b1cef414a3a1bd2c469"
 
 [metadata.files]
 anyio = [
@@ -1351,18 +1351,19 @@ blinker = [
     {file = "blinker-1.4.tar.gz", hash = "sha256:471aee25f3992bd325afa3772f1063dbdbbca947a041b8b89466dc00d606f8b6"},
 ]
 braveblock = [
-    {file = "braveblock-0.1.13-cp310-cp310-macosx_10_7_x86_64.whl", hash = "sha256:3027a6275062896c40ebb8c739791dc4c443c19aa08b8d63c098313346dffcb6"},
-    {file = "braveblock-0.1.13-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:3b212929b198b12c724ebcf0a26a2b9c8a6e15611fdaf139a4a921b0cf1bb277"},
-    {file = "braveblock-0.1.13-cp310-none-win_amd64.whl", hash = "sha256:5bc8ec990bb1efe5c5ea81a8bc3e70836fc3043d92d2c85ce6a1c92ccb8fb64f"},
-    {file = "braveblock-0.1.13-cp37-cp37m-macosx_10_7_x86_64.whl", hash = "sha256:829f3aae98c650693aa2dbb2667ae4a54ecd047621e59e3a2d8122c79266c941"},
-    {file = "braveblock-0.1.13-cp37-cp37m-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:323c21a4ca6e9c6250bde55238f18845ce5aa78977f85bca714474055519fc0d"},
-    {file = "braveblock-0.1.13-cp37-none-win_amd64.whl", hash = "sha256:202bc72b0219f073af71564fda8113ef6a27325f1d851e3bb4ebb0136a6ae475"},
-    {file = "braveblock-0.1.13-cp38-cp38-macosx_10_7_x86_64.whl", hash = "sha256:1c222d9cf2d302ea90d3b11a2f6da356bf39152aae9ff426eff6ce6177717f04"},
-    {file = "braveblock-0.1.13-cp38-cp38-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:0c1ba5a49443f450e3cedc8642a7afbb13b519e9d08a428196a3f45582df62e6"},
-    {file = "braveblock-0.1.13-cp38-none-win_amd64.whl", hash = "sha256:6554fe60f25b619424cba1478dbff98ea2a07bf4f04d7e7c9651790451bfa6bc"},
-    {file = "braveblock-0.1.13-cp39-cp39-macosx_10_7_x86_64.whl", hash = "sha256:bce2dfedba700c1999f1a082d13e86435e80ae95625ff26517ca77ab81c391b3"},
-    {file = "braveblock-0.1.13-cp39-cp39-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:9c240f62719db6d475bf81bc8f1ba6f2964dc9cdab3334c0b52780a4c5789203"},
-    {file = "braveblock-0.1.13-cp39-none-win_amd64.whl", hash = "sha256:477710ba9e036edabec3f1dd7167a15da99ecdeeca64401286794bf2e5e93a2f"},
+    {file = "braveblock-0.2.0-cp310-cp310-macosx_10_7_x86_64.whl", hash = "sha256:7aa2079475a8b1bdfba7068e0e892d360164928be9f61d4dedc1538583d3edb0"},
+    {file = "braveblock-0.2.0-cp310-cp310-manylinux_2_5_x86_64.manylinux1_x86_64.whl", hash = "sha256:e189c94ff378d85efd1feed2f1ba335ceee89c4fa135ab74a4e42ab2df66bd56"},
+    {file = "braveblock-0.2.0-cp310-none-win_amd64.whl", hash = "sha256:8fc9d137b33c517519502149e88634a76c718c9bb249940b11bbb2795a2e51fe"},
+    {file = "braveblock-0.2.0-cp37-cp37m-macosx_10_7_x86_64.whl", hash = "sha256:c0aab6f1915f1c0f6c5889386d2211f43cf1b6b2675f5299bd5fb7947acc546e"},
+    {file = "braveblock-0.2.0-cp37-cp37m-manylinux_2_5_x86_64.manylinux1_x86_64.whl", hash = "sha256:656e62015558c00862e656b02d55c43bf9a23fd6b82ebf07117145610fe70c28"},
+    {file = "braveblock-0.2.0-cp37-none-win_amd64.whl", hash = "sha256:fbdd4e30e2b2881ee466c5dc8f6a5b5b53f76887acdeff130789c52b4179828b"},
+    {file = "braveblock-0.2.0-cp38-cp38-macosx_10_7_x86_64.whl", hash = "sha256:41a18f65d761ef27ab1e94d4f0d5579a3388b32760e35dfdfedc52ae4159c8d1"},
+    {file = "braveblock-0.2.0-cp38-cp38-manylinux_2_5_x86_64.manylinux1_x86_64.whl", hash = "sha256:2334caa7e4f599e38f415eb7b0219692fdc698fe333a2743c74745d1611a56bb"},
+    {file = "braveblock-0.2.0-cp38-none-win_amd64.whl", hash = "sha256:9dd812d84c3bfb37dd617fdd3f25692eb1c13fda07f61580f07b6c40c8c50956"},
+    {file = "braveblock-0.2.0-cp39-cp39-macosx_10_7_x86_64.whl", hash = "sha256:7758dc2b57f6d9ee29792fdf813d222eea962aee246415d2a033012ae8e3542f"},
+    {file = "braveblock-0.2.0-cp39-cp39-manylinux_2_5_x86_64.manylinux1_x86_64.whl", hash = "sha256:f92aad310283244675583020eb3b0c5e10762a143f4c31268d1ec26ad2a39b14"},
+    {file = "braveblock-0.2.0-cp39-none-win_amd64.whl", hash = "sha256:6b06f961ba1cd0ce9bce4df804fec3222d550a71cbe4e44c058a156cce2d6e73"},
+    {file = "braveblock-0.2.0-pp37-pypy37_pp73-manylinux_2_5_x86_64.manylinux1_x86_64.whl", hash = "sha256:6d06b017816312034449e1fc44b0b01848a41a996a9ce475bb76aff83265dbeb"},
 ]
 brotli = [
     {file = "Brotli-1.0.9-cp27-cp27m-macosx_10_9_x86_64.whl", hash = "sha256:268fe94547ba25b58ebc724680609c8ee3e5a843202e9a381f6f9c5e8bdb5c70"},
