@@ -233,6 +233,7 @@ class SeleniumScraper(ScraperAbstract):
         else:
             chrome_options = ChromeOptions()
             chrome_options.headless = headless
+            chrome_options.add_argument("remote-debugging-port=9222")
             chrome_options.add_argument("disable-notifications")
             executable_path = ChromeDriverManager(
                 chrome_type=ChromeType.CHROMIUM, version=os.getenv("CHROMEDRIVER_VERSION", "latest")
