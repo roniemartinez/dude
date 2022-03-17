@@ -25,6 +25,7 @@ class BeautifulSoupScraper(ScraperAbstract):
         proxy: ProxiesTypes = None,
         output: Optional[str] = None,
         format: str = "json",
+        follow_urls: bool = False,
         **kwargs: Any,
     ) -> None:
         """
@@ -35,30 +36,31 @@ class BeautifulSoupScraper(ScraperAbstract):
         :param proxy: Proxy settings. (see https://www.python-httpx.org/advanced/#http-proxying)  # noqa
         :param output: Output file. If not provided, prints in the terminal.
         :param format: Output file format. If not provided, uses the extension of the output file or defaults to json.
+        :param follow_urls: Automatically follow URLs.
         """
         self.update_rule_groups()
+        self.urls.clear()
+        self.urls.extend(urls)
 
         logger.info("Using BeautifulSoup4...")
         if self.has_async:
             logger.info("Using async mode...")
             loop = asyncio.get_event_loop()
-            loop.run_until_complete(self._run_async(urls=urls, pages=pages, proxy=proxy, output=output, format=format))
             # FIXME: Tests fail on Python 3.7 when using asyncio.run()
-            # asyncio.run(self._run_async((urls=urls, pages=pages, proxy=proxy, output=output, format=format))
+            loop.run_until_complete(self._run_async(pages=pages, proxy=proxy, output=output, format=format))
         else:
             logger.info("Using sync mode...")
-            self._run_sync(urls=urls, pages=pages, proxy=proxy, output=output, format=format)
+            self._run_sync(pages=pages, proxy=proxy, output=output, format=format)
 
     def _run_sync(
         self,
-        urls: Sequence[str],
         pages: int,
         proxy: Optional[ProxiesTypes],
         output: Optional[str],
         format: str,
     ) -> None:
         with httpx.Client(proxies=proxy) as client:
-            for url in urls:
+            for url in self.urls:
                 for i in range(1, pages + 1):
                     if url.startswith("file://"):
                         path = self.file_url_to_path(url)
@@ -82,14 +84,13 @@ class BeautifulSoupScraper(ScraperAbstract):
 
     async def _run_async(
         self,
-        urls: Sequence[str],
         pages: int,
         proxy: Optional[ProxiesTypes],
         output: Optional[str],
         format: str,
     ) -> None:
         async with httpx.AsyncClient(proxies=proxy) as client:
-            for url in urls:
+            for url in self.urls:
                 for i in range(1, pages + 1):
                     if url.startswith("file://"):
                         path = self.file_url_to_path(url)

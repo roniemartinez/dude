@@ -32,6 +32,7 @@ class PyppeteerScraper(ScraperAbstract):
         proxy: Optional[Dict] = None,
         output: Optional[str] = None,
         format: str = "json",
+        follow_urls: bool = False,
         headless: bool = True,
         **kwargs: Any,
     ) -> None:
@@ -43,16 +44,19 @@ class PyppeteerScraper(ScraperAbstract):
         :param proxy: Proxy settings.
         :param output: Output file. If not provided, prints in the terminal.
         :param format: Output file format. If not provided, uses the extension of the output file or defaults to json.
+        :param follow_urls: Automatically follow URLs.
 
         :param headless: Enables headless browser. (default=True)
         """
         self.update_rule_groups()
+        self.urls.clear()
+        self.urls.extend(urls)
 
         logger.info("Using Pyppeteer...")
         loop = asyncio.get_event_loop()
+        # FIXME: Tests fail on Python 3.7 when using asyncio.run()
         loop.run_until_complete(
             self._run_async(
-                urls=urls,
                 headless=headless,
                 pages=pages,
                 proxy=proxy,
@@ -60,17 +64,6 @@ class PyppeteerScraper(ScraperAbstract):
                 format=format,
             )
         )
-        # FIXME: Tests fail on Python 3.7 when using asyncio.run()
-        # asyncio.run(
-        #     self._run_async(
-        #         urls=urls,
-        #         headless=headless,
-        #         pages=pages,
-        #         proxy=proxy,
-        #         output=output,
-        #         format=format,
-        #     )
-        # )
 
     def setup(self, page: Page = None) -> None:
         raise Exception("Sync is not supported.")  # pragma: no cover
@@ -120,7 +113,6 @@ class PyppeteerScraper(ScraperAbstract):
 
     async def _run_async(
         self,
-        urls: Sequence[str],
         headless: bool,
         pages: int,
         proxy: Optional[Dict],
@@ -140,7 +132,7 @@ class PyppeteerScraper(ScraperAbstract):
         await page.setRequestInterception(True)
         page.on("request", lambda res: asyncio.ensure_future(self._block_url_if_needed(res)))
 
-        for url in urls:
+        for url in self.urls:
             await page.goto(url)
             logger.info("Loaded page %s", page.url)
             await self.setup_async(page=page)

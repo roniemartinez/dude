@@ -40,6 +40,7 @@ class SeleniumScraper(ScraperAbstract):
         proxy: Optional[Any] = None,
         output: Optional[str] = None,
         format: str = "json",
+        follow_urls: bool = False,
         headless: bool = True,
         browser_type: str = "chromium",
         **kwargs: Any,
@@ -52,19 +53,22 @@ class SeleniumScraper(ScraperAbstract):
         :param proxy: Proxy settings.
         :param output: Output file. If not provided, prints in the terminal.
         :param format: Output file format. If not provided, uses the extension of the output file or defaults to json.
+        :param follow_urls: Automatically follow URLs.
 
         :param headless: Enables headless browser. (default=True)
         :param browser_type: Selenium supported browser types ("chromium", "firefox").
         """
         self.update_rule_groups()
+        self.urls.clear()
+        self.urls.extend(urls)
 
         logger.info("Using Selenium...")
         if self.has_async:
             logger.info("Using async mode...")
             loop = asyncio.get_event_loop()
+            # FIXME: Tests fail on Python 3.7 when using asyncio.run()
             loop.run_until_complete(
                 self._run_async(
-                    urls=urls,
                     headless=headless,
                     browser_type=browser_type,
                     pages=pages,
@@ -73,22 +77,9 @@ class SeleniumScraper(ScraperAbstract):
                     format=format,
                 )
             )
-            # FIXME: Tests fail on Python 3.7 when using asyncio.run()
-            # asyncio.run(
-            #     self._run_async(
-            #         urls=urls,
-            #         headless=headless,
-            #         browser_type=browser_type,
-            #         pages=pages,
-            #         proxy=proxy,
-            #         output=output,
-            #         format=format,
-            #     )
-            # )
         else:
             logger.info("Using sync mode...")
             self._run_sync(
-                urls=urls,
                 headless=headless,
                 browser_type=browser_type,
                 pages=pages,
@@ -155,7 +146,6 @@ class SeleniumScraper(ScraperAbstract):
 
     def _run_sync(
         self,
-        urls: Sequence[str],
         headless: bool,
         browser_type: str,
         pages: int,
@@ -165,7 +155,7 @@ class SeleniumScraper(ScraperAbstract):
     ) -> None:
         driver = self._get_driver(browser_type, headless)
 
-        for url in urls:
+        for url in self.urls:
             driver.get(url)
             logger.info("Loaded page %s", driver.current_url)
             self.setup(driver=driver)
@@ -182,7 +172,6 @@ class SeleniumScraper(ScraperAbstract):
 
     async def _run_async(
         self,
-        urls: Sequence[str],
         headless: bool,
         browser_type: str,
         pages: int,
@@ -192,7 +181,7 @@ class SeleniumScraper(ScraperAbstract):
     ) -> None:
         driver = self._get_driver(browser_type, headless)
 
-        for url in urls:
+        for url in self.urls:
             driver.get(url)
             logger.info("Loaded page %s", driver.current_url)
             await self.setup_async(driver=driver)

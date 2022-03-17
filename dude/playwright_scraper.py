@@ -30,6 +30,7 @@ class PlaywrightScraper(ScraperAbstract):
         proxy: Optional[sync_api.ProxySettings] = None,
         output: Optional[str] = None,
         format: str = "json",
+        follow_urls: bool = False,
         headless: bool = True,
         browser_type: str = "chromium",
         **kwargs: Any,
@@ -42,19 +43,22 @@ class PlaywrightScraper(ScraperAbstract):
         :param proxy: Proxy settings. (see https://playwright.dev/python/docs/api/class-apirequest#api-request-new-context-option-proxy)  # noqa
         :param output: Output file. If not provided, prints in the terminal.
         :param format: Output file format. If not provided, uses the extension of the output file or defaults to json.
+        :param follow_urls: Automatically follow URLs.
 
         :param headless: Enables headless browser. (default=True)
         :param browser_type: Playwright supported browser types ("chromium", "webkit" or "firefox").
         """
         self.update_rule_groups()
+        self.urls.clear()
+        self.urls.extend(urls)
 
         logger.info("Using Playwright...")
         if self.has_async:
             logger.info("Using async mode...")
             loop = asyncio.get_event_loop()
+            # FIXME: Tests fail on Python 3.7 when using asyncio.run()
             loop.run_until_complete(
                 self._run_async(
-                    urls=urls,
                     headless=headless,
                     browser_type=browser_type,
                     pages=pages,
@@ -63,22 +67,9 @@ class PlaywrightScraper(ScraperAbstract):
                     format=format,
                 )
             )
-            # FIXME: Tests fail on Python 3.7 when using asyncio.run()
-            # asyncio.run(
-            #     self._run_async(
-            #         urls=urls,
-            #         headless=headless,
-            #         browser_type=browser_type,
-            #         pages=pages,
-            #         proxy=proxy,
-            #         output=output,
-            #         format=format,
-            #     )
-            # )
         else:
             logger.info("Using sync mode...")
             self._run_sync(
-                urls=urls,
                 headless=headless,
                 browser_type=browser_type,
                 pages=pages,
@@ -172,7 +163,6 @@ class PlaywrightScraper(ScraperAbstract):
 
     def _run_sync(
         self,
-        urls: Sequence[str],
         headless: bool,
         browser_type: str,
         pages: int,
@@ -186,12 +176,12 @@ class PlaywrightScraper(ScraperAbstract):
             browser = p[browser_type].launch(headless=headless, proxy=proxy, **launch_kwargs)
             page = browser.new_page()
             page.route("**/*", self._block_url_if_needed)
-            self._scrape_sync(page, urls, pages)
+            self._scrape_sync(page, pages)
             browser.close()
         self._save(format, output)
 
-    def _scrape_sync(self, page: sync_api.Page, urls: Sequence[str], pages: int) -> None:
-        for _ in (page.goto(url) for url in urls):
+    def _scrape_sync(self, page: sync_api.Page, pages: int) -> None:
+        for _ in (page.goto(url) for url in self.urls):
             logger.info("Loaded page %s", page.url)
             self.setup(page=page)
 
@@ -204,7 +194,6 @@ class PlaywrightScraper(ScraperAbstract):
 
     async def _run_async(
         self,
-        urls: Sequence[str],
         headless: bool,
         browser_type: str,
         pages: int,
@@ -217,7 +206,7 @@ class PlaywrightScraper(ScraperAbstract):
             browser = await p[browser_type].launch(headless=headless, proxy=proxy, **launch_kwargs)
             page = await browser.new_page()
             await page.route("**/*", self._block_url_if_needed)
-            for url in urls:
+            for url in self.urls:
                 await page.goto(url)
                 logger.info("Loaded page %s", page.url)
                 await self.setup_async(page=page)

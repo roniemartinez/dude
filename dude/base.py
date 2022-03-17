@@ -1,4 +1,5 @@
 import asyncio
+import collections
 import itertools
 import logging
 import platform
@@ -42,6 +43,7 @@ class ScraperBase(ABC):
         proxy: Optional[Any],
         output: Optional[str],
         format: str,
+        follow_urls: bool = False,
     ) -> None:
         """
         Abstract method for executing the scraper.
@@ -51,6 +53,7 @@ class ScraperBase(ABC):
         :param proxy: Proxy settings.
         :param output: Output file. If not provided, prints in the terminal.
         :param format: Output file format. If not provided, uses the extension of the output file or defaults to json.
+        :param follow_urls: Automatically follow URLs.
         """
         raise NotImplementedError  # pragma: no cover
 
@@ -194,6 +197,7 @@ class ScraperAbstract(ScraperBase):
     ) -> None:
         super(ScraperAbstract, self).__init__(rules, groups, save_rules, has_async)
         self.collected_data: List[ScrapedData] = []
+        self.urls = collections.deque()  # allows dynamically appending new URLs for crawling
 
     @abstractmethod
     def setup(self) -> None:
