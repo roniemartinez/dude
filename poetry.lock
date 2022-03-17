@@ -1164,7 +1164,7 @@ python-versions = ">=3.6"
 
 [[package]]
 name = "types-pyyaml"
-version = "6.0.4"
+version = "6.0.5"
 description = "Typing stubs for PyYAML"
 category = "dev"
 optional = false
@@ -1288,7 +1288,7 @@ selenium = ["selenium-wire", "webdriver-manager"]
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.7"
-content-hash = "f744af5c678c5bcce23747f4570b04b33870e941cd156b1cef414a3a1bd2c469"
+content-hash = "b2081840423d724b2c4ffbc2907b443d90f6fe9af06b226d2f639248c8750eb4"
 
 [metadata.files]
 anyio = [
@@ -2110,8 +2110,8 @@ typed-ast = [
     {file = "typed_ast-1.5.2.tar.gz", hash = "sha256:525a2d4088e70a9f75b08b3f87a51acc9cde640e19cc523c7e41aa355564ae27"},
 ]
 types-pyyaml = [
-    {file = "types-PyYAML-6.0.4.tar.gz", hash = "sha256:6252f62d785e730e454dfa0c9f0fb99d8dae254c5c3c686903cf878ea27c04b7"},
-    {file = "types_PyYAML-6.0.4-py3-none-any.whl", hash = "sha256:693b01c713464a6851f36ff41077f8adbc6e355eda929addfb4a97208aea9b4b"},
+    {file = "types-PyYAML-6.0.5.tar.gz", hash = "sha256:464e050914f3d1d83a8c038e1cf46da5cb96b7cd02eaa096bcaa03675edd8a2e"},
+    {file = "types_PyYAML-6.0.5-py3-none-any.whl", hash = "sha256:2fd21310870addfd51db621ad9f3b373f33ee3cbb81681d70ef578760bd22d35"},
 ]
 typing-extensions = [
     {file = "typing_extensions-4.1.1-py3-none-any.whl", hash = "sha256:21c85e0fe4b9a155d0799430b0ad741cdce7e359660ccbd8b530613e8df88ce2"},
