@@ -5,7 +5,20 @@ import logging
 import platform
 from abc import ABC, abstractmethod
 from pathlib import Path
-from typing import Any, AsyncIterable, Callable, Coroutine, Dict, Iterable, List, Optional, Sequence, Tuple, Union
+from typing import (
+    Any,
+    AsyncIterable,
+    Callable,
+    Coroutine,
+    Deque,
+    Dict,
+    Iterable,
+    List,
+    Optional,
+    Sequence,
+    Tuple,
+    Union,
+)
 
 from .rule import Rule, Selector, rule_filter
 from .scraped_data import ScrapedData, scraped_data_grouper, scraped_data_sorter
@@ -197,7 +210,7 @@ class ScraperAbstract(ScraperBase):
     ) -> None:
         super(ScraperAbstract, self).__init__(rules, groups, save_rules, has_async)
         self.collected_data: List[ScrapedData] = []
-        self.urls = collections.deque()  # allows dynamically appending new URLs for crawling
+        self.urls: Deque = collections.deque()  # allows dynamically appending new URLs for crawling
 
     @abstractmethod
     def setup(self) -> None:

@@ -19,11 +19,11 @@ class Scraper(ScraperBase):
         proxy: Optional[Any] = None,
         output: Optional[str] = None,
         format: str = "json",
+        follow_urls: bool = False,
         # extra args
         parser: str = "playwright",
         headless: bool = True,
         browser_type: str = "chromium",
-        follow_urls: bool = False,
     ) -> None:
         """
         Convenience method to handle switching between different types of parser backends.
