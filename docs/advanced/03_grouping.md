@@ -48,10 +48,10 @@ Please take note that `group_css`, `group_xpath`, `group_text` and `group_regex`
     from dude import select
     
     
-    @select(css=".title", group_css="<css-selector>")     #(1)
-    @select(css=".title", group_xpath="<xpath-selector>") #(2)
-    @select(css=".title", group_text="<text-selector>")  #(3)
-    @select(css=".title", group_regex="<regex-selector>") #(4)
+    @select(css=".title", group_css="<css-selector>")     # (1)
+    @select(css=".title", group_xpath="<xpath-selector>") # (2)
+    @select(css=".title", group_text="<text-selector>")   # (3)
+    @select(css=".title", group_regex="<regex-selector>") # (4)
     def handler(element):
         return {"<key>": "<value-extracted-from-element>"}
     ```
@@ -72,7 +72,7 @@ Similarly, `css`, `xpath`, `text` and `regex` are specific and `selector` can co
     from dude import select
     
     
-    @group(css="<css-selector>") #(1)
+    @group(css="<css-selector>") # (1)
     @select(selector="<selector>") 
     def handler(element):
         return {"<key>": "<value-extracted-from-element>"}

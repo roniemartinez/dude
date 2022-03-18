@@ -14,7 +14,6 @@ You can use the `@save()` decorator in other ways like saving the scraped data t
     from dude import save
     import tabulate
 
-    
 
     @save("table")
     def save_table(data, output) -> bool:
