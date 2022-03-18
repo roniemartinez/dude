@@ -27,7 +27,7 @@
 
 # dude uncomplicated data extraction
 
-Dude is a very simple framework for writing a web scraper using Python decorators.
+Dude is a very simple framework for writing web scrapers using Python decorators.
 The design, inspired by [Flask](https://github.com/pallets/flask), was to easily build a web scraper in just a few lines of code.
 Dude has an easy-to-learn syntax.
 
@@ -198,7 +198,7 @@ Contribute to this project by feature requests, idea discussions, reporting bugs
 ## Requirements
 
 - ✅ Any dude should know how to work with selectors (CSS or XPath).
-- ✅ This library was built on top of [Playwright](https://github.com/microsoft/playwright-python). Any dude should be at least familiar with the basics of Playwright - they also extended the selectors to support text, regular expressions, etc. See [Selectors | Playwright Python](https://playwright.dev/python/docs/selectors).
+- ✅ Familiarity with any backends that you love (see [Supported Parser Backends](#supported-parser-backends))
 - ✅ Python decorators... you'll live, dude!
 
 ## Why name this project "dude"?

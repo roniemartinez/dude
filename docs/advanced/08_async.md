@@ -14,17 +14,20 @@ It is however, possible to have async and sync storage handlers at the same time
     async def result_title(element):
         return {"title": await element.text_content()}
     
+
     @save("json")
     async def save_json(data, output) -> bool:
         ...
         return True
     
+
     @save("xml")
-    def save_xml(data, output) -> bool:
-        # sync storage handler can be used on sync and async mode
+    def save_xml(data, output) -> bool: # (1)
         ...
         return True
     ```
+    
+    1. Sync storage handler can be used on sync and async mode
 
 ## Examples
 

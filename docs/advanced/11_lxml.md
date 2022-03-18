@@ -25,21 +25,21 @@ Instead of ElementHandle objects when using Playwright as parser backend, [Eleme
         return {"url": href} # (2)
     
 
-    """Option to get url using cssselect"""  # style.css hides a comment
-    @select(css="a.url")
+    @select(css="a.url")  # (3)
     def result_url_css(element):
-        return {"url_css": element.attrib["href"]} # (3)
+        return {"url_css": element.attrib["href"]} # (4)
     
     
     @select(css='.title')
     def result_title(element):
-        return {"title": element.text} # (4)
+        return {"title": element.text} # (5)
     ```
     
     1. Attributes can be accessed using XPath `@href`.
     2. When using XPath `@href` (or `text`), "smart" strings are returned.
-    3. Attributes can also be accessed from lxml elements using `element.attrib["href"]`.
-    4. Text content can be accessed from lxml elements using `element.text`.
+    3. The lxml backend supports CSS selectors via `cssselect`.
+    4. Attributes can also be accessed from lxml elements using `element.attrib["href"]`.
+    5. Text content can be accessed from lxml elements using `element.text`.
 
 
 ## Running Dude with lxml 
