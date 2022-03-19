@@ -2,6 +2,7 @@ import asyncio
 import itertools
 import logging
 from typing import Any, AsyncIterable, Callable, Iterable, Optional, Sequence, Tuple
+from urllib.parse import urljoin
 
 import httpx
 from bs4 import BeautifulSoup
@@ -11,6 +12,14 @@ from ..base import ScraperAbstract
 from ..rule import Selector, SelectorType, rule_grouper, rule_sorter
 
 logger = logging.getLogger(__name__)
+
+
+def make_links_absolute(soup: BeautifulSoup, url: str) -> None:
+    """
+    https://stackoverflow.com/a/4468467/1279157
+    """
+    for tag in soup.find_all("a", href=True):
+        tag["href"] = urljoin(url, tag["href"])
 
 
 class BeautifulSoupScraper(ScraperAbstract):
@@ -76,6 +85,7 @@ class BeautifulSoupScraper(ScraperAbstract):
                             break
 
                     soup = BeautifulSoup(content, "html.parser")
+                    make_links_absolute(soup, url)
                     self.setup()  # does not do anything yet
                     self.collected_data.extend(self.extract_all(page_number=i, soup=soup, url=url))
                     if i == pages or not self.navigate():
@@ -106,6 +116,7 @@ class BeautifulSoupScraper(ScraperAbstract):
                             break
 
                     soup = BeautifulSoup(content, "html.parser")
+                    make_links_absolute(soup, url)
                     await self.setup_async()  # does not do anything yet
                     self.collected_data.extend(
                         [data async for data in self.extract_all_async(page_number=i, soup=soup, url=url)]

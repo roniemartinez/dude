@@ -4,8 +4,8 @@ import logging
 from typing import Any, AsyncIterable, Callable, Iterable, Optional, Sequence, Tuple
 
 import httpx
+import lxml.html
 from httpx._types import ProxiesTypes
-from lxml import etree
 from lxml.etree import _Element
 
 from ..base import ScraperAbstract
@@ -76,7 +76,8 @@ class LxmlScraper(ScraperAbstract):
                             logger.exception(e)
                             break
 
-                    tree = etree.HTML(text=content)
+                    tree = lxml.html.fromstring(html=content, base_url=url)
+                    tree.make_links_absolute()
                     self.setup()  # does not do anything yet
                     self.collected_data.extend(self.extract_all(page_number=i, tree=tree, url=url))
                     if i == pages or not self.navigate():
@@ -106,7 +107,8 @@ class LxmlScraper(ScraperAbstract):
                             logger.exception(e)
                             break
 
-                    tree = etree.HTML(text=content)
+                    tree = lxml.html.fromstring(html=content, base_url=url)
+                    tree.make_links_absolute()
                     await self.setup_async()  # does not do anything yet
                     self.collected_data.extend(
                         [data async for data in self.extract_all_async(page_number=i, tree=tree, url=url)]
