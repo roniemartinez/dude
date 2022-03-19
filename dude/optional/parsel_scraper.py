@@ -82,7 +82,11 @@ class ParselScraper(ScraperAbstract):
 
                     selector = ParselSelector(content, base_url=url)
                     if follow_urls:
-                        self.urls.extend([urljoin(url, link[2]) for link in selector.root.iterlinks()])
+                        for link in selector.root.iterlinks():
+                            absolute = urljoin(url, link[2])
+                            if absolute.rstrip("/") == url.rstrip("/"):
+                                continue
+                            self.urls.append(absolute)
                     self.setup()  # does not do anything yet
                     self.collected_data.extend(self.extract_all(page_number=i, selector=selector, url=url))
                     if i == pages or not self.navigate():
@@ -116,7 +120,11 @@ class ParselScraper(ScraperAbstract):
 
                     selector = ParselSelector(content, base_url=url)
                     if follow_urls:
-                        self.urls.extend([urljoin(url, link[2]) for link in selector.root.iterlinks()])
+                        for link in selector.root.iterlinks():
+                            absolute = urljoin(url, link[2])
+                            if absolute.rstrip("/") == url.rstrip("/"):
+                                continue
+                            self.urls.append(absolute)
                     await self.setup_async()  # does not do anything yet
                     self.collected_data.extend(
                         [data async for data in self.extract_all_async(page_number=i, selector=selector, url=url)]

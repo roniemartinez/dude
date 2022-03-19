@@ -139,7 +139,10 @@ class PyppeteerScraper(ScraperAbstract):
                     handle = await element.getProperty("href")
                     href = await handle.jsonValue()
                     if isinstance(href, str):
-                        self.urls.append(urljoin(page.url, href))
+                        absolute = urljoin(page.url, href)
+                        if absolute.rstrip("/") == page.url.rstrip("/"):
+                            continue
+                        self.urls.append(absolute)
             await self.setup_async(page=page)
 
             for i in range(1, pages + 1):

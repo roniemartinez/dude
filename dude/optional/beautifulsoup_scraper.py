@@ -82,7 +82,11 @@ class BeautifulSoupScraper(ScraperAbstract):
 
                     soup = BeautifulSoup(content, "html.parser")
                     if follow_urls:
-                        self.urls.extend([urljoin(url, link["href"]) for link in soup.find_all("a", href=True)])
+                        for link in soup.find_all("a", href=True):
+                            absolute = urljoin(url, link["href"])
+                            if absolute.rstrip("/") == url.rstrip("/"):
+                                continue
+                            self.urls.append(absolute)
                     self.setup()  # does not do anything yet
                     self.collected_data.extend(self.extract_all(page_number=i, soup=soup, url=url))
                     if i == pages or not self.navigate():
@@ -117,7 +121,11 @@ class BeautifulSoupScraper(ScraperAbstract):
                     soup = BeautifulSoup(content, "html.parser")
                     await self.setup_async()  # does not do anything yet
                     if follow_urls:
-                        self.urls.extend([urljoin(url, link["href"]) for link in soup.find_all("a", href=True)])
+                        for link in soup.find_all("a", href=True):
+                            absolute = urljoin(url, link["href"])
+                            if absolute.rstrip("/") == url.rstrip("/"):
+                                continue
+                            self.urls.append(absolute)
                     self.collected_data.extend(
                         [data async for data in self.extract_all_async(page_number=i, soup=soup, url=url)]
                     )

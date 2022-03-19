@@ -159,12 +159,11 @@ class SeleniumScraper(ScraperAbstract):
             driver.get(url)
             logger.info("Loaded page %s", driver.current_url)
             if follow_urls:
-                self.urls.extend(
-                    [
-                        urljoin(driver.current_url, link.get_attribute("href"))
-                        for link in driver.find_elements(by=By.CSS_SELECTOR, value="a")
-                    ]
-                )
+                for link in driver.find_elements(by=By.CSS_SELECTOR, value="a"):
+                    absolute = urljoin(driver.current_url, link.get_attribute("href"))
+                    if absolute.rstrip("/") == driver.current_url.rstrip("/"):
+                        continue
+                    self.urls.append(absolute)
             self.setup(driver=driver)
 
             for i in range(1, pages + 1):
@@ -194,12 +193,11 @@ class SeleniumScraper(ScraperAbstract):
             driver.get(url)
             logger.info("Loaded page %s", driver.current_url)
             if follow_urls:
-                self.urls.extend(
-                    [
-                        urljoin(driver.current_url, link.get_attribute("href"))
-                        for link in driver.find_elements(by=By.CSS_SELECTOR, value="a")
-                    ]
-                )
+                for link in driver.find_elements(by=By.CSS_SELECTOR, value="a"):
+                    absolute = urljoin(driver.current_url, link.get_attribute("href"))
+                    if absolute.rstrip("/") == driver.current_url.rstrip("/"):
+                        continue
+                    self.urls.append(absolute)
             await self.setup_async(driver=driver)
 
             for i in range(1, pages + 1):

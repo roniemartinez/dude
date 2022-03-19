@@ -180,9 +180,11 @@ class PlaywrightScraper(ScraperAbstract):
                 page.goto(url)
                 logger.info("Loaded page %s", page.url)
                 if follow_urls:
-                    self.urls.extend(
-                        [urljoin(page.url, link.get_attribute("href")) for link in page.query_selector_all("a")]
-                    )
+                    for link in page.query_selector_all("a"):
+                        absolute = urljoin(page.url, link.get_attribute("href"))
+                        if absolute.rstrip("/") == page.url.rstrip("/"):
+                            continue
+                        self.urls.append(absolute)
                 self.setup(page=page)
 
                 for i in range(1, pages + 1):
@@ -215,12 +217,11 @@ class PlaywrightScraper(ScraperAbstract):
                 await page.goto(url)
                 logger.info("Loaded page %s", page.url)
                 if follow_urls:
-                    self.urls.extend(
-                        [
-                            urljoin(page.url, await link.get_attribute("href"))
-                            for link in await page.query_selector_all("a")
-                        ]
-                    )
+                    for link in await page.query_selector_all("a"):
+                        absolute = urljoin(page.url, await link.get_attribute("href"))
+                        if absolute.rstrip("/") == page.url.rstrip("/"):
+                            continue
+                        self.urls.append(absolute)
                 await self.setup_async(page=page)
 
                 for i in range(1, pages + 1):
