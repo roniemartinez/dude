@@ -28,7 +28,7 @@ class IsUrl:
         On Windows, "file:///<Drive>:" is prepended, e.g. "file:///D:".
         """
         return isinstance(other, str) and (
-            (other.startswith("file://") or other.startswith("https://dude.ron.sh")) and other.endswith(self.url)
+            other == self.url or (other.startswith("file://") and other.endswith(self.url))
         )
 
     def __repr__(self) -> str:

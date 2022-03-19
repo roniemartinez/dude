@@ -2,6 +2,7 @@ import asyncio
 import itertools
 import logging
 from typing import Any, AsyncIterable, Callable, Iterable, Optional, Sequence, Tuple
+from urllib.parse import urljoin
 
 import httpx
 from httpx._types import ProxiesTypes
@@ -47,10 +48,12 @@ class ParselScraper(ScraperAbstract):
             logger.info("Using async mode...")
             loop = asyncio.get_event_loop()
             # TODO: Tests fail on Python 3.7 when using asyncio.run()
-            loop.run_until_complete(self._run_async(pages=pages, proxy=proxy, output=output, format=format))
+            loop.run_until_complete(
+                self._run_async(pages=pages, proxy=proxy, output=output, format=format, follow_urls=follow_urls)
+            )
         else:
             logger.info("Using sync mode...")
-            self._run_sync(pages=pages, proxy=proxy, output=output, format=format)
+            self._run_sync(pages=pages, proxy=proxy, output=output, format=format, follow_urls=follow_urls)
 
     def _run_sync(
         self,
@@ -58,9 +61,11 @@ class ParselScraper(ScraperAbstract):
         proxy: Optional[ProxiesTypes],
         output: Optional[str],
         format: str,
+        follow_urls: bool,
     ) -> None:
         with httpx.Client(proxies=proxy) as client:
-            for url in self.urls:
+            for url in self.iter_urls():
+                logger.info("Requesting url %s", url)
                 for i in range(1, pages + 1):
                     if url.startswith("file://"):
                         path = self.file_url_to_path(url)
@@ -72,11 +77,12 @@ class ParselScraper(ScraperAbstract):
                             response.raise_for_status()
                             content = response.text
                         except httpx.HTTPStatusError as e:
-                            logger.exception(e)
+                            logger.warning(e)
                             break
 
                     selector = ParselSelector(content, base_url=url)
-                    selector.root.make_links_absolute()
+                    if follow_urls:
+                        self.urls.extend([urljoin(url, link[2]) for link in selector.root.iterlinks()])
                     self.setup()  # does not do anything yet
                     self.collected_data.extend(self.extract_all(page_number=i, selector=selector, url=url))
                     if i == pages or not self.navigate():
@@ -89,9 +95,11 @@ class ParselScraper(ScraperAbstract):
         proxy: Optional[ProxiesTypes],
         output: Optional[str],
         format: str,
+        follow_urls: bool,
     ) -> None:
         async with httpx.AsyncClient(proxies=proxy) as client:
-            for url in self.urls:
+            for url in self.iter_urls():
+                logger.info("Requesting url %s", url)
                 for i in range(1, pages + 1):
                     if url.startswith("file://"):
                         path = self.file_url_to_path(url)
@@ -103,11 +111,12 @@ class ParselScraper(ScraperAbstract):
                             response.raise_for_status()
                             content = response.text
                         except httpx.HTTPStatusError as e:
-                            logger.exception(e)
+                            logger.warning(e)
                             break
 
                     selector = ParselSelector(content, base_url=url)
-                    selector.root.make_links_absolute()
+                    if follow_urls:
+                        self.urls.extend([urljoin(url, link[2]) for link in selector.root.iterlinks()])
                     await self.setup_async()  # does not do anything yet
                     self.collected_data.extend(
                         [data async for data in self.extract_all_async(page_number=i, selector=selector, url=url)]

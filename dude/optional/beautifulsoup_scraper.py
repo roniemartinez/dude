@@ -14,14 +14,6 @@ from ..rule import Selector, SelectorType, rule_grouper, rule_sorter
 logger = logging.getLogger(__name__)
 
 
-def make_links_absolute(soup: BeautifulSoup, url: str) -> None:
-    """
-    https://stackoverflow.com/a/4468467/1279157
-    """
-    for tag in soup.find_all("a", href=True):
-        tag["href"] = urljoin(url, tag["href"])
-
-
 class BeautifulSoupScraper(ScraperAbstract):
     """
     Scraper using BeautifulSoup4 parser and HTTPX for requests
@@ -56,10 +48,12 @@ class BeautifulSoupScraper(ScraperAbstract):
             logger.info("Using async mode...")
             loop = asyncio.get_event_loop()
             # FIXME: Tests fail on Python 3.7 when using asyncio.run()
-            loop.run_until_complete(self._run_async(pages=pages, proxy=proxy, output=output, format=format))
+            loop.run_until_complete(
+                self._run_async(pages=pages, proxy=proxy, output=output, format=format, follow_urls=follow_urls)
+            )
         else:
             logger.info("Using sync mode...")
-            self._run_sync(pages=pages, proxy=proxy, output=output, format=format)
+            self._run_sync(pages=pages, proxy=proxy, output=output, format=format, follow_urls=follow_urls)
 
     def _run_sync(
         self,
@@ -67,9 +61,11 @@ class BeautifulSoupScraper(ScraperAbstract):
         proxy: Optional[ProxiesTypes],
         output: Optional[str],
         format: str,
+        follow_urls: bool,
     ) -> None:
         with httpx.Client(proxies=proxy) as client:
-            for url in self.urls:
+            for url in self.iter_urls():
+                logger.info("Requesting url %s", url)
                 for i in range(1, pages + 1):
                     if url.startswith("file://"):
                         path = self.file_url_to_path(url)
@@ -81,11 +77,12 @@ class BeautifulSoupScraper(ScraperAbstract):
                             response.raise_for_status()
                             content = response.text
                         except httpx.HTTPStatusError as e:
-                            logger.exception(e)
+                            logger.warning(e)
                             break
 
                     soup = BeautifulSoup(content, "html.parser")
-                    make_links_absolute(soup, url)
+                    if follow_urls:
+                        self.urls.extend([urljoin(url, link["href"]) for link in soup.find_all("a", href=True)])
                     self.setup()  # does not do anything yet
                     self.collected_data.extend(self.extract_all(page_number=i, soup=soup, url=url))
                     if i == pages or not self.navigate():
@@ -98,9 +95,11 @@ class BeautifulSoupScraper(ScraperAbstract):
         proxy: Optional[ProxiesTypes],
         output: Optional[str],
         format: str,
+        follow_urls: bool,
     ) -> None:
         async with httpx.AsyncClient(proxies=proxy) as client:
-            for url in self.urls:
+            for url in self.iter_urls():
+                logger.info("Requesting url %s", url)
                 for i in range(1, pages + 1):
                     if url.startswith("file://"):
                         path = self.file_url_to_path(url)
@@ -112,12 +111,13 @@ class BeautifulSoupScraper(ScraperAbstract):
                             response.raise_for_status()
                             content = response.text
                         except httpx.HTTPStatusError as e:
-                            logger.exception(e)
+                            logger.warning(e)
                             break
 
                     soup = BeautifulSoup(content, "html.parser")
-                    make_links_absolute(soup, url)
                     await self.setup_async()  # does not do anything yet
+                    if follow_urls:
+                        self.urls.extend([urljoin(url, link["href"]) for link in soup.find_all("a", href=True)])
                     self.collected_data.extend(
                         [data async for data in self.extract_all_async(page_number=i, soup=soup, url=url)]
                     )

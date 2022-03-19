@@ -3,8 +3,8 @@ import itertools
 import logging
 import os
 from typing import Any, AsyncIterable, Callable, Iterable, Optional, Sequence, Tuple, Union
+from urllib.parse import urljoin
 
-from braveblock import Adblocker
 from selenium.webdriver.chrome.options import Options as ChromeOptions
 from selenium.webdriver.chrome.service import Service as ChromeService
 from selenium.webdriver.common.by import By
@@ -28,10 +28,6 @@ class SeleniumScraper(ScraperAbstract):
     """
     Selenium-based scraper
     """
-
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super(SeleniumScraper, self).__init__(*args, **kwargs)
-        self.adblock = Adblocker()
 
     def run(
         self,
@@ -75,6 +71,7 @@ class SeleniumScraper(ScraperAbstract):
                     proxy=proxy,
                     output=output,
                     format=format,
+                    follow_urls=follow_urls,
                 )
             )
         else:
@@ -86,6 +83,7 @@ class SeleniumScraper(ScraperAbstract):
                 proxy=proxy,
                 output=output,
                 format=format,
+                follow_urls=follow_urls,
             )
 
     def setup(self, driver: WebDriver = None) -> None:
@@ -152,12 +150,21 @@ class SeleniumScraper(ScraperAbstract):
         proxy: Optional[Any],
         output: Optional[str],
         format: str,
+        follow_urls: bool,
     ) -> None:
         driver = self._get_driver(browser_type, headless)
 
-        for url in self.urls:
+        for url in self.iter_urls():
+            logger.info("Requesting url %s", url)
             driver.get(url)
             logger.info("Loaded page %s", driver.current_url)
+            if follow_urls:
+                self.urls.extend(
+                    [
+                        urljoin(driver.current_url, link.get_attribute("href"))
+                        for link in driver.find_elements(by=By.CSS_SELECTOR, value="a")
+                    ]
+                )
             self.setup(driver=driver)
 
             for i in range(1, pages + 1):
@@ -178,12 +185,21 @@ class SeleniumScraper(ScraperAbstract):
         proxy: Optional[Any],
         output: Optional[str],
         format: str,
+        follow_urls: bool,
     ) -> None:
         driver = self._get_driver(browser_type, headless)
 
-        for url in self.urls:
+        for url in self.iter_urls():
+            logger.info("Requesting url %s", url)
             driver.get(url)
             logger.info("Loaded page %s", driver.current_url)
+            if follow_urls:
+                self.urls.extend(
+                    [
+                        urljoin(driver.current_url, link.get_attribute("href"))
+                        for link in driver.find_elements(by=By.CSS_SELECTOR, value="a")
+                    ]
+                )
             await self.setup_async(driver=driver)
 
             for i in range(1, pages + 1):
@@ -229,7 +245,6 @@ class SeleniumScraper(ScraperAbstract):
             ).install()
             driver = Chrome(service=ChromeService(executable_path=executable_path), options=chrome_options)
 
-        driver.implicitly_wait(10)
         driver.request_interceptor = self._block_url_if_needed
 
         return driver

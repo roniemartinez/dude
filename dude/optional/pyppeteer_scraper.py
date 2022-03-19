@@ -2,8 +2,8 @@ import asyncio
 import itertools
 import logging
 from typing import Any, AsyncIterable, Callable, Dict, Iterable, List, Optional, Sequence, Tuple, Union
+from urllib.parse import urljoin
 
-from braveblock import Adblocker
 from pyppeteer import launch
 from pyppeteer.element_handle import ElementHandle
 from pyppeteer.network_manager import Request
@@ -20,10 +20,6 @@ class PyppeteerScraper(ScraperAbstract):
     """
     Pyppeteer-based scraper
     """
-
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super(PyppeteerScraper, self).__init__(*args, **kwargs)
-        self.adblock = Adblocker()
 
     def run(
         self,
@@ -62,6 +58,7 @@ class PyppeteerScraper(ScraperAbstract):
                 proxy=proxy,
                 output=output,
                 format=format,
+                follow_urls=follow_urls,
             )
         )
 
@@ -118,6 +115,7 @@ class PyppeteerScraper(ScraperAbstract):
         proxy: Optional[Dict],
         output: Optional[str],
         format: str,
+        follow_urls: bool,
     ) -> None:
         launch_args: Dict[str, Any] = {"headless": headless, "args": ["--disable-notifications"]}
         if proxy:
@@ -132,9 +130,16 @@ class PyppeteerScraper(ScraperAbstract):
         await page.setRequestInterception(True)
         page.on("request", lambda res: asyncio.ensure_future(self._block_url_if_needed(res)))
 
-        for url in self.urls:
+        for url in self.iter_urls():
+            logger.info("Requesting url %s", url)
             await page.goto(url)
             logger.info("Loaded page %s", page.url)
+            if follow_urls:
+                for element in await page.querySelectorAll("a"):
+                    handle = await element.getProperty("href")
+                    href = await handle.jsonValue()
+                    if isinstance(href, str):
+                        self.urls.append(urljoin(page.url, href))
             await self.setup_async(page=page)
 
             for i in range(1, pages + 1):

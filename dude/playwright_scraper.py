@@ -2,8 +2,8 @@ import asyncio
 import itertools
 import logging
 from typing import Any, AsyncIterable, Callable, Dict, Iterable, Optional, Sequence, Tuple, Union
+from urllib.parse import urljoin
 
-from braveblock import Adblocker
 from playwright import async_api, sync_api
 from playwright.async_api import async_playwright
 from playwright.sync_api import sync_playwright
@@ -18,10 +18,6 @@ class PlaywrightScraper(ScraperAbstract):
     """
     Playwright-based scraper
     """
-
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super(PlaywrightScraper, self).__init__(*args, **kwargs)
-        self.adblock = Adblocker()
 
     def run(
         self,
@@ -65,6 +61,7 @@ class PlaywrightScraper(ScraperAbstract):
                     proxy=proxy,
                     output=output,
                     format=format,
+                    follow_urls=follow_urls,
                 )
             )
         else:
@@ -76,6 +73,7 @@ class PlaywrightScraper(ScraperAbstract):
                 proxy=proxy,
                 output=output,
                 format=format,
+                follow_urls=follow_urls,
             )
 
     @staticmethod
@@ -169,6 +167,7 @@ class PlaywrightScraper(ScraperAbstract):
         proxy: Optional[sync_api.ProxySettings],
         output: Optional[str],
         format: str,
+        follow_urls: bool,
     ) -> None:
         launch_kwargs = self._get_launch_kwargs(browser_type)
         # FIXME: Coverage fails to cover anything within this context manager block
@@ -176,21 +175,25 @@ class PlaywrightScraper(ScraperAbstract):
             browser = p[browser_type].launch(headless=headless, proxy=proxy, **launch_kwargs)
             page = browser.new_page()
             page.route("**/*", self._block_url_if_needed)
-            self._scrape_sync(page, pages)
+            for url in self.iter_urls():
+                logger.info("Requesting url %s", url)
+                page.goto(url)
+                logger.info("Loaded page %s", page.url)
+                if follow_urls:
+                    self.urls.extend(
+                        [urljoin(page.url, link.get_attribute("href")) for link in page.query_selector_all("a")]
+                    )
+                self.setup(page=page)
+
+                for i in range(1, pages + 1):
+                    current_page = page.url
+                    self.collected_data.extend(self.extract_all(page_number=i, page=page))
+                    # TODO: Add option to save data per page
+                    if i == pages or not self.navigate(page=page) or current_page == page.url:
+                        break
+
             browser.close()
         self._save(format, output)
-
-    def _scrape_sync(self, page: sync_api.Page, pages: int) -> None:
-        for _ in (page.goto(url) for url in self.urls):
-            logger.info("Loaded page %s", page.url)
-            self.setup(page=page)
-
-            for i in range(1, pages + 1):
-                current_page = page.url
-                self.collected_data.extend(self.extract_all(page_number=i, page=page))
-                # TODO: Add option to save data per page
-                if i == pages or not self.navigate(page=page) or current_page == page.url:
-                    break
 
     async def _run_async(
         self,
@@ -200,15 +203,24 @@ class PlaywrightScraper(ScraperAbstract):
         proxy: Optional[sync_api.ProxySettings],
         output: Optional[str],
         format: str,
+        follow_urls: bool,
     ) -> None:
         launch_kwargs = self._get_launch_kwargs(browser_type)
         async with async_playwright() as p:
             browser = await p[browser_type].launch(headless=headless, proxy=proxy, **launch_kwargs)
             page = await browser.new_page()
             await page.route("**/*", self._block_url_if_needed)
-            for url in self.urls:
+            for url in self.iter_urls():
+                logger.info("Requesting url %s", url)
                 await page.goto(url)
                 logger.info("Loaded page %s", page.url)
+                if follow_urls:
+                    self.urls.extend(
+                        [
+                            urljoin(page.url, await link.get_attribute("href"))
+                            for link in await page.query_selector_all("a")
+                        ]
+                    )
                 await self.setup_async(page=page)
 
                 for i in range(1, pages + 1):

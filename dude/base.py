@@ -20,6 +20,8 @@ from typing import (
     Union,
 )
 
+from braveblock import Adblocker
+
 from .rule import Rule, Selector, rule_filter
 from .scraped_data import ScrapedData, scraped_data_grouper, scraped_data_sorter
 from .storage import save_json
@@ -47,6 +49,8 @@ class ScraperBase(ABC):
         self.save_rules: Dict[str, Any] = save_rules or {"json": save_json}
         self.has_async = has_async
         self.scraper = scraper
+        self.adblock = Adblocker()
+        self.urls: Deque = collections.deque()  # allows dynamically appending new URLs for crawling
 
     @abstractmethod
     def run(
@@ -199,6 +203,17 @@ class ScraperBase(ABC):
 
         return wrapper
 
+    def iter_urls(self) -> Iterable[str]:
+        try:
+            while True:
+                url = self.urls.popleft()
+                if self.adblock.check_network_urls(url=url, source_url=url, request_type="document"):
+                    logger.info("URL %s has been blocked.", url)
+                    continue
+                yield url
+        except IndexError:
+            pass
+
 
 class ScraperAbstract(ScraperBase):
     def __init__(
@@ -210,7 +225,6 @@ class ScraperAbstract(ScraperBase):
     ) -> None:
         super(ScraperAbstract, self).__init__(rules, groups, save_rules, has_async)
         self.collected_data: List[ScrapedData] = []
-        self.urls: Deque = collections.deque()  # allows dynamically appending new URLs for crawling
 
     @abstractmethod
     def setup(self) -> None:
