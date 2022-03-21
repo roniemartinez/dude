@@ -19,6 +19,7 @@ class Scraper(ScraperBase):
         proxy: Optional[Any] = None,
         output: Optional[str] = None,
         format: str = "json",
+        follow_urls: bool = False,
         # extra args
         parser: str = "playwright",
         headless: bool = True,
@@ -32,6 +33,7 @@ class Scraper(ScraperBase):
         :param proxy: Proxy settings.
         :param output: Output file. If not provided, prints in the terminal.
         :param format: Output file format. If not provided, uses the extension of the output file or defaults to json.
+        :param follow_urls: Automatically follow URLs.
 
         :param parser: Parser backend ["playwright" (default), "bs4", "parsel, "lxml", "pyppeteer" or "selenium"]
         :param headless: Enables headless browser. (default=True)
@@ -100,5 +102,6 @@ class Scraper(ScraperBase):
             proxy=proxy,
             output=output,
             format=format,
+            follow_urls=follow_urls,
             **{"headless": headless, "browser_type": browser_type},
         )

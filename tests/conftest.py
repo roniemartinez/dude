@@ -1,6 +1,7 @@
 import platform
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any, Callable, Dict, List
+from unittest import mock
 
 import pytest
 from braveblock import Adblocker
@@ -38,6 +39,20 @@ class IsUrl:
 @pytest.fixture()
 def test_html_path() -> str:
     return str((Path(__file__).resolve().parent.parent / "examples/dude.html").absolute())
+
+
+@pytest.fixture()
+def side_effect_func(test_html_path: str) -> Callable:
+    def side_effect(url: str) -> mock.MagicMock:
+        mock_response = mock.MagicMock()
+        if url == "https://dude.ron.sh":
+            with open(test_html_path) as f:
+                mock_response.text = f.read()
+        else:
+            mock_response.text = ""
+        return mock_response
+
+    return side_effect
 
 
 @pytest.fixture()
@@ -198,7 +213,7 @@ def expected_data(test_url: str) -> List[Dict]:
             "_group_id": is_integer,
             "_group_index": 0,
             "_element_index": 0,
-            "url": IsUrl(url="/url-1.html"),
+            "url": IsUrl(url="url-1.html"),
             "title": "Title 1",
         },
         {
@@ -207,7 +222,7 @@ def expected_data(test_url: str) -> List[Dict]:
             "_group_id": is_integer,
             "_group_index": 1,
             "_element_index": 0,
-            "url": IsUrl(url="/url-2.html"),
+            "url": IsUrl(url="url-2.html"),
             "title": "Title 2",
         },
         {
@@ -216,7 +231,7 @@ def expected_data(test_url: str) -> List[Dict]:
             "_group_id": is_integer,
             "_group_index": 2,
             "_element_index": 0,
-            "url": IsUrl(url="/url-3.html"),
+            "url": IsUrl(url="url-3.html"),
             "title": "Title 3",
         },
     ]

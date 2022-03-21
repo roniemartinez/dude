@@ -141,6 +141,13 @@ def cli() -> None:  # pragma: no cover
         type=str,
         help="Proxy password.",
     )
+    optional.add_argument(
+        "--follow-urls",
+        dest="follow_urls",
+        default=False,
+        action="store_true",
+        help="Automatically follow URLs.",
+    )
     arguments = parser.parse_args()
 
     if arguments.version:
@@ -196,4 +203,5 @@ def cli() -> None:  # pragma: no cover
         proxy=proxy,
         output=arguments.output,
         format=arguments.format,
+        follow_urls=arguments.follow_urls,
     )

@@ -30,7 +30,9 @@ def test_full_flow(
     assert len(scraper_application.rules) == 6
     mock_save = mock.MagicMock()
     scraper_application.save(format="custom")(mock_save)
-    scraper_application.run(urls=[test_url], pages=2, format="custom", parser="playwright", browser_type=browser_type)
+    scraper_application.run(
+        urls=[test_url], pages=2, format="custom", parser="playwright", browser_type=browser_type, follow_urls=True
+    )
     mock_save.assert_called_with(expected_data, None)
 
 

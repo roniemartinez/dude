@@ -2,8 +2,8 @@ import asyncio
 import itertools
 import logging
 from typing import Any, AsyncIterable, Callable, Dict, Iterable, Optional, Sequence, Tuple, Union
+from urllib.parse import urljoin, urlparse
 
-from braveblock import Adblocker
 from playwright import async_api, sync_api
 from playwright.async_api import async_playwright
 from playwright.sync_api import sync_playwright
@@ -19,10 +19,6 @@ class PlaywrightScraper(ScraperAbstract):
     Playwright-based scraper
     """
 
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super(PlaywrightScraper, self).__init__(*args, **kwargs)
-        self.adblock = Adblocker()
-
     def run(
         self,
         urls: Sequence[str],
@@ -30,6 +26,7 @@ class PlaywrightScraper(ScraperAbstract):
         proxy: Optional[sync_api.ProxySettings] = None,
         output: Optional[str] = None,
         format: str = "json",
+        follow_urls: bool = False,
         headless: bool = True,
         browser_type: str = "chromium",
         **kwargs: Any,
@@ -42,49 +39,42 @@ class PlaywrightScraper(ScraperAbstract):
         :param proxy: Proxy settings. (see https://playwright.dev/python/docs/api/class-apirequest#api-request-new-context-option-proxy)  # noqa
         :param output: Output file. If not provided, prints in the terminal.
         :param format: Output file format. If not provided, uses the extension of the output file or defaults to json.
+        :param follow_urls: Automatically follow URLs.
 
         :param headless: Enables headless browser. (default=True)
         :param browser_type: Playwright supported browser types ("chromium", "webkit" or "firefox").
         """
         self.update_rule_groups()
+        self.urls.clear()
+        self.urls.extend(urls)
+        self.allowed_domains.update(urlparse(url).netloc for url in urls)
 
         logger.info("Using Playwright...")
         if self.has_async:
             logger.info("Using async mode...")
             loop = asyncio.get_event_loop()
+            # FIXME: Tests fail on Python 3.7 when using asyncio.run()
             loop.run_until_complete(
                 self._run_async(
-                    urls=urls,
                     headless=headless,
                     browser_type=browser_type,
                     pages=pages,
                     proxy=proxy,
                     output=output,
                     format=format,
+                    follow_urls=follow_urls,
                 )
             )
-            # FIXME: Tests fail on Python 3.7 when using asyncio.run()
-            # asyncio.run(
-            #     self._run_async(
-            #         urls=urls,
-            #         headless=headless,
-            #         browser_type=browser_type,
-            #         pages=pages,
-            #         proxy=proxy,
-            #         output=output,
-            #         format=format,
-            #     )
-            # )
         else:
             logger.info("Using sync mode...")
             self._run_sync(
-                urls=urls,
                 headless=headless,
                 browser_type=browser_type,
                 pages=pages,
                 proxy=proxy,
                 output=output,
                 format=format,
+                follow_urls=follow_urls,
             )
 
     @staticmethod
@@ -172,13 +162,13 @@ class PlaywrightScraper(ScraperAbstract):
 
     def _run_sync(
         self,
-        urls: Sequence[str],
         headless: bool,
         browser_type: str,
         pages: int,
         proxy: Optional[sync_api.ProxySettings],
         output: Optional[str],
         format: str,
+        follow_urls: bool,
     ) -> None:
         launch_kwargs = self._get_launch_kwargs(browser_type)
         # FIXME: Coverage fails to cover anything within this context manager block
@@ -186,40 +176,61 @@ class PlaywrightScraper(ScraperAbstract):
             browser = p[browser_type].launch(headless=headless, proxy=proxy, **launch_kwargs)
             page = browser.new_page()
             page.route("**/*", self._block_url_if_needed)
-            self._scrape_sync(page, urls, pages)
+            for url in self.iter_urls():
+                logger.info("Requesting url %s", url)
+                try:
+                    page.goto(url)
+                except sync_api.Error as e:
+                    logger.warning(e)
+                    continue
+                logger.info("Loaded page %s", page.url)
+                if follow_urls:
+                    for link in page.query_selector_all("a"):
+                        absolute = urljoin(page.url, link.get_attribute("href"))
+                        if absolute.rstrip("/") == page.url.rstrip("/"):
+                            continue
+                        self.urls.append(absolute)
+                self.setup(page=page)
+
+                for i in range(1, pages + 1):
+                    current_page = page.url
+                    self.collected_data.extend(self.extract_all(page_number=i, page=page))
+                    # TODO: Add option to save data per page
+                    if i == pages or not self.navigate(page=page) or current_page == page.url:
+                        break
+
             browser.close()
         self._save(format, output)
 
-    def _scrape_sync(self, page: sync_api.Page, urls: Sequence[str], pages: int) -> None:
-        for _ in (page.goto(url) for url in urls):
-            logger.info("Loaded page %s", page.url)
-            self.setup(page=page)
-
-            for i in range(1, pages + 1):
-                current_page = page.url
-                self.collected_data.extend(self.extract_all(page_number=i, page=page))
-                # TODO: Add option to save data per page
-                if i == pages or not self.navigate(page=page) or current_page == page.url:
-                    break
-
     async def _run_async(
         self,
-        urls: Sequence[str],
         headless: bool,
         browser_type: str,
         pages: int,
         proxy: Optional[sync_api.ProxySettings],
         output: Optional[str],
         format: str,
+        follow_urls: bool,
     ) -> None:
         launch_kwargs = self._get_launch_kwargs(browser_type)
         async with async_playwright() as p:
             browser = await p[browser_type].launch(headless=headless, proxy=proxy, **launch_kwargs)
             page = await browser.new_page()
             await page.route("**/*", self._block_url_if_needed)
-            for url in urls:
-                await page.goto(url)
+            for url in self.iter_urls():
+                logger.info("Requesting url %s", url)
+                try:
+                    await page.goto(url)
+                except async_api.Error as e:
+                    logger.warning(e)
+                    continue
                 logger.info("Loaded page %s", page.url)
+                if follow_urls:
+                    for link in await page.query_selector_all("a"):
+                        absolute = urljoin(page.url, await link.get_attribute("href"))
+                        if absolute.rstrip("/") == page.url.rstrip("/"):
+                            continue
+                        self.urls.append(absolute)
                 await self.setup_async(page=page)
 
                 for i in range(1, pages + 1):

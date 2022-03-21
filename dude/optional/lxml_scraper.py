@@ -2,10 +2,11 @@ import asyncio
 import itertools
 import logging
 from typing import Any, AsyncIterable, Callable, Iterable, Optional, Sequence, Tuple
+from urllib.parse import urljoin, urlparse
 
 import httpx
+import lxml.html
 from httpx._types import ProxiesTypes
-from lxml import etree
 from lxml.etree import _Element
 
 from ..base import ScraperAbstract
@@ -26,6 +27,7 @@ class LxmlScraper(ScraperAbstract):
         proxy: ProxiesTypes = None,
         output: Optional[str] = None,
         format: str = "json",
+        follow_urls: bool = False,
         **kwargs: Any,
     ) -> None:
         """
@@ -36,45 +38,58 @@ class LxmlScraper(ScraperAbstract):
         :param proxy: Proxy settings. (see https://www.python-httpx.org/advanced/#http-proxying)  # noqa
         :param output: Output file. If not provided, prints in the terminal.
         :param format: Output file format. If not provided, uses the extension of the output file or defaults to json.
+        :param follow_urls: Automatically follow URLs.
         """
         self.update_rule_groups()
+        self.urls.clear()
+        self.urls.extend(urls)
+        self.allowed_domains.update(urlparse(url).netloc for url in urls)
 
         logger.info("Using lxml...")
         if self.has_async:
             logger.info("Using async mode...")
             loop = asyncio.get_event_loop()
-            loop.run_until_complete(self._run_async(urls=urls, pages=pages, proxy=proxy, output=output, format=format))
             # FIXME: Tests fail on Python 3.7 when using asyncio.run()
-            # asyncio.run(self._run_async((urls=urls, pages=pages, proxy=proxy, output=output, format=format))
+            loop.run_until_complete(
+                self._run_async(pages=pages, proxy=proxy, output=output, format=format, follow_urls=follow_urls)
+            )
         else:
             logger.info("Using sync mode...")
-            self._run_sync(urls=urls, pages=pages, proxy=proxy, output=output, format=format)
+            self._run_sync(pages=pages, proxy=proxy, output=output, format=format, follow_urls=follow_urls)
 
     def _run_sync(
         self,
-        urls: Sequence[str],
         pages: int,
         proxy: Optional[ProxiesTypes],
         output: Optional[str],
         format: str,
+        follow_urls: bool,
     ) -> None:
         with httpx.Client(proxies=proxy) as client:
-            for url in urls:
+            for url in self.iter_urls():
+                logger.info("Requesting url %s", url)
                 for i in range(1, pages + 1):
                     if url.startswith("file://"):
-                        path = self.file_url_to_path(url)
-                        with open(path) as f:
-                            content = f.read()
+                        content = self.get_file_content(url)
                     else:
                         try:
                             response = client.get(url)
                             response.raise_for_status()
                             content = response.text
                         except httpx.HTTPStatusError as e:
-                            logger.exception(e)
+                            logger.warning(e)
                             break
 
-                    tree = etree.HTML(text=content)
+                    if not content:
+                        break
+
+                    tree = lxml.html.fromstring(html=content, base_url=url)
+                    if follow_urls:
+                        for link in tree.iterlinks():
+                            absolute = urljoin(url, link[2])
+                            if absolute.rstrip("/") == url.rstrip("/"):
+                                continue
+                            self.urls.append(absolute)
                     self.setup()  # does not do anything yet
                     self.collected_data.extend(self.extract_all(page_number=i, tree=tree, url=url))
                     if i == pages or not self.navigate():
@@ -83,29 +98,37 @@ class LxmlScraper(ScraperAbstract):
 
     async def _run_async(
         self,
-        urls: Sequence[str],
         pages: int,
         proxy: Optional[ProxiesTypes],
         output: Optional[str],
         format: str,
+        follow_urls: bool,
     ) -> None:
         async with httpx.AsyncClient(proxies=proxy) as client:
-            for url in urls:
+            for url in self.iter_urls():
+                logger.info("Requesting url %s", url)
                 for i in range(1, pages + 1):
                     if url.startswith("file://"):
-                        path = self.file_url_to_path(url)
-                        with open(path) as f:
-                            content = f.read()
+                        content = self.get_file_content(url)
                     else:
                         try:
                             response = await client.get(url)
                             response.raise_for_status()
                             content = response.text
                         except httpx.HTTPStatusError as e:
-                            logger.exception(e)
+                            logger.warning(e)
                             break
 
-                    tree = etree.HTML(text=content)
+                    if not content:
+                        break
+
+                    tree = lxml.html.fromstring(html=content, base_url=url)
+                    if follow_urls:
+                        for link in tree.iterlinks():
+                            absolute = urljoin(url, link[2])
+                            if absolute.rstrip("/") == url.rstrip("/"):
+                                continue
+                            self.urls.append(absolute)
                     await self.setup_async()  # does not do anything yet
                     self.collected_data.extend(
                         [data async for data in self.extract_all_async(page_number=i, tree=tree, url=url)]

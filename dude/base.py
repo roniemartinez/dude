@@ -1,10 +1,28 @@
 import asyncio
+import collections
 import itertools
 import logging
 import platform
 from abc import ABC, abstractmethod
 from pathlib import Path
-from typing import Any, AsyncIterable, Callable, Coroutine, Dict, Iterable, List, Optional, Sequence, Tuple, Union
+from typing import (
+    Any,
+    AsyncIterable,
+    Callable,
+    Coroutine,
+    Deque,
+    Dict,
+    Iterable,
+    List,
+    Optional,
+    Sequence,
+    Set,
+    Tuple,
+    Union,
+)
+from urllib.parse import urlparse
+
+from braveblock import Adblocker
 
 from .rule import Rule, Selector, rule_filter
 from .scraped_data import ScrapedData, scraped_data_grouper, scraped_data_sorter
@@ -33,6 +51,9 @@ class ScraperBase(ABC):
         self.save_rules: Dict[str, Any] = save_rules or {"json": save_json}
         self.has_async = has_async
         self.scraper = scraper
+        self.adblock = Adblocker()
+        self.urls: Deque = collections.deque()  # allows dynamically appending new URLs for crawling
+        self.allowed_domains: Set[str] = set()
 
     @abstractmethod
     def run(
@@ -42,6 +63,7 @@ class ScraperBase(ABC):
         proxy: Optional[Any],
         output: Optional[str],
         format: str,
+        follow_urls: bool = False,
     ) -> None:
         """
         Abstract method for executing the scraper.
@@ -51,6 +73,7 @@ class ScraperBase(ABC):
         :param proxy: Proxy settings.
         :param output: Output file. If not provided, prints in the terminal.
         :param format: Output file format. If not provided, uses the extension of the output file or defaults to json.
+        :param follow_urls: Automatically follow URLs.
         """
         raise NotImplementedError  # pragma: no cover
 
@@ -182,6 +205,20 @@ class ScraperBase(ABC):
             return func
 
         return wrapper
+
+    def iter_urls(self) -> Iterable[str]:
+        try:
+            while True:
+                url = self.urls.popleft()
+                if urlparse(url).netloc not in self.allowed_domains:
+                    logger.info("URL %s is not in allowed domains.", url)
+                    continue
+                if self.adblock.check_network_urls(url=url, source_url=url, request_type="document"):
+                    logger.info("URL %s has been blocked.", url)
+                    continue
+                yield url
+        except IndexError:
+            pass
 
 
 class ScraperAbstract(ScraperBase):
@@ -347,3 +384,13 @@ class ScraperAbstract(ScraperBase):
         else:
             path = url[7:]
         return path
+
+    def get_file_content(self, url: str) -> Optional[str]:
+        path = self.file_url_to_path(url)
+        try:
+            with open(path) as f:
+                content = f.read()
+            return content
+        except FileNotFoundError as e:
+            logger.warning(e)
+            return None

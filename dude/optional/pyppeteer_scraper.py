@@ -2,10 +2,11 @@ import asyncio
 import itertools
 import logging
 from typing import Any, AsyncIterable, Callable, Dict, Iterable, List, Optional, Sequence, Tuple, Union
+from urllib.parse import urljoin, urlparse
 
-from braveblock import Adblocker
 from pyppeteer import launch
 from pyppeteer.element_handle import ElementHandle
+from pyppeteer.errors import PageError
 from pyppeteer.network_manager import Request
 from pyppeteer.page import Page
 
@@ -21,10 +22,6 @@ class PyppeteerScraper(ScraperAbstract):
     Pyppeteer-based scraper
     """
 
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super(PyppeteerScraper, self).__init__(*args, **kwargs)
-        self.adblock = Adblocker()
-
     def run(
         self,
         urls: Sequence[str],
@@ -32,6 +29,7 @@ class PyppeteerScraper(ScraperAbstract):
         proxy: Optional[Dict] = None,
         output: Optional[str] = None,
         format: str = "json",
+        follow_urls: bool = False,
         headless: bool = True,
         **kwargs: Any,
     ) -> None:
@@ -43,34 +41,28 @@ class PyppeteerScraper(ScraperAbstract):
         :param proxy: Proxy settings.
         :param output: Output file. If not provided, prints in the terminal.
         :param format: Output file format. If not provided, uses the extension of the output file or defaults to json.
+        :param follow_urls: Automatically follow URLs.
 
         :param headless: Enables headless browser. (default=True)
         """
         self.update_rule_groups()
+        self.urls.clear()
+        self.urls.extend(urls)
+        self.allowed_domains.update(urlparse(url).netloc for url in urls)
 
         logger.info("Using Pyppeteer...")
         loop = asyncio.get_event_loop()
+        # FIXME: Tests fail on Python 3.7 when using asyncio.run()
         loop.run_until_complete(
             self._run_async(
-                urls=urls,
                 headless=headless,
                 pages=pages,
                 proxy=proxy,
                 output=output,
                 format=format,
+                follow_urls=follow_urls,
             )
         )
-        # FIXME: Tests fail on Python 3.7 when using asyncio.run()
-        # asyncio.run(
-        #     self._run_async(
-        #         urls=urls,
-        #         headless=headless,
-        #         pages=pages,
-        #         proxy=proxy,
-        #         output=output,
-        #         format=format,
-        #     )
-        # )
 
     def setup(self, page: Page = None) -> None:
         raise Exception("Sync is not supported.")  # pragma: no cover
@@ -120,12 +112,12 @@ class PyppeteerScraper(ScraperAbstract):
 
     async def _run_async(
         self,
-        urls: Sequence[str],
         headless: bool,
         pages: int,
         proxy: Optional[Dict],
         output: Optional[str],
         format: str,
+        follow_urls: bool,
     ) -> None:
         launch_args: Dict[str, Any] = {"headless": headless, "args": ["--disable-notifications"]}
         if proxy:
@@ -140,9 +132,23 @@ class PyppeteerScraper(ScraperAbstract):
         await page.setRequestInterception(True)
         page.on("request", lambda res: asyncio.ensure_future(self._block_url_if_needed(res)))
 
-        for url in urls:
-            await page.goto(url)
+        for url in self.iter_urls():
+            logger.info("Requesting url %s", url)
+            try:
+                await page.goto(url)
+            except PageError as e:
+                logger.warning(e)
+                continue
             logger.info("Loaded page %s", page.url)
+            if follow_urls:
+                for element in await page.querySelectorAll("a"):
+                    handle = await element.getProperty("href")
+                    href = await handle.jsonValue()
+                    if isinstance(href, str):
+                        absolute = urljoin(page.url, href)
+                        if absolute.rstrip("/") == page.url.rstrip("/"):
+                            continue
+                        self.urls.append(absolute)
             await self.setup_async(page=page)
 
             for i in range(1, pages + 1):
