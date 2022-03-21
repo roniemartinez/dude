@@ -2,7 +2,7 @@ import asyncio
 import itertools
 import logging
 from typing import Any, AsyncIterable, Callable, Iterable, Optional, Sequence, Tuple
-from urllib.parse import urljoin
+from urllib.parse import urljoin, urlparse
 
 import httpx
 from httpx._types import ProxiesTypes
@@ -42,6 +42,7 @@ class ParselScraper(ScraperAbstract):
         self.update_rule_groups()
         self.urls.clear()
         self.urls.extend(urls)
+        self.allowed_domains.update(urlparse(url).netloc for url in urls)
 
         logger.info("Using Parsel...")
         if self.has_async:
@@ -68,9 +69,7 @@ class ParselScraper(ScraperAbstract):
                 logger.info("Requesting url %s", url)
                 for i in range(1, pages + 1):
                     if url.startswith("file://"):
-                        path = self.file_url_to_path(url)
-                        with open(path) as f:
-                            content = f.read()
+                        content = self.get_file_content(url)
                     else:
                         try:
                             response = client.get(url)
@@ -79,6 +78,9 @@ class ParselScraper(ScraperAbstract):
                         except httpx.HTTPStatusError as e:
                             logger.warning(e)
                             break
+
+                    if not content:
+                        break
 
                     selector = ParselSelector(content, base_url=url)
                     if follow_urls:
@@ -106,9 +108,7 @@ class ParselScraper(ScraperAbstract):
                 logger.info("Requesting url %s", url)
                 for i in range(1, pages + 1):
                     if url.startswith("file://"):
-                        path = self.file_url_to_path(url)
-                        with open(path) as f:
-                            content = f.read()
+                        content = self.get_file_content(url)
                     else:
                         try:
                             response = await client.get(url)
@@ -117,6 +117,9 @@ class ParselScraper(ScraperAbstract):
                         except httpx.HTTPStatusError as e:
                             logger.warning(e)
                             break
+
+                    if not content:
+                        break
 
                     selector = ParselSelector(content, base_url=url)
                     if follow_urls:

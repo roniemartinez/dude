@@ -16,9 +16,11 @@ from typing import (
     List,
     Optional,
     Sequence,
+    Set,
     Tuple,
     Union,
 )
+from urllib.parse import urlparse
 
 from braveblock import Adblocker
 
@@ -51,6 +53,7 @@ class ScraperBase(ABC):
         self.scraper = scraper
         self.adblock = Adblocker()
         self.urls: Deque = collections.deque()  # allows dynamically appending new URLs for crawling
+        self.allowed_domains: Set[str] = set()
 
     @abstractmethod
     def run(
@@ -207,6 +210,9 @@ class ScraperBase(ABC):
         try:
             while True:
                 url = self.urls.popleft()
+                if urlparse(url).netloc not in self.allowed_domains:
+                    logger.info("URL %s is not in allowed domains.", url)
+                    continue
                 if self.adblock.check_network_urls(url=url, source_url=url, request_type="document"):
                     logger.info("URL %s has been blocked.", url)
                     continue
@@ -378,3 +384,13 @@ class ScraperAbstract(ScraperBase):
         else:
             path = url[7:]
         return path
+
+    def get_file_content(self, url: str) -> Optional[str]:
+        path = self.file_url_to_path(url)
+        try:
+            with open(path) as f:
+                content = f.read()
+            return content
+        except FileNotFoundError as e:
+            logger.warning(e)
+            return None

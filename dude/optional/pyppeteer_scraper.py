@@ -2,10 +2,11 @@ import asyncio
 import itertools
 import logging
 from typing import Any, AsyncIterable, Callable, Dict, Iterable, List, Optional, Sequence, Tuple, Union
-from urllib.parse import urljoin
+from urllib.parse import urljoin, urlparse
 
 from pyppeteer import launch
 from pyppeteer.element_handle import ElementHandle
+from pyppeteer.errors import PageError
 from pyppeteer.network_manager import Request
 from pyppeteer.page import Page
 
@@ -47,6 +48,7 @@ class PyppeteerScraper(ScraperAbstract):
         self.update_rule_groups()
         self.urls.clear()
         self.urls.extend(urls)
+        self.allowed_domains.update(urlparse(url).netloc for url in urls)
 
         logger.info("Using Pyppeteer...")
         loop = asyncio.get_event_loop()
@@ -132,7 +134,11 @@ class PyppeteerScraper(ScraperAbstract):
 
         for url in self.iter_urls():
             logger.info("Requesting url %s", url)
-            await page.goto(url)
+            try:
+                await page.goto(url)
+            except PageError as e:
+                logger.warning(e)
+                continue
             logger.info("Loaded page %s", page.url)
             if follow_urls:
                 for element in await page.querySelectorAll("a"):

@@ -3,8 +3,9 @@ import itertools
 import logging
 import os
 from typing import Any, AsyncIterable, Callable, Iterable, Optional, Sequence, Tuple, Union
-from urllib.parse import urljoin
+from urllib.parse import urljoin, urlparse
 
+from selenium.common.exceptions import WebDriverException
 from selenium.webdriver.chrome.options import Options as ChromeOptions
 from selenium.webdriver.chrome.service import Service as ChromeService
 from selenium.webdriver.common.by import By
@@ -57,6 +58,7 @@ class SeleniumScraper(ScraperAbstract):
         self.update_rule_groups()
         self.urls.clear()
         self.urls.extend(urls)
+        self.allowed_domains.update(urlparse(url).netloc for url in urls)
 
         logger.info("Using Selenium...")
         if self.has_async:
@@ -156,7 +158,11 @@ class SeleniumScraper(ScraperAbstract):
 
         for url in self.iter_urls():
             logger.info("Requesting url %s", url)
-            driver.get(url)
+            try:
+                driver.get(url)
+            except WebDriverException as e:
+                logger.warning(e)
+                continue
             logger.info("Loaded page %s", driver.current_url)
             if follow_urls:
                 for link in driver.find_elements(by=By.CSS_SELECTOR, value="a"):
@@ -190,7 +196,11 @@ class SeleniumScraper(ScraperAbstract):
 
         for url in self.iter_urls():
             logger.info("Requesting url %s", url)
-            driver.get(url)
+            try:
+                driver.get(url)
+            except WebDriverException as e:
+                logger.warning(e)
+                continue
             logger.info("Loaded page %s", driver.current_url)
             if follow_urls:
                 for link in driver.find_elements(by=By.CSS_SELECTOR, value="a"):

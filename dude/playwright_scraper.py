@@ -2,7 +2,7 @@ import asyncio
 import itertools
 import logging
 from typing import Any, AsyncIterable, Callable, Dict, Iterable, Optional, Sequence, Tuple, Union
-from urllib.parse import urljoin
+from urllib.parse import urljoin, urlparse
 
 from playwright import async_api, sync_api
 from playwright.async_api import async_playwright
@@ -47,6 +47,7 @@ class PlaywrightScraper(ScraperAbstract):
         self.update_rule_groups()
         self.urls.clear()
         self.urls.extend(urls)
+        self.allowed_domains.update(urlparse(url).netloc for url in urls)
 
         logger.info("Using Playwright...")
         if self.has_async:
@@ -177,7 +178,11 @@ class PlaywrightScraper(ScraperAbstract):
             page.route("**/*", self._block_url_if_needed)
             for url in self.iter_urls():
                 logger.info("Requesting url %s", url)
-                page.goto(url)
+                try:
+                    page.goto(url)
+                except sync_api.Error as e:
+                    logger.warning(e)
+                    continue
                 logger.info("Loaded page %s", page.url)
                 if follow_urls:
                     for link in page.query_selector_all("a"):
@@ -214,7 +219,11 @@ class PlaywrightScraper(ScraperAbstract):
             await page.route("**/*", self._block_url_if_needed)
             for url in self.iter_urls():
                 logger.info("Requesting url %s", url)
-                await page.goto(url)
+                try:
+                    await page.goto(url)
+                except async_api.Error as e:
+                    logger.warning(e)
+                    continue
                 logger.info("Loaded page %s", page.url)
                 if follow_urls:
                     for link in await page.query_selector_all("a"):
