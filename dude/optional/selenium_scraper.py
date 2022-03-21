@@ -179,7 +179,7 @@ class SeleniumScraper(ScraperAbstract):
                 if i == pages or not self.navigate(driver=driver) or current_page == driver.current_url:
                     break
 
-        driver.close()
+        driver.quit()
         self._save(format, output)
 
     async def _run_async(
@@ -219,7 +219,7 @@ class SeleniumScraper(ScraperAbstract):
                 if i == pages or not await self.navigate_async(driver=driver) or current_page == driver.current_url:
                     break
 
-        driver.close()
+        driver.quit()
         await self._save_async(format, output)
 
     def _block_url_if_needed(self, request: Request) -> None:
