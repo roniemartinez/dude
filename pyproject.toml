@@ -113,6 +113,7 @@ addopts = """\
     --cov-report=html \
     -vv \
     -x \
+    -s \
 """
 
 
