@@ -242,6 +242,7 @@ class SeleniumScraper(ScraperAbstract):
             firefox_options = FirefoxOptions()
             firefox_options.headless = headless
             firefox_options.set_preference("dom.webnotifications.enabled", False)
+            firefox_options.set_preference("network.captive-portal-service.enabled", False)
             driver = Firefox(service=FirefoxService(executable_path=executable_path), options=firefox_options)
         else:
             chrome_options = ChromeOptions()
