@@ -213,7 +213,7 @@ def expected_data(test_url: str) -> List[Dict]:
             "_group_id": is_integer,
             "_group_index": 0,
             "_element_index": 0,
-            "url": IsUrl(url="/url-1.html"),
+            "url": IsUrl(url="url-1.html"),
             "title": "Title 1",
         },
         {
@@ -222,7 +222,7 @@ def expected_data(test_url: str) -> List[Dict]:
             "_group_id": is_integer,
             "_group_index": 1,
             "_element_index": 0,
-            "url": IsUrl(url="/url-2.html"),
+            "url": IsUrl(url="url-2.html"),
             "title": "Title 2",
         },
         {
@@ -231,7 +231,7 @@ def expected_data(test_url: str) -> List[Dict]:
             "_group_id": is_integer,
             "_group_index": 2,
             "_element_index": 0,
-            "url": IsUrl(url="/url-3.html"),
+            "url": IsUrl(url="url-3.html"),
             "title": "Title 3",
         },
     ]
