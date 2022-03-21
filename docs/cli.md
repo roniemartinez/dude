@@ -4,9 +4,9 @@
 
     ```commandline
     usage: dude scrape [-h] --url URL [--playwright | --bs4 | --parsel | --lxml | --pyppeteer | --selenium] [--headed] [--browser {chromium,firefox,webkit}] [--pages PAGES] [--output OUTPUT]
-                       [--format FORMAT] [--proxy-server PROXY_SERVER] [--proxy-user PROXY_USER] [--proxy-pass PROXY_PASS]
-                       PATH [PATH ...]
-    
+                   [--format FORMAT] [--proxy-server PROXY_SERVER] [--proxy-user PROXY_USER] [--proxy-pass PROXY_PASS] [--follow-urls]
+                   PATH [PATH ...]
+
     Run the dude scraper.
     
     optional arguments:
@@ -36,4 +36,5 @@
                             Proxy username.
       --proxy-pass PROXY_PASS
                             Proxy password.
+      --follow-urls         Automatically follow URLs.
     ```

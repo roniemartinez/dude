@@ -82,6 +82,7 @@ dude scrape --url "<url>" --output data.json path/to/script.py
   - [lxml](https://roniemartinez.github.io/dude/advanced/11_lxml.html) - `pip install pydude[lxml]`
   - [Pyppeteer](https://roniemartinez.github.io/dude/advanced/12_pyppeteer.html) - `pip install pydude[pyppeteer]`
   - [Selenium](https://roniemartinez.github.io/dude/advanced/13_selenium.html) - `pip install pydude[selenium]`
+- Option to follow all links indefinitely (Crawler/Spider). WARNING: Do not use yet until https://github.com/roniemartinez/dude/pull/90 has been implemented.
 
 ## Supported Parser Backends
 
