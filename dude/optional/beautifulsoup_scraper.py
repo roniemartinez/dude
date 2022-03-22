@@ -2,7 +2,7 @@ import asyncio
 import itertools
 import logging
 from typing import Any, AsyncIterable, Callable, Iterable, Optional, Sequence, Tuple
-from urllib.parse import urljoin, urlparse
+from urllib.parse import urljoin
 
 import httpx
 from bs4 import BeautifulSoup
@@ -39,10 +39,7 @@ class BeautifulSoupScraper(ScraperAbstract):
         :param format: Output file format. If not provided, uses the extension of the output file or defaults to json.
         :param follow_urls: Automatically follow URLs.
         """
-        self.update_rule_groups()
-        self.urls.clear()
-        self.urls.extend(urls)
-        self.allowed_domains.update(urlparse(url).netloc for url in urls)
+        self.initialize_scraper(urls)
 
         logger.info("Using BeautifulSoup4...")
         if self.has_async:
@@ -89,7 +86,9 @@ class BeautifulSoupScraper(ScraperAbstract):
                             if absolute.rstrip("/") == url.rstrip("/"):
                                 continue
                             self.urls.append(absolute)
-                    self.setup()  # does not do anything yet
+
+                    self.setup(soup)
+
                     self.collected_data.extend(self.extract_all(page_number=i, soup=soup, url=url))
                     if i == pages or not self.navigate():
                         break
@@ -122,13 +121,15 @@ class BeautifulSoupScraper(ScraperAbstract):
                         break
 
                     soup = BeautifulSoup(content, "html.parser")
-                    await self.setup_async()  # does not do anything yet
                     if follow_urls:
                         for link in soup.find_all("a", href=True):
                             absolute = urljoin(url, link["href"])
                             if absolute.rstrip("/") == url.rstrip("/"):
                                 continue
                             self.urls.append(absolute)
+
+                    await self.setup_async(soup)
+
                     self.collected_data.extend(
                         [data async for data in self.extract_all_async(page_number=i, soup=soup, url=url)]
                     )
@@ -136,11 +137,23 @@ class BeautifulSoupScraper(ScraperAbstract):
                         break
         self._save(format, output)
 
-    def setup(self) -> None:
-        pass
+    def setup(self, soup: BeautifulSoup = None) -> None:
+        """
+        This will only call the pre-setup and post-setup events if extra actions are needed to the soup object.
+        :param soup: BeautifulSoup object
+        """
+        assert soup is not None
+        self.event_pre_setup(soup)
+        self.event_post_setup(soup)
 
-    async def setup_async(self) -> None:
-        pass
+    async def setup_async(self, soup: BeautifulSoup = None) -> None:
+        """
+        This will only call the pre-setup and post-setup events if extra actions are needed to the soup object.
+        :param soup: BeautifulSoup object
+        """
+        assert soup is not None
+        await self.event_pre_setup_async(soup)
+        await self.event_post_setup_async(soup)
 
     def navigate(self) -> bool:
         return False

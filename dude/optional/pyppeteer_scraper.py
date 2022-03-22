@@ -2,7 +2,7 @@ import asyncio
 import itertools
 import logging
 from typing import Any, AsyncIterable, Callable, Dict, Iterable, List, Optional, Sequence, Tuple, Union
-from urllib.parse import urljoin, urlparse
+from urllib.parse import urljoin
 
 from pyppeteer import launch
 from pyppeteer.element_handle import ElementHandle
@@ -45,10 +45,7 @@ class PyppeteerScraper(ScraperAbstract):
 
         :param headless: Enables headless browser. (default=True)
         """
-        self.update_rule_groups()
-        self.urls.clear()
-        self.urls.extend(urls)
-        self.allowed_domains.update(urlparse(url).netloc for url in urls)
+        self.initialize_scraper(urls)
 
         logger.info("Using Pyppeteer...")
         loop = asyncio.get_event_loop()
@@ -74,9 +71,14 @@ class PyppeteerScraper(ScraperAbstract):
         :param page: Page.
         """
         assert page is not None
+
+        await self.event_pre_setup_async(page)
+
         for rule in self.get_setup_rules(page.url):
             for element in await self._get_elements(page, rule.selector):
                 await rule.handler(element, page)
+
+        await self.event_post_setup_async(page)
 
     def navigate(self, page: Page = None) -> bool:
         raise Exception("Sync is not supported.")  # pragma: no cover
@@ -149,6 +151,7 @@ class PyppeteerScraper(ScraperAbstract):
                         if absolute.rstrip("/") == page.url.rstrip("/"):
                             continue
                         self.urls.append(absolute)
+
             await self.setup_async(page=page)
 
             for i in range(1, pages + 1):

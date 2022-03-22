@@ -10,6 +10,9 @@ group = _scraper.group
 run = _scraper.run
 save = _scraper.save
 select = _scraper.select
+startup = _scraper.startup
+pre_setup = _scraper.pre_setup
+post_setup = _scraper.post_setup
 
 
 """

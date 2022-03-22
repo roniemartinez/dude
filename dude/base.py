@@ -10,6 +10,7 @@ from typing import (
     AsyncIterable,
     Callable,
     Coroutine,
+    DefaultDict,
     Deque,
     Dict,
     Iterable,
@@ -43,12 +44,14 @@ class ScraperBase(ABC):
         rules: List[Rule] = None,
         groups: Dict[Callable, Selector] = None,
         save_rules: Dict[str, Any] = None,
+        events: Optional[DefaultDict] = None,
         has_async: bool = False,
         scraper: Optional["ScraperAbstract"] = None,
     ) -> None:
         self.rules: List[Rule] = rules or []
         self.groups: Dict[Callable, Selector] = groups or {}
         self.save_rules: Dict[str, Any] = save_rules or {"json": save_json}
+        self.events: DefaultDict = events or collections.defaultdict(list)
         self.has_async = has_async
         self.scraper = scraper
         self.adblock = Adblocker()
@@ -129,10 +132,8 @@ class ScraperBase(ABC):
                 navigate=navigate,
                 priority=priority,
             )
-            if not self.scraper:
-                self.rules.append(rule)
-            else:
-                self.scraper.rules.append(rule)
+            rules = self.scraper.rules if self.scraper else self.rules
+            rules.append(rule)
             return func
 
         return wrapper
@@ -198,10 +199,61 @@ class ScraperBase(ABC):
             if asyncio.iscoroutinefunction(func):
                 self.has_async = True
 
-            if not self.scraper:
-                self.save_rules[format] = func
-            else:
-                self.scraper.save_rules[format] = func
+            save_rules = self.scraper.save_rules if self.scraper else self.save_rules
+            save_rules[format] = func
+            return func
+
+        return wrapper
+
+    def startup(self) -> Callable:
+        """
+        Decorator to register a function to startup events.
+
+        Startup events are executed before any actual scraping happens to, for example, setup databases, etc.
+        """
+
+        def wrapper(func: Callable) -> Callable:
+            if asyncio.iscoroutinefunction(func):
+                self.has_async = True
+
+            events = self.scraper.events if self.scraper else self.events
+            events["startup"].append(func)
+            return func
+
+        return wrapper
+
+    def pre_setup(self) -> Callable:
+        """
+        Decorator to register a function to pre-setup events.
+
+        Pre-setup events are executed after a page is loaded (or HTTP response in case of HTTPX) and
+        before running the setup functions.
+        """
+
+        def wrapper(func: Callable) -> Callable:
+            if asyncio.iscoroutinefunction(func):
+                self.has_async = True
+
+            events = self.scraper.events if self.scraper else self.events
+            events["pre-setup"].append(func)
+            return func
+
+        return wrapper
+
+    def post_setup(self) -> Callable:
+        """
+        Decorator to register a function to post-setup events.
+
+        Post-setup events are executed after running the setup functions and before the actual web-scraping happens.
+        This is useful when "page clean-ups" are done in the setup functions.
+        """
+
+        def wrapper(func: Callable) -> Callable:
+            if asyncio.iscoroutinefunction(func):
+                self.has_async = True
+
+            events = self.scraper.events if self.scraper else self.events
+            events["post-setup"].append(func)
             return func
 
         return wrapper
@@ -220,6 +272,34 @@ class ScraperBase(ABC):
         except IndexError:
             pass
 
+    def _update_rule_groups(self) -> Iterable[Rule]:
+        for rule in self.rules:
+            if rule.group:
+                yield rule
+            elif rule.handler in self.groups:
+                yield rule._replace(group=self.groups[rule.handler])
+            else:
+                yield rule._replace(group=Selector(selector=":root"))
+
+    def initialize_scraper(self, urls: Sequence[str]) -> None:
+        self.rules = [rule for rule in self._update_rule_groups()]
+        self.urls = collections.deque(urls)
+        self.allowed_domains = {urlparse(url).netloc for url in urls}
+        self.event_startup()
+
+    def event_startup(self) -> None:
+        """
+        Run all startup events
+        """
+        loop = None
+        if self.has_async:
+            loop = asyncio.get_event_loop()
+        for func in self.events["startup"]:
+            if asyncio.iscoroutinefunction(func):
+                loop.run_until_complete(func())
+            else:
+                func()
+
 
 class ScraperAbstract(ScraperBase):
     def __init__(
@@ -227,9 +307,10 @@ class ScraperAbstract(ScraperBase):
         rules: List[Rule] = None,
         groups: Dict[Callable, Selector] = None,
         save_rules: Dict[str, Any] = None,
+        events: Optional[DefaultDict] = None,
         has_async: bool = False,
     ) -> None:
-        super(ScraperAbstract, self).__init__(rules, groups, save_rules, has_async)
+        super(ScraperAbstract, self).__init__(rules, groups, save_rules, events, has_async)
         self.collected_data: List[ScrapedData] = []
 
     @abstractmethod
@@ -248,18 +329,6 @@ class ScraperAbstract(ScraperBase):
     async def navigate_async(self) -> bool:
         raise NotImplementedError  # pragma: no cover
 
-    def update_rule_groups(self) -> None:
-        self.rules = [rule for rule in self._update_rule_groups()]
-
-    def _update_rule_groups(self) -> Iterable[Rule]:
-        for rule in self.rules:
-            if rule.group:
-                yield rule
-            elif rule.handler in self.groups:
-                yield rule._replace(group=self.groups[rule.handler])
-            else:
-                yield rule._replace(group=Selector(selector=":root"))
-
     @abstractmethod
     def collect_elements(self) -> Iterable[Tuple[str, int, int, int, Any, Callable]]:
         """
@@ -275,6 +344,34 @@ class ScraperAbstract(ScraperBase):
 
         yield "", 0, 0, 0, 0, str  # HACK: mypy does not identify this as AsyncIterable  # pragma: no cover
         raise NotImplementedError  # pragma: no cover
+
+    def event_pre_setup(self, *args: Any) -> None:
+        """
+        Run all pre-setup events.
+        """
+        for func in self.events["pre-setup"]:
+            func(*args)
+
+    def event_post_setup(self, *args: Any) -> None:
+        """
+        Run all post-setup events.
+        """
+        for func in self.events["post-setup"]:
+            func(*args)
+
+    async def event_pre_setup_async(self, *args: Any) -> None:
+        """
+        Run all pre-setup events.
+        """
+        for func in self.events["pre-setup"]:
+            await func(*args)
+
+    async def event_post_setup_async(self, *args: Any) -> None:
+        """
+        Run all post-setup events.
+        """
+        for func in self.events["post-setup"]:
+            await func(*args)
 
     def extract_all(self, page_number: int, **kwargs: Any) -> Iterable[ScrapedData]:
         """
