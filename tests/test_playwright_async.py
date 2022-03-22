@@ -4,7 +4,7 @@ from typing import Any, Dict, List, Optional
 from unittest import mock
 
 import pytest
-from playwright import async_api, sync_api
+from playwright import async_api
 
 from dude import Scraper
 

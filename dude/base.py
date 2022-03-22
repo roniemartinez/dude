@@ -294,8 +294,10 @@ class ScraperBase(ABC):
         loop = None
         if self.has_async:
             loop = asyncio.get_event_loop()
+
         for func in self.events["startup"]:
             if asyncio.iscoroutinefunction(func):
+                assert loop is not None
                 loop.run_until_complete(func())
             else:
                 func()
