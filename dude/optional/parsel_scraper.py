@@ -2,7 +2,7 @@ import asyncio
 import itertools
 import logging
 from typing import Any, AsyncIterable, Callable, Iterable, Optional, Sequence, Tuple
-from urllib.parse import urljoin, urlparse
+from urllib.parse import urljoin
 
 import httpx
 from httpx._types import ProxiesTypes
@@ -39,10 +39,7 @@ class ParselScraper(ScraperAbstract):
         :param format: Output file format. If not provided, uses the extension of the output file or defaults to json.
         :param follow_urls: Automatically follow URLs.
         """
-        self.update_rule_groups()
-        self.urls.clear()
-        self.urls.extend(urls)
-        self.allowed_domains.update(urlparse(url).netloc for url in urls)
+        self.initialize_scraper(urls)
 
         logger.info("Using Parsel...")
         if self.has_async:
@@ -89,7 +86,9 @@ class ParselScraper(ScraperAbstract):
                             if absolute.rstrip("/") == url.rstrip("/"):
                                 continue
                             self.urls.append(absolute)
-                    self.setup()  # does not do anything yet
+
+                    self.setup(selector)
+
                     self.collected_data.extend(self.extract_all(page_number=i, selector=selector, url=url))
                     if i == pages or not self.navigate():
                         break
@@ -128,7 +127,9 @@ class ParselScraper(ScraperAbstract):
                             if absolute.rstrip("/") == url.rstrip("/"):
                                 continue
                             self.urls.append(absolute)
-                    await self.setup_async()  # does not do anything yet
+
+                    await self.setup_async(selector)
+
                     self.collected_data.extend(
                         [data async for data in self.extract_all_async(page_number=i, selector=selector, url=url)]
                     )
@@ -136,11 +137,23 @@ class ParselScraper(ScraperAbstract):
                         break
         self._save(format, output)
 
-    def setup(self) -> None:
-        pass
+    def setup(self, selector: ParselSelector = None) -> None:
+        """
+        This will only call the pre-setup and post-setup events if extra actions are needed to the selector object.
+        :param selector: Selector object
+        """
+        assert selector is not None
+        self.event_pre_setup(selector)
+        self.event_post_setup(selector)
 
-    async def setup_async(self) -> None:
-        pass
+    async def setup_async(self, selector: ParselSelector = None) -> None:
+        """
+        This will only call the pre-setup and post-setup events if extra actions are needed to the selector object.
+        :param selector: Selector object
+        """
+        assert selector is not None
+        await self.event_pre_setup_async(selector)
+        await self.event_post_setup_async(selector)
 
     def navigate(self) -> bool:
         return False

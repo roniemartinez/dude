@@ -3,7 +3,7 @@ import itertools
 import logging
 import os
 from typing import Any, AsyncIterable, Callable, Iterable, Optional, Sequence, Tuple, Union
-from urllib.parse import urljoin, urlparse
+from urllib.parse import urljoin
 
 from selenium.common.exceptions import WebDriverException
 from selenium.webdriver.chrome.options import Options as ChromeOptions
@@ -55,10 +55,7 @@ class SeleniumScraper(ScraperAbstract):
         :param headless: Enables headless browser. (default=True)
         :param browser_type: Selenium supported browser types ("chromium", "firefox").
         """
-        self.update_rule_groups()
-        self.urls.clear()
-        self.urls.extend(urls)
-        self.allowed_domains.update(urlparse(url).netloc for url in urls)
+        self.initialize_scraper(urls)
 
         logger.info("Using Selenium...")
         if self.has_async:
@@ -95,9 +92,14 @@ class SeleniumScraper(ScraperAbstract):
         :param driver: Web Driver.
         """
         assert driver is not None
+
+        self.event_pre_setup(driver)
+
         for rule in self.get_setup_rules(driver.current_url):
             for element in self._get_elements(driver, rule.selector):
                 rule.handler(element, driver)
+
+        self.event_post_setup(driver)
 
     async def setup_async(self, driver: WebDriver = None) -> None:
         """
@@ -106,12 +108,17 @@ class SeleniumScraper(ScraperAbstract):
         :param driver: Web Driver.
         """
         assert driver is not None
+
+        await self.event_pre_setup_async(driver)
+
         for rule in self.get_setup_rules(driver.current_url):
             for element in self._get_elements(driver, rule.selector):
                 if asyncio.iscoroutinefunction(rule.handler):
                     await rule.handler(element, driver)
                 else:
                     rule.handler(element, driver)
+
+        await self.event_post_setup_async(driver)
 
     def navigate(self, driver: WebDriver = None) -> bool:
         """
@@ -170,6 +177,7 @@ class SeleniumScraper(ScraperAbstract):
                     if absolute.rstrip("/") == driver.current_url.rstrip("/"):
                         continue
                     self.urls.append(absolute)
+
             self.setup(driver=driver)
 
             for i in range(1, pages + 1):
@@ -208,6 +216,7 @@ class SeleniumScraper(ScraperAbstract):
                     if absolute.rstrip("/") == driver.current_url.rstrip("/"):
                         continue
                     self.urls.append(absolute)
+
             await self.setup_async(driver=driver)
 
             for i in range(1, pages + 1):

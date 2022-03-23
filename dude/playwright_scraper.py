@@ -2,7 +2,7 @@ import asyncio
 import itertools
 import logging
 from typing import Any, AsyncIterable, Callable, Dict, Iterable, Optional, Sequence, Tuple, Union
-from urllib.parse import urljoin, urlparse
+from urllib.parse import urljoin
 
 from playwright import async_api, sync_api
 from playwright.async_api import async_playwright
@@ -44,10 +44,7 @@ class PlaywrightScraper(ScraperAbstract):
         :param headless: Enables headless browser. (default=True)
         :param browser_type: Playwright supported browser types ("chromium", "webkit" or "firefox").
         """
-        self.update_rule_groups()
-        self.urls.clear()
-        self.urls.extend(urls)
-        self.allowed_domains.update(urlparse(url).netloc for url in urls)
+        self.initialize_scraper(urls)
 
         logger.info("Using Playwright...")
         if self.has_async:
@@ -93,9 +90,14 @@ class PlaywrightScraper(ScraperAbstract):
         :param page: Page.
         """
         assert page is not None
+
+        self.event_pre_setup(page)
+
         for rule in self.get_setup_rules(page.url):
             for element in self._query_selector_all(page, rule.selector.to_str(with_type=True)):
                 rule.handler(element, page)
+
+        self.event_post_setup(page)
 
     async def setup_async(self, page: async_api.Page = None) -> None:
         """
@@ -104,9 +106,14 @@ class PlaywrightScraper(ScraperAbstract):
         :param page: Page.
         """
         assert page is not None
+
+        await self.event_pre_setup_async(page)
+
         for rule in self.get_setup_rules(page.url):
             for element in await page.query_selector_all(rule.selector.to_str(with_type=True)):
                 await rule.handler(element, page)
+
+        await self.event_post_setup_async(page)
 
     def navigate(self, page: sync_api.Page = None) -> bool:
         """
@@ -190,6 +197,7 @@ class PlaywrightScraper(ScraperAbstract):
                         if absolute.rstrip("/") == page.url.rstrip("/"):
                             continue
                         self.urls.append(absolute)
+
                 self.setup(page=page)
 
                 for i in range(1, pages + 1):
@@ -231,6 +239,7 @@ class PlaywrightScraper(ScraperAbstract):
                         if absolute.rstrip("/") == page.url.rstrip("/"):
                             continue
                         self.urls.append(absolute)
+
                 await self.setup_async(page=page)
 
                 for i in range(1, pages + 1):

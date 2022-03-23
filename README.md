@@ -65,6 +65,37 @@ You can run your scraper from terminal/shell/command-line by supplying URLs, the
 dude scrape --url "<url>" --output data.json path/to/script.py
 ```
 
+The output in `data.json` should contain the actual URL and the metadata prepended with underscore.
+
+```json5
+[
+  {
+    "_page_number": 1,
+    "_page_url": "https://dude.ron.sh/",
+    "_group_id": 4502003824,
+    "_group_index": 0,
+    "_element_index": 0,
+    "url": "/url-1.html"
+  },
+  {
+    "_page_number": 1,
+    "_page_url": "https://dude.ron.sh/",
+    "_group_id": 4502003824,
+    "_group_index": 0,
+    "_element_index": 1,
+    "url": "/url-2.html"
+  },
+  {
+    "_page_number": 1,
+    "_page_url": "https://dude.ron.sh/",
+    "_group_id": 4502003824,
+    "_group_index": 0,
+    "_element_index": 2,
+    "url": "/url-3.html"
+  }
+]
+```
+
 ## Features
 
 - Simple [Flask](https://github.com/pallets/flask)-inspired design - build a scraper with decorators.

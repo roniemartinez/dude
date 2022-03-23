@@ -2,12 +2,12 @@ import asyncio
 import itertools
 import logging
 from typing import Any, AsyncIterable, Callable, Iterable, Optional, Sequence, Tuple
-from urllib.parse import urljoin, urlparse
+from urllib.parse import urljoin
 
 import httpx
 import lxml.html
 from httpx._types import ProxiesTypes
-from lxml.etree import _Element
+from lxml.etree import _Element, _ElementTree
 
 from ..base import ScraperAbstract
 from ..rule import Selector, SelectorType, rule_grouper, rule_sorter
@@ -40,10 +40,7 @@ class LxmlScraper(ScraperAbstract):
         :param format: Output file format. If not provided, uses the extension of the output file or defaults to json.
         :param follow_urls: Automatically follow URLs.
         """
-        self.update_rule_groups()
-        self.urls.clear()
-        self.urls.extend(urls)
-        self.allowed_domains.update(urlparse(url).netloc for url in urls)
+        self.initialize_scraper(urls)
 
         logger.info("Using lxml...")
         if self.has_async:
@@ -90,7 +87,9 @@ class LxmlScraper(ScraperAbstract):
                             if absolute.rstrip("/") == url.rstrip("/"):
                                 continue
                             self.urls.append(absolute)
-                    self.setup()  # does not do anything yet
+
+                    self.setup(tree)
+
                     self.collected_data.extend(self.extract_all(page_number=i, tree=tree, url=url))
                     if i == pages or not self.navigate():
                         break
@@ -129,7 +128,9 @@ class LxmlScraper(ScraperAbstract):
                             if absolute.rstrip("/") == url.rstrip("/"):
                                 continue
                             self.urls.append(absolute)
-                    await self.setup_async()  # does not do anything yet
+
+                    await self.setup_async(tree)
+
                     self.collected_data.extend(
                         [data async for data in self.extract_all_async(page_number=i, tree=tree, url=url)]
                     )
@@ -137,11 +138,23 @@ class LxmlScraper(ScraperAbstract):
                         break
         self._save(format, output)
 
-    def setup(self) -> None:
-        pass
+    def setup(self, tree: _ElementTree = None) -> None:
+        """
+        This will only call the pre-setup and post-setup events if extra actions are needed to the tree object.
+        :param tree: _ElementTree object
+        """
+        assert tree is not None
+        self.event_pre_setup(tree)
+        self.event_post_setup(tree)
 
-    async def setup_async(self) -> None:
-        pass
+    async def setup_async(self, tree: _ElementTree = None) -> None:
+        """
+        This will only call the pre-setup and post-setup events if extra actions are needed to the tree object.
+        :param tree: _ElementTree object
+        """
+        assert tree is not None
+        await self.event_pre_setup_async(tree)
+        await self.event_post_setup_async(tree)
 
     def navigate(self) -> bool:
         return False

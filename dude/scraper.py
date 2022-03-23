@@ -50,6 +50,7 @@ class Scraper(ScraperBase):
                     rules=self.rules,
                     groups=self.groups,
                     save_rules=self.save_rules,
+                    events=self.events,
                     has_async=self.has_async,
                 )
             elif parser == "parsel":
@@ -59,6 +60,7 @@ class Scraper(ScraperBase):
                     rules=self.rules,
                     groups=self.groups,
                     save_rules=self.save_rules,
+                    events=self.events,
                     has_async=self.has_async,
                 )
             elif parser == "lxml":
@@ -68,6 +70,7 @@ class Scraper(ScraperBase):
                     rules=self.rules,
                     groups=self.groups,
                     save_rules=self.save_rules,
+                    events=self.events,
                     has_async=self.has_async,
                 )
             elif parser == "pyppeteer":
@@ -77,6 +80,7 @@ class Scraper(ScraperBase):
                     rules=self.rules,
                     groups=self.groups,
                     save_rules=self.save_rules,
+                    events=self.events,
                     has_async=self.has_async,
                 )
             elif parser == "selenium":
@@ -86,6 +90,7 @@ class Scraper(ScraperBase):
                     rules=self.rules,
                     groups=self.groups,
                     save_rules=self.save_rules,
+                    events=self.events,
                     has_async=self.has_async,
                 )
             else:
@@ -93,6 +98,7 @@ class Scraper(ScraperBase):
                     rules=self.rules,
                     groups=self.groups,
                     save_rules=self.save_rules,
+                    events=self.events,
                     has_async=self.has_async,
                 )
 

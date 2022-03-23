@@ -3,10 +3,10 @@ import sys
 from pathlib import Path
 from typing import Any
 
-from .context import group, run, save, select  # noqa: F401
+from .context import group, post_setup, pre_setup, run, save, select, startup  # noqa: F401
 from .scraper import Scraper  # noqa: F401
 
-__al__ = ["Scraper", "group", "run", "save", "select"]
+__al__ = ["Scraper", "group", "run", "save", "select", "startup", "pre_setup", "post_setup"]
 
 
 logging.basicConfig(stream=sys.stdout, level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
