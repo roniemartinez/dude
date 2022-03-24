@@ -43,14 +43,14 @@ class ScraperBase(ABC):
         self,
         rules: List[Rule] = None,
         groups: Dict[Callable, Selector] = None,
-        save_rules: Dict[str, Any] = None,
+        save_rules: Dict[Tuple[str, bool], Any] = None,
         events: Optional[DefaultDict] = None,
         has_async: bool = False,
         scraper: Optional["ScraperAbstract"] = None,
     ) -> None:
         self.rules: List[Rule] = rules or []
         self.groups: Dict[Callable, Selector] = groups or {}
-        self.save_rules: Dict[str, Any] = save_rules or {"json": save_json}
+        self.save_rules: Dict[Tuple[str, bool], Any] = save_rules or {("json", False): save_json}
         self.events: DefaultDict = events or collections.defaultdict(list)
         self.has_async = has_async
         self.scraper = scraper
@@ -67,6 +67,7 @@ class ScraperBase(ABC):
         output: Optional[str],
         format: str,
         follow_urls: bool = False,
+        save_per_page: bool = False,
     ) -> None:
         """
         Abstract method for executing the scraper.
@@ -77,6 +78,7 @@ class ScraperBase(ABC):
         :param output: Output file. If not provided, prints in the terminal.
         :param format: Output file format. If not provided, uses the extension of the output file or defaults to json.
         :param follow_urls: Automatically follow URLs.
+        :param save_per_page: Flag to save data on every page extraction or not. If not, saves all the data at the end.
         """
         raise NotImplementedError  # pragma: no cover
 
@@ -188,11 +190,12 @@ class ScraperBase(ABC):
 
         return wrapper
 
-    def save(self, format: str) -> Callable:
+    def save(self, format: str, is_per_page: bool = False) -> Callable:
         """
         Decorator to register a save function to a format.
 
         :param format: Format (json, csv, or any custom string).
+        :param is_per_page: Flag to identify if func will be called after each page.
         """
 
         def wrapper(func: Callable) -> Callable:
@@ -200,7 +203,7 @@ class ScraperBase(ABC):
                 self.has_async = True
 
             save_rules = self.scraper.save_rules if self.scraper else self.save_rules
-            save_rules[format] = func
+            save_rules[format, is_per_page] = func
             return func
 
         return wrapper
@@ -258,6 +261,24 @@ class ScraperBase(ABC):
 
         return wrapper
 
+    def shutdown(self) -> Callable:
+        """
+        Decorator to register a function to the shutdown events.
+
+        Shutdown events are executed before terminating the application for cleaning up or closing resources like
+        files and database sessions.
+        """
+
+        def wrapper(func: Callable) -> Callable:
+            if asyncio.iscoroutinefunction(func):
+                self.has_async = True
+
+            events = self.scraper.events if self.scraper else self.events
+            events["shutdown"].append(func)
+            return func
+
+        return wrapper
+
     def iter_urls(self) -> Iterable[str]:
         try:
             while True:
@@ -291,11 +312,20 @@ class ScraperBase(ABC):
         """
         Run all startup events
         """
+        self.run_event("startup")
+
+    def event_shutdown(self) -> None:
+        """
+        Run all shutdown events
+        """
+        self.run_event("shutdown")
+
+    def run_event(self, event_name: str) -> None:
         loop = None
         if self.has_async:
             loop = asyncio.get_event_loop()
 
-        for func in self.events["startup"]:
+        for func in self.events[event_name]:
             if asyncio.iscoroutinefunction(func):
                 assert loop is not None
                 loop.run_until_complete(func())
@@ -308,7 +338,7 @@ class ScraperAbstract(ScraperBase):
         self,
         rules: List[Rule] = None,
         groups: Dict[Callable, Selector] = None,
-        save_rules: Dict[str, Any] = None,
+        save_rules: Dict[Tuple[str, bool], Any] = None,
         events: Optional[DefaultDict] = None,
         has_async: bool = False,
     ) -> None:
@@ -441,29 +471,31 @@ class ScraperAbstract(ScraperBase):
             items.append(item)
         return items
 
-    def _save(self, format: str, output: Optional[str] = None) -> None:
+    def _save(self, format: str, output: Optional[str] = None, save_per_page: bool = False) -> None:
         if output:
             extension = Path(output).suffix.lower()[1:]
             format = extension
-
-        data = self.get_flattened_data()
         try:
-            if self.save_rules[format](data, output):
+            handler = self.save_rules[format, save_per_page]
+            data = self.get_flattened_data()
+            if not len(data):
+                return
+            if handler(data, output):
                 self.collected_data.clear()
             else:
                 raise Exception("Failed to save output %s.", {"output": output, "format": format})
         except KeyError:
-            self.collected_data.clear()
             raise
 
-    async def _save_async(self, format: str, output: Optional[str] = None) -> None:
+    async def _save_async(self, format: str, output: Optional[str] = None, save_per_page: bool = False) -> None:
         if output:
             extension = Path(output).suffix.lower()[1:]
             format = extension
-
-        data = self.get_flattened_data()
         try:
-            handler = self.save_rules[format]
+            handler = self.save_rules[format, save_per_page]
+            data = self.get_flattened_data()
+            if not len(data):
+                return
             if asyncio.iscoroutinefunction(handler):
                 is_successful = await handler(data, output)
             else:
@@ -473,7 +505,6 @@ class ScraperAbstract(ScraperBase):
             else:
                 raise Exception("Failed to save output %s.", {"output": output, "format": format})
         except KeyError:
-            self.collected_data.clear()
             raise
 
     @staticmethod

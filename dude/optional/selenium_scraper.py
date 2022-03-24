@@ -38,6 +38,7 @@ class SeleniumScraper(ScraperAbstract):
         output: Optional[str] = None,
         format: str = "json",
         follow_urls: bool = False,
+        save_per_page: bool = False,
         headless: bool = True,
         browser_type: str = "chromium",
         **kwargs: Any,
@@ -51,6 +52,7 @@ class SeleniumScraper(ScraperAbstract):
         :param output: Output file. If not provided, prints in the terminal.
         :param format: Output file format. If not provided, uses the extension of the output file or defaults to json.
         :param follow_urls: Automatically follow URLs.
+        :param save_per_page: Flag to save data on every page extraction or not. If not, saves all the data at the end.
 
         :param headless: Enables headless browser. (default=True)
         :param browser_type: Selenium supported browser types ("chromium", "firefox").
@@ -71,6 +73,7 @@ class SeleniumScraper(ScraperAbstract):
                     output=output,
                     format=format,
                     follow_urls=follow_urls,
+                    save_per_page=save_per_page,
                 )
             )
         else:
@@ -83,7 +86,10 @@ class SeleniumScraper(ScraperAbstract):
                 output=output,
                 format=format,
                 follow_urls=follow_urls,
+                save_per_page=save_per_page,
             )
+
+        self.event_shutdown()
 
     def setup(self, driver: WebDriver = None) -> None:
         """
@@ -160,6 +166,7 @@ class SeleniumScraper(ScraperAbstract):
         output: Optional[str],
         format: str,
         follow_urls: bool,
+        save_per_page: bool,
     ) -> None:
         driver = self._get_driver(browser_type, headless)
 
@@ -183,12 +190,13 @@ class SeleniumScraper(ScraperAbstract):
             for i in range(1, pages + 1):
                 current_page = driver.current_url
                 self.collected_data.extend(self.extract_all(page_number=i, driver=driver))
-                # TODO: Add option to save data per page
+                self._save(format, output, save_per_page)
+
                 if i == pages or not self.navigate(driver=driver) or current_page == driver.current_url:
                     break
 
         driver.quit()
-        self._save(format, output)
+        self._save(format, output, save_per_page)
 
     async def _run_async(
         self,
@@ -199,6 +207,7 @@ class SeleniumScraper(ScraperAbstract):
         output: Optional[str],
         format: str,
         follow_urls: bool,
+        save_per_page: bool,
     ) -> None:
         driver = self._get_driver(browser_type, headless)
 
@@ -224,12 +233,13 @@ class SeleniumScraper(ScraperAbstract):
                 self.collected_data.extend(
                     [data async for data in self.extract_all_async(page_number=i, driver=driver)]
                 )
-                # TODO: Add option to save data per page
+                await self._save_async(format, output, save_per_page)
+
                 if i == pages or not await self.navigate_async(driver=driver) or current_page == driver.current_url:
                     break
 
         driver.quit()
-        await self._save_async(format, output)
+        await self._save_async(format, output, save_per_page)
 
     def _block_url_if_needed(self, request: Request) -> None:
         url = request.url

@@ -147,7 +147,7 @@ def test_lxml_httpx_exception(
 
     scraper_application.save(format="custom")(mock_save)
     scraper_application.run(urls=[test_url], pages=2, format="custom", parser="lxml")
-    mock_save.assert_called_with([], None)
+    mock_save.assert_not_called()
 
 
 def test_full_flow_lxml_async(
@@ -213,7 +213,7 @@ def test_lxml_httpx_exception_async(
 
     scraper_application.save(format="custom")(mock_save)
     scraper_application.run(urls=[test_url], pages=2, format="custom", parser="lxml")
-    mock_save.assert_called_with([], None)
+    mock_save.assert_not_called()
 
 
 def test_full_flow_lxml_xpath(

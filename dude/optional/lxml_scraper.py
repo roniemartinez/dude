@@ -28,6 +28,7 @@ class LxmlScraper(ScraperAbstract):
         output: Optional[str] = None,
         format: str = "json",
         follow_urls: bool = False,
+        save_per_page: bool = False,
         **kwargs: Any,
     ) -> None:
         """
@@ -39,6 +40,7 @@ class LxmlScraper(ScraperAbstract):
         :param output: Output file. If not provided, prints in the terminal.
         :param format: Output file format. If not provided, uses the extension of the output file or defaults to json.
         :param follow_urls: Automatically follow URLs.
+        :param save_per_page: Flag to save data on every page extraction or not. If not, saves all the data at the end.
         """
         self.initialize_scraper(urls)
 
@@ -48,11 +50,27 @@ class LxmlScraper(ScraperAbstract):
             loop = asyncio.get_event_loop()
             # FIXME: Tests fail on Python 3.7 when using asyncio.run()
             loop.run_until_complete(
-                self._run_async(pages=pages, proxy=proxy, output=output, format=format, follow_urls=follow_urls)
+                self._run_async(
+                    pages=pages,
+                    proxy=proxy,
+                    output=output,
+                    format=format,
+                    follow_urls=follow_urls,
+                    save_per_page=save_per_page,
+                )
             )
         else:
             logger.info("Using sync mode...")
-            self._run_sync(pages=pages, proxy=proxy, output=output, format=format, follow_urls=follow_urls)
+            self._run_sync(
+                pages=pages,
+                proxy=proxy,
+                output=output,
+                format=format,
+                follow_urls=follow_urls,
+                save_per_page=save_per_page,
+            )
+
+        self.event_shutdown()
 
     def _run_sync(
         self,
@@ -61,6 +79,7 @@ class LxmlScraper(ScraperAbstract):
         output: Optional[str],
         format: str,
         follow_urls: bool,
+        save_per_page: bool,
     ) -> None:
         with httpx.Client(proxies=proxy) as client:
             for url in self.iter_urls():
@@ -91,9 +110,11 @@ class LxmlScraper(ScraperAbstract):
                     self.setup(tree)
 
                     self.collected_data.extend(self.extract_all(page_number=i, tree=tree, url=url))
+                    self._save(format, output, save_per_page)
+
                     if i == pages or not self.navigate():
                         break
-        self._save(format, output)
+        self._save(format, output, save_per_page)
 
     async def _run_async(
         self,
@@ -102,6 +123,7 @@ class LxmlScraper(ScraperAbstract):
         output: Optional[str],
         format: str,
         follow_urls: bool,
+        save_per_page: bool,
     ) -> None:
         async with httpx.AsyncClient(proxies=proxy) as client:
             for url in self.iter_urls():
@@ -134,9 +156,12 @@ class LxmlScraper(ScraperAbstract):
                     self.collected_data.extend(
                         [data async for data in self.extract_all_async(page_number=i, tree=tree, url=url)]
                     )
+                    await self._save_async(format, output, save_per_page)
+
                     if i == pages or not await self.navigate_async():
                         break
-        self._save(format, output)
+
+        await self._save_async(format, output, save_per_page)
 
     def setup(self, tree: _ElementTree = None) -> None:
         """

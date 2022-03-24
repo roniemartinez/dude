@@ -30,6 +30,7 @@ class PyppeteerScraper(ScraperAbstract):
         output: Optional[str] = None,
         format: str = "json",
         follow_urls: bool = False,
+        save_per_page: bool = False,
         headless: bool = True,
         **kwargs: Any,
     ) -> None:
@@ -42,6 +43,7 @@ class PyppeteerScraper(ScraperAbstract):
         :param output: Output file. If not provided, prints in the terminal.
         :param format: Output file format. If not provided, uses the extension of the output file or defaults to json.
         :param follow_urls: Automatically follow URLs.
+        :param save_per_page: Flag to save data on every page extraction or not. If not, saves all the data at the end.
 
         :param headless: Enables headless browser. (default=True)
         """
@@ -58,8 +60,11 @@ class PyppeteerScraper(ScraperAbstract):
                 output=output,
                 format=format,
                 follow_urls=follow_urls,
+                save_per_page=save_per_page,
             )
         )
+
+        self.event_shutdown()
 
     def setup(self, page: Page = None) -> None:
         raise Exception("Sync is not supported.")  # pragma: no cover
@@ -120,6 +125,7 @@ class PyppeteerScraper(ScraperAbstract):
         output: Optional[str],
         format: str,
         follow_urls: bool,
+        save_per_page: bool,
     ) -> None:
         launch_args: Dict[str, Any] = {"headless": headless, "args": ["--disable-notifications"]}
         if proxy:
@@ -157,12 +163,13 @@ class PyppeteerScraper(ScraperAbstract):
             for i in range(1, pages + 1):
                 current_page = page.url
                 self.collected_data.extend([data async for data in self.extract_all_async(page_number=i, page=page)])
-                # TODO: Add option to save data per page
+                await self._save_async(format, output, save_per_page)
+
                 if i == pages or not await self.navigate_async(page=page) or current_page == page.url:
                     break
 
         await browser.close()
-        await self._save_async(format, output)
+        await self._save_async(format, output, save_per_page)
 
     def collect_elements(self, page: Page = None) -> Iterable[Tuple[str, int, int, int, Any, Callable]]:
         raise Exception("Sync is not supported.")  # pragma: no cover
