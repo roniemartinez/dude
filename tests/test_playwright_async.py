@@ -1,6 +1,6 @@
 import json
 import sys
-from typing import Any, Dict, List, Optional
+from typing import Dict, List
 from unittest import mock
 
 import pytest

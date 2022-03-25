@@ -38,6 +38,7 @@ def print_pdf(page):
 
 @shutdown()
 def zip_all():
+    global SAVE_DIR
     shutil.make_archive("images-and-pdfs", "zip", SAVE_DIR)
 
 
