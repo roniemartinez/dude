@@ -15,4 +15,6 @@
     - [lxml](https://lxml.de/) - `pip install pydude[lxml]`
     - [Pyppeteer](https://github.com/pyppeteer/pyppeteer) - `pip install pydude[pyppeteer]`
     - [Selenium](https://github.com/SeleniumHQ/Selenium) - `pip install pydude[selenium]`
-- Option to follow all links indefinitely (Crawler/Spider). WARNING: Do not use yet until https://github.com/roniemartinez/dude/pull/27 has been implemented.
+- Option to follow all links indefinitely (Crawler/Spider).
+- Events - attach functions to startup, pre-setup, post-setup and shutdown events.
+- Option to save data on every page.
