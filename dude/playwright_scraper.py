@@ -27,6 +27,7 @@ class PlaywrightScraper(ScraperAbstract):
         output: Optional[str] = None,
         format: str = "json",
         follow_urls: bool = False,
+        save_per_page: bool = False,
         headless: bool = True,
         browser_type: str = "chromium",
         **kwargs: Any,
@@ -40,6 +41,7 @@ class PlaywrightScraper(ScraperAbstract):
         :param output: Output file. If not provided, prints in the terminal.
         :param format: Output file format. If not provided, uses the extension of the output file or defaults to json.
         :param follow_urls: Automatically follow URLs.
+        :param save_per_page: Flag to save data on every page extraction or not. If not, saves all the data at the end.
 
         :param headless: Enables headless browser. (default=True)
         :param browser_type: Playwright supported browser types ("chromium", "webkit" or "firefox").
@@ -60,6 +62,7 @@ class PlaywrightScraper(ScraperAbstract):
                     output=output,
                     format=format,
                     follow_urls=follow_urls,
+                    save_per_page=save_per_page,
                 )
             )
         else:
@@ -72,7 +75,10 @@ class PlaywrightScraper(ScraperAbstract):
                 output=output,
                 format=format,
                 follow_urls=follow_urls,
+                save_per_page=save_per_page,
             )
+
+        self.event_shutdown()
 
     @staticmethod
     def _query_selector_all(
@@ -176,6 +182,7 @@ class PlaywrightScraper(ScraperAbstract):
         output: Optional[str],
         format: str,
         follow_urls: bool,
+        save_per_page: bool,
     ) -> None:
         launch_kwargs = self._get_launch_kwargs(browser_type)
         # FIXME: Coverage fails to cover anything within this context manager block
@@ -203,12 +210,13 @@ class PlaywrightScraper(ScraperAbstract):
                 for i in range(1, pages + 1):
                     current_page = page.url
                     self.collected_data.extend(self.extract_all(page_number=i, page=page))
-                    # TODO: Add option to save data per page
+                    self._save(format, output, save_per_page)
+
                     if i == pages or not self.navigate(page=page) or current_page == page.url:
                         break
 
             browser.close()
-        self._save(format, output)
+        self._save(format, output, save_per_page)
 
     async def _run_async(
         self,
@@ -219,6 +227,7 @@ class PlaywrightScraper(ScraperAbstract):
         output: Optional[str],
         format: str,
         follow_urls: bool,
+        save_per_page: bool,
     ) -> None:
         launch_kwargs = self._get_launch_kwargs(browser_type)
         async with async_playwright() as p:
@@ -247,11 +256,12 @@ class PlaywrightScraper(ScraperAbstract):
                     self.collected_data.extend(
                         [data async for data in self.extract_all_async(page_number=i, page=page)]
                     )
-                    # TODO: Add option to save data per page
+                    await self._save_async(format, output, save_per_page)
+
                     if i == pages or not await self.navigate_async(page=page) or current_page == page.url:
                         break
             await browser.close()
-        await self._save_async(format, output)
+        await self._save_async(format, output, save_per_page)
 
     def collect_elements(self, page: sync_api.Page = None) -> Iterable[Tuple[str, int, int, int, Any, Callable]]:
         """

@@ -93,13 +93,15 @@ def test_full_flow_parsel(
     parsel_css: None,
     expected_data: List[Dict],
     test_url: str,
+    scraper_save: None,
+    mock_database: mock.MagicMock,
 ) -> None:
     assert scraper_application.has_async is False
     assert len(scraper_application.rules) == 4
-    mock_save = mock.MagicMock()
-    scraper_application.save(format="custom")(mock_save)
+
     scraper_application.run(urls=[test_url], pages=2, format="custom", parser="parsel")
-    mock_save.assert_called_with(expected_data, None)
+
+    mock_database.save.assert_called_with(expected_data)
 
 
 @mock.patch.object(httpx, "Client")
@@ -110,19 +112,22 @@ def test_full_flow_parsel_httpx(
     expected_data: List[Dict],
     test_url: str,
     side_effect_func: Callable,
+    scraper_save: None,
+    mock_database: mock.MagicMock,
+    mock_database_per_page: mock.MagicMock,
 ) -> None:
     assert scraper_application.has_async is False
     assert len(scraper_application.rules) == 4
-    mock_save = mock.MagicMock()
 
     mock_client.return_value.__enter__.return_value.get.side_effect = side_effect_func
 
     test_url = "https://dude.ron.sh"
     expected_data = [{**d, "_page_url": test_url} for d in expected_data]
 
-    scraper_application.save(format="custom")(mock_save)
     scraper_application.run(urls=[test_url], pages=2, format="custom", parser="parsel", follow_urls=True)
-    mock_save.assert_called_with(expected_data, None)
+
+    mock_database_per_page.saveassert_called_with(expected_data)
+    mock_database.save.assert_not_called()
 
 
 @mock.patch.object(httpx, "Client")
@@ -131,10 +136,11 @@ def test_parsel_httpx_exception(
     scraper_application: Scraper,
     parsel_css: None,
     expected_data: List[Dict],
+    scraper_save: None,
+    mock_database: mock.MagicMock,
 ) -> None:
     assert scraper_application.has_async is False
     assert len(scraper_application.rules) == 4
-    mock_save = mock.MagicMock()
 
     response = mock_client.return_value.__enter__.return_value.get.return_value
     response.raise_for_status.side_effect = httpx.HTTPStatusError(
@@ -145,9 +151,9 @@ def test_parsel_httpx_exception(
 
     test_url = "https://dude.ron.sh"
 
-    scraper_application.save(format="custom")(mock_save)
     scraper_application.run(urls=[test_url], pages=2, format="custom", parser="parsel")
-    mock_save.assert_called_with([], None)
+
+    mock_database.save.assert_not_called()
 
 
 def test_full_flow_parsel_async(
@@ -155,13 +161,15 @@ def test_full_flow_parsel_async(
     async_parsel_css: None,
     expected_data: List[Dict],
     test_url: str,
+    scraper_save: None,
+    mock_database: mock.MagicMock,
 ) -> None:
     assert scraper_application.has_async is True
     assert len(scraper_application.rules) == 4
-    mock_save = mock.MagicMock()
-    scraper_application.save(format="custom")(mock_save)
+
     scraper_application.run(urls=[test_url], pages=2, format="custom", parser="parsel")
-    mock_save.assert_called_with(expected_data, None)
+
+    mock_database.save.assert_called_with(expected_data)
 
 
 @pytest.mark.skipif(sys.version_info < (3, 8), reason="AsyncMock is not supported.")
@@ -173,19 +181,20 @@ def test_full_flow_parsel_httpx_async(
     expected_data: List[Dict],
     test_url: str,
     side_effect_func: Callable,
+    scraper_save: None,
+    mock_database_per_page: mock.MagicMock,
 ) -> None:
     assert scraper_application.has_async is True
     assert len(scraper_application.rules) == 4
-    mock_save = mock.MagicMock()
 
     mock_client.return_value.__aenter__.return_value.get.side_effect = side_effect_func
 
     test_url = "https://dude.ron.sh"
     expected_data = [{**d, "_page_url": test_url} for d in expected_data]
 
-    scraper_application.save(format="custom")(mock_save)
     scraper_application.run(urls=[test_url], pages=2, format="custom", parser="parsel", follow_urls=True)
-    mock_save.assert_called_with(expected_data, None)
+
+    mock_database_per_page.saveassert_called_with(expected_data)
 
 
 @pytest.mark.skipif(sys.version_info < (3, 8), reason="AsyncMock is not supported.")
@@ -195,10 +204,11 @@ def test_parsel_httpx_exception_async(
     scraper_application: Scraper,
     async_parsel_css: None,
     expected_data: List[Dict],
+    scraper_save: None,
+    mock_database: mock.MagicMock,
 ) -> None:
     assert scraper_application.has_async is True
     assert len(scraper_application.rules) == 4
-    mock_save = mock.MagicMock()
 
     response = mock_client.return_value.__aenter__.return_value.get.return_value
     response.raise_for_status = mock.MagicMock(
@@ -211,9 +221,9 @@ def test_parsel_httpx_exception_async(
 
     test_url = "https://dude.ron.sh"
 
-    scraper_application.save(format="custom")(mock_save)
     scraper_application.run(urls=[test_url], pages=2, format="custom", parser="parsel")
-    mock_save.assert_called_with([], None)
+
+    mock_database.save.assert_not_called()
 
 
 def test_full_flow_parsel_xpath(
@@ -221,13 +231,15 @@ def test_full_flow_parsel_xpath(
     parsel_xpath: None,
     expected_data: List[Dict],
     test_url: str,
+    scraper_save: None,
+    mock_database: mock.MagicMock,
 ) -> None:
     assert scraper_application.has_async is False
     assert len(scraper_application.rules) == 2
-    mock_save = mock.MagicMock()
-    scraper_application.save(format="custom")(mock_save)
+
     scraper_application.run(urls=[test_url], pages=2, format="custom", parser="parsel")
-    mock_save.assert_called_with(expected_data, None)
+
+    mock_database.save.assert_called_with(expected_data)
 
 
 def test_full_flow_parsel_text(
@@ -235,13 +247,15 @@ def test_full_flow_parsel_text(
     parsel_text: None,
     expected_data: List[Dict],
     test_url: str,
+    scraper_save: None,
+    mock_database: mock.MagicMock,
 ) -> None:
     assert scraper_application.has_async is False
     assert len(scraper_application.rules) == 2
-    mock_save = mock.MagicMock()
-    scraper_application.save(format="custom")(mock_save)
+
     scraper_application.run(urls=[test_url], pages=2, format="custom", parser="parsel")
-    mock_save.assert_called_with(expected_data, None)
+
+    mock_database.save.assert_called_with(expected_data)
 
 
 def test_full_flow_parsel_regex(
@@ -249,10 +263,12 @@ def test_full_flow_parsel_regex(
     parsel_regex: None,
     expected_data: List[Dict],
     test_url: str,
+    scraper_save: None,
+    mock_database: mock.MagicMock,
 ) -> None:
     assert scraper_application.has_async is False
     assert len(scraper_application.rules) == 2
-    mock_save = mock.MagicMock()
-    scraper_application.save(format="custom")(mock_save)
+
     scraper_application.run(urls=[test_url], pages=2, format="custom", parser="parsel")
-    mock_save.assert_called_with(expected_data, None)
+
+    mock_database.save.assert_called_with(expected_data)

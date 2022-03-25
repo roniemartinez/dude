@@ -20,6 +20,7 @@ class Scraper(ScraperBase):
         output: Optional[str] = None,
         format: str = "json",
         follow_urls: bool = False,
+        save_per_page: bool = False,
         # extra args
         parser: str = "playwright",
         headless: bool = True,
@@ -34,6 +35,7 @@ class Scraper(ScraperBase):
         :param output: Output file. If not provided, prints in the terminal.
         :param format: Output file format. If not provided, uses the extension of the output file or defaults to json.
         :param follow_urls: Automatically follow URLs.
+        :param save_per_page: Flag to save data on every page extraction or not. If not, saves all the data at the end.
 
         :param parser: Parser backend ["playwright" (default), "bs4", "parsel, "lxml", "pyppeteer" or "selenium"]
         :param headless: Enables headless browser. (default=True)
@@ -109,5 +111,6 @@ class Scraper(ScraperBase):
             output=output,
             format=format,
             follow_urls=follow_urls,
+            save_per_page=save_per_page or follow_urls,
             **{"headless": headless, "browser_type": browser_type},
         )

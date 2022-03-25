@@ -1,7 +1,8 @@
+import shutil
 import uuid
 from pathlib import Path
 
-from dude import post_setup, pre_setup, startup
+from dude import post_setup, pre_setup, shutdown, startup
 
 SAVE_DIR: Path
 
@@ -33,6 +34,15 @@ def print_pdf(page):
     """
     unique_name = str(uuid.uuid4())
     page.pdf(path=SAVE_DIR / f"{unique_name}.pdf")  # noqa
+
+
+@shutdown()
+def zip_all():
+    """
+    Perform actions here before the application is terminated.
+    """
+    global SAVE_DIR
+    shutil.make_archive("images-and-pdfs", "zip", SAVE_DIR)
 
 
 if __name__ == "__main__":

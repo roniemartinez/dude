@@ -113,7 +113,9 @@ The output in `data.json` should contain the actual URL and the metadata prepend
   - [lxml](https://roniemartinez.github.io/dude/advanced/11_lxml.html) - `pip install pydude[lxml]`
   - [Pyppeteer](https://roniemartinez.github.io/dude/advanced/12_pyppeteer.html) - `pip install pydude[pyppeteer]`
   - [Selenium](https://roniemartinez.github.io/dude/advanced/13_selenium.html) - `pip install pydude[selenium]`
-- Option to follow all links indefinitely (Crawler/Spider). WARNING: Do not use yet until https://github.com/roniemartinez/dude/pull/27 has been implemented.
+- Option to follow all links indefinitely (Crawler/Spider).
+- Events - attach functions to startup, pre-setup, post-setup and shutdown events.
+- Option to save data on every page.
 
 ## Supported Parser Backends
 
@@ -218,14 +220,6 @@ Here is the summary of features supported by each parser backend.
 
 Read the complete documentation at [https://roniemartinez.github.io/dude/](https://roniemartinez.github.io/dude/).
 All the advanced and useful features are documented there.
-
-## Support
-
-This project is at a very early stage. This dude needs some love! ❤️
-
-Contribute to this project by feature requests, idea discussions, reporting bugs, opening pull requests, or through Github Sponsors. Your help is highly appreciated.
-
-[![Github Sponsors](https://img.shields.io/github/sponsors/roniemartinez?label=github%20sponsors&logo=github%20sponsors&style=for-the-badge)](https://github.com/sponsors/roniemartinez)
 
 ## Requirements
 

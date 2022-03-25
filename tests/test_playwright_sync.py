@@ -4,9 +4,11 @@ from unittest import mock
 
 import pytest
 import yaml
+from braveblock import Adblocker
 from playwright import sync_api
 
 from dude import Scraper, storage
+from dude.playwright_scraper import PlaywrightScraper
 from dude.storage import save_csv, save_json, save_yaml
 
 
@@ -108,8 +110,22 @@ def playwright_post_setup(scraper_application: Scraper) -> None:
 
 
 @pytest.fixture()
-def playwright_save(scraper_application: Scraper, mock_database: mock.MagicMock) -> None:
-    @scraper_application.save("custom")
+def playwright_shutdown(scraper_application: Scraper, mock_database: mock.MagicMock) -> None:
+    @scraper_application.shutdown()
+    def close_database() -> None:
+        mock_database.close()
+
+
+@pytest.fixture()
+def scraper_application_with_parser() -> Scraper:
+    scraper = PlaywrightScraper()
+    scraper.adblock = Adblocker(rules=["https://dude.ron.sh/blockme.css"])
+    return Scraper(scraper=scraper)
+
+
+@pytest.fixture()
+def scraper_with_parser_save(scraper_application_with_parser: Scraper, mock_database: mock.MagicMock) -> None:
+    @scraper_application_with_parser.save("custom")
     def save_to_database(data: Any, output: Optional[str]) -> bool:
         mock_database.save(data)
         return True
@@ -131,10 +147,12 @@ def test_full_flow(
     playwright_startup: None,
     playwright_pre_setup: None,
     playwright_post_setup: None,
-    playwright_save: None,
+    playwright_shutdown: None,
+    scraper_save: None,
     expected_data: List[Dict],
     test_url: str,
     mock_database: mock.MagicMock,
+    mock_database_per_page: mock.MagicMock,
     browser_type: str,
 ) -> None:
     assert scraper_application.has_async is False
@@ -145,7 +163,9 @@ def test_full_flow(
     )
 
     mock_database.setup.assert_called_once()
-    mock_database.save.assert_called_with(expected_data)
+    mock_database_per_page.save.assert_called_with(expected_data)
+    mock_database.save.assert_not_called()
+    mock_database.close.assert_called_once()
 
 
 def test_full_flow_xpath(
@@ -155,25 +175,31 @@ def test_full_flow_xpath(
     playwright_navigate: None,
     expected_data: List[Dict],
     test_url: str,
+    scraper_save: None,
+    mock_database: mock.MagicMock,
 ) -> None:
     assert scraper_application.has_async is False
     assert len(scraper_application.rules) == 4
-    mock_save = mock.MagicMock()
-    scraper_application.save(format="custom")(mock_save)
+
     scraper_application.run(urls=[test_url], pages=2, format="custom", parser="playwright")
-    mock_save.assert_called_with(expected_data, None)
+
+    mock_database.save.assert_called_with(expected_data)
 
 
 def test_custom_save(
-    scraper_application: Scraper, playwright_select: None, expected_data: List[Dict], test_url: str
+    scraper_application: Scraper,
+    playwright_select: None,
+    expected_data: List[Dict],
+    test_url: str,
+    scraper_save: None,
+    mock_database: mock.MagicMock,
 ) -> None:
     assert scraper_application.has_async is False
     assert len(scraper_application.rules) == 4
-    mock_save = mock.MagicMock()
-    mock_save.return_value = True
-    scraper_application.save(format="custom")(mock_save)
+
     scraper_application.run(urls=[test_url], pages=2, format="custom", parser="playwright")
-    mock_save.assert_called_with(expected_data, None)
+
+    mock_database.save.assert_called_with(expected_data)
 
 
 def test_scraper_with_parser(
@@ -181,15 +207,16 @@ def test_scraper_with_parser(
     playwright_select_with_parser: None,
     expected_data: List[Dict],
     test_url: str,
+    scraper_with_parser_save: None,
+    mock_database: mock.MagicMock,
 ) -> None:
     assert scraper_application_with_parser.has_async is False
     assert scraper_application_with_parser.scraper is not None
     assert len(scraper_application_with_parser.scraper.rules) == 4
-    mock_save = mock.MagicMock()
-    mock_save.return_value = True
-    scraper_application_with_parser.save(format="custom")(mock_save)
+
     scraper_application_with_parser.run(urls=[test_url], pages=2, format="custom", parser="playwright")
-    mock_save.assert_called_with(expected_data, None)
+
+    mock_database.save.assert_called_with(expected_data)
 
 
 def test_format_not_supported(scraper_application: Scraper, playwright_select: None, test_url: str) -> None:

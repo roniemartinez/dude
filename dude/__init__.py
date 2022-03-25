@@ -3,10 +3,10 @@ import sys
 from pathlib import Path
 from typing import Any
 
-from .context import group, post_setup, pre_setup, run, save, select, startup  # noqa: F401
+from .context import group, post_setup, pre_setup, run, save, select, shutdown, startup  # noqa: F401
 from .scraper import Scraper  # noqa: F401
 
-__al__ = ["Scraper", "group", "run", "save", "select", "startup", "pre_setup", "post_setup"]
+__al__ = ["Scraper", "group", "run", "save", "select", "startup", "shutdown", "pre_setup", "post_setup"]
 
 
 logging.basicConfig(stream=sys.stdout, level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
@@ -148,6 +148,14 @@ def cli() -> None:  # pragma: no cover
         action="store_true",
         help="Automatically follow URLs.",
     )
+    optional.add_argument(
+        "--save-per-page",
+        dest="save_per_page",
+        default=False,
+        action="store_true",
+        help="Flag to save data on every page extraction or not. If not, saves all the data at the end."
+        "If --follow-urls is set to true, this variable will be automatically set to true.",
+    )
     arguments = parser.parse_args()
 
     if arguments.version:
@@ -204,4 +212,5 @@ def cli() -> None:  # pragma: no cover
         output=arguments.output,
         format=arguments.format,
         follow_urls=arguments.follow_urls,
+        save_per_page=arguments.save_per_page,
     )

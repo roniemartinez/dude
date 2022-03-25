@@ -1,4 +1,4 @@
-from typing import Dict, List
+from typing import Any, Dict, List, Optional
 from unittest import mock
 
 import pytest
@@ -169,6 +169,14 @@ def async_selenium_navigate(scraper_application: Scraper) -> None:
         return True
 
 
+@pytest.fixture()
+def scraper_with_parser_save(scraper_application_with_selenium_parser: Scraper, mock_database: mock.MagicMock) -> None:
+    @scraper_application_with_selenium_parser.save("custom")
+    def save_to_database(data: Any, output: Optional[str]) -> bool:
+        mock_database.save(data)
+        return True
+
+
 @pytest.mark.parametrize(
     "browser_type",
     (
@@ -184,15 +192,19 @@ def test_full_flow(
     expected_data: List[Dict],
     test_url: str,
     browser_type: str,
+    scraper_save: None,
+    mock_database: mock.MagicMock,
+    mock_database_per_page: mock.MagicMock,
 ) -> None:
     assert scraper_application.has_async is False
     assert len(scraper_application.rules) == 6
-    mock_save = mock.MagicMock()
-    scraper_application.save(format="custom")(mock_save)
+
     scraper_application.run(
         urls=[test_url], pages=2, format="custom", parser="selenium", browser_type=browser_type, follow_urls=True
     )
-    mock_save.assert_called_with(expected_data, None)
+
+    mock_database_per_page.save.assert_called_with(expected_data)
+    mock_database.save.assert_not_called()
 
 
 def test_full_flow_without_setup_and_navigate(
@@ -200,13 +212,15 @@ def test_full_flow_without_setup_and_navigate(
     selenium_select: None,
     expected_data: List[Dict],
     test_url: str,
+    scraper_save: None,
+    mock_database: mock.MagicMock,
 ) -> None:
     assert scraper_application.has_async is False
     assert len(scraper_application.rules) == 4
-    mock_save = mock.MagicMock()
-    scraper_application.save(format="custom")(mock_save)
+
     scraper_application.run(urls=[test_url], pages=2, format="custom", parser="selenium")
-    mock_save.assert_called_with(expected_data, None)
+
+    mock_database.save.assert_called_with(expected_data)
 
 
 def test_full_flow_xpath(
@@ -216,13 +230,15 @@ def test_full_flow_xpath(
     selenium_navigate: None,
     expected_data: List[Dict],
     test_url: str,
+    scraper_save: None,
+    mock_database: mock.MagicMock,
 ) -> None:
     assert scraper_application.has_async is False
     assert len(scraper_application.rules) == 4
-    mock_save = mock.MagicMock()
-    scraper_application.save(format="custom")(mock_save)
+
     scraper_application.run(urls=[test_url], pages=2, format="custom", parser="selenium")
-    mock_save.assert_called_with(expected_data, None)
+
+    mock_database.save.assert_called_with(expected_data)
 
 
 def test_full_flow_text(
@@ -232,13 +248,15 @@ def test_full_flow_text(
     selenium_navigate: None,
     expected_data: List[Dict],
     test_url: str,
+    scraper_save: None,
+    mock_database: mock.MagicMock,
 ) -> None:
     assert scraper_application.has_async is False
     assert len(scraper_application.rules) == 4
-    mock_save = mock.MagicMock()
-    scraper_application.save(format="custom")(mock_save)
+
     scraper_application.run(urls=[test_url], pages=2, format="custom", parser="selenium")
-    mock_save.assert_called_with(expected_data, None)
+
+    mock_database.save.assert_called_with(expected_data)
 
 
 @pytest.mark.parametrize(
@@ -256,15 +274,19 @@ def test_full_flow_async(
     expected_data: List[Dict],
     test_url: str,
     browser_type: str,
+    scraper_save: None,
+    mock_database: mock.MagicMock,
+    mock_database_per_page: mock.MagicMock,
 ) -> None:
     assert scraper_application.has_async is True
     assert len(scraper_application.rules) == 6
-    mock_save = mock.MagicMock()
-    scraper_application.save(format="custom")(mock_save)
+
     scraper_application.run(
         urls=[test_url], pages=2, format="custom", parser="selenium", browser_type=browser_type, follow_urls=True
     )
-    mock_save.assert_called_with(expected_data, None)
+
+    mock_database_per_page.save.assert_called_with(expected_data)
+    mock_database.save.assert_not_called()
 
 
 def test_full_flow_async_with_sync_setup_and_navigate(
@@ -274,13 +296,15 @@ def test_full_flow_async_with_sync_setup_and_navigate(
     selenium_navigate: None,
     expected_data: List[Dict],
     test_url: str,
+    scraper_save: None,
+    mock_database: mock.MagicMock,
 ) -> None:
     assert scraper_application.has_async is True
     assert len(scraper_application.rules) == 6
-    mock_save = mock.MagicMock()
-    scraper_application.save(format="custom")(mock_save)
+
     scraper_application.run(urls=[test_url], pages=2, format="custom", parser="selenium")
-    mock_save.assert_called_with(expected_data, None)
+
+    mock_database.save.assert_called_with(expected_data)
 
 
 def test_full_flow_async_without_setup_and_navigate(
@@ -288,13 +312,15 @@ def test_full_flow_async_without_setup_and_navigate(
     async_selenium_select: None,
     expected_data: List[Dict],
     test_url: str,
+    scraper_save: None,
+    mock_database: mock.MagicMock,
 ) -> None:
     assert scraper_application.has_async is True
     assert len(scraper_application.rules) == 4
-    mock_save = mock.MagicMock()
-    scraper_application.save(format="custom")(mock_save)
+
     scraper_application.run(urls=[test_url], pages=2, format="custom", parser="selenium")
-    mock_save.assert_called_with(expected_data, None)
+
+    mock_database.save.assert_called_with(expected_data)
 
 
 def test_full_flow_xpath_async(
@@ -304,13 +330,15 @@ def test_full_flow_xpath_async(
     async_selenium_navigate: None,
     expected_data: List[Dict],
     test_url: str,
+    scraper_save: None,
+    mock_database: mock.MagicMock,
 ) -> None:
     assert scraper_application.has_async is True
     assert len(scraper_application.rules) == 4
-    mock_save = mock.MagicMock()
-    scraper_application.save(format="custom")(mock_save)
+
     scraper_application.run(urls=[test_url], pages=2, format="custom", parser="selenium")
-    mock_save.assert_called_with(expected_data, None)
+
+    mock_database.save.assert_called_with(expected_data)
 
 
 def test_full_flow_text_async(
@@ -320,13 +348,15 @@ def test_full_flow_text_async(
     async_selenium_navigate: None,
     expected_data: List[Dict],
     test_url: str,
+    scraper_save: None,
+    mock_database: mock.MagicMock,
 ) -> None:
     assert scraper_application.has_async is True
     assert len(scraper_application.rules) == 4
-    mock_save = mock.MagicMock()
-    scraper_application.save(format="custom")(mock_save)
+
     scraper_application.run(urls=[test_url], pages=2, format="custom", parser="selenium")
-    mock_save.assert_called_with(expected_data, None)
+
+    mock_database.save.assert_called_with(expected_data)
 
 
 def test_unsupported_regex(
@@ -348,12 +378,13 @@ def test_scraper_with_parser(
     selenium_select_with_parser: None,
     expected_data: List[Dict],
     test_url: str,
+    scraper_with_parser_save: None,
+    mock_database: mock.MagicMock,
 ) -> None:
     assert scraper_application_with_selenium_parser.has_async is False
     assert scraper_application_with_selenium_parser.scraper is not None
     assert len(scraper_application_with_selenium_parser.scraper.rules) == 4
-    mock_save = mock.MagicMock()
-    mock_save.return_value = True
-    scraper_application_with_selenium_parser.save(format="custom")(mock_save)
+
     scraper_application_with_selenium_parser.run(urls=[test_url], pages=2, format="custom", parser="selenium")
-    mock_save.assert_called_with(expected_data, None)
+
+    mock_database.save.assert_called_with(expected_data)

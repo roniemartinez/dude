@@ -1,4 +1,4 @@
-from typing import Dict, List
+from typing import Any, Dict, List, Optional
 from unittest import mock
 
 import pytest
@@ -113,6 +113,14 @@ def async_pyppeteer_navigate(scraper_application: Scraper) -> None:
         return True
 
 
+@pytest.fixture()
+def scraper_with_parser_save(scraper_application_with_pyppeteer_parser: Scraper, mock_database: mock.MagicMock) -> None:
+    @scraper_application_with_pyppeteer_parser.save("custom")
+    def save_to_database(data: Any, output: Optional[str]) -> bool:
+        mock_database.save(data)
+        return True
+
+
 def test_full_flow(
     scraper_application: Scraper,
     async_pyppeteer_select: None,
@@ -120,13 +128,17 @@ def test_full_flow(
     async_pyppeteer_navigate: None,
     expected_data: List[Dict],
     test_url: str,
+    scraper_save: None,
+    mock_database: mock.MagicMock,
+    mock_database_per_page: mock.MagicMock,
 ) -> None:
     assert scraper_application.has_async is True
     assert len(scraper_application.rules) == 6
-    mock_save = mock.MagicMock()
-    scraper_application.save(format="custom")(mock_save)
+
     scraper_application.run(urls=[test_url], pages=2, format="custom", parser="pyppeteer", follow_urls=True)
-    mock_save.assert_called_with(expected_data, None)
+
+    mock_database_per_page.save.assert_called_with(expected_data)
+    mock_database.save.assert_not_called()
 
 
 def test_full_flow_async_without_setup_and_navigate(
@@ -134,13 +146,15 @@ def test_full_flow_async_without_setup_and_navigate(
     async_pyppeteer_select: None,
     expected_data: List[Dict],
     test_url: str,
+    scraper_save: None,
+    mock_database: mock.MagicMock,
 ) -> None:
     assert scraper_application.has_async is True
     assert len(scraper_application.rules) == 4
-    mock_save = mock.MagicMock()
-    scraper_application.save(format="custom")(mock_save)
+
     scraper_application.run(urls=[test_url], pages=2, format="custom", parser="pyppeteer")
-    mock_save.assert_called_with(expected_data, None)
+
+    mock_database.save.assert_called_with(expected_data)
 
 
 def test_full_flow_xpath(
@@ -150,13 +164,15 @@ def test_full_flow_xpath(
     async_pyppeteer_navigate: None,
     expected_data: List[Dict],
     test_url: str,
+    scraper_save: None,
+    mock_database: mock.MagicMock,
 ) -> None:
     assert scraper_application.has_async is True
     assert len(scraper_application.rules) == 4
-    mock_save = mock.MagicMock()
-    scraper_application.save(format="custom")(mock_save)
+
     scraper_application.run(urls=[test_url], pages=2, format="custom", parser="pyppeteer")
-    mock_save.assert_called_with(expected_data, None)
+
+    mock_database.save.assert_called_with(expected_data)
 
 
 def test_full_flow_text(
@@ -166,13 +182,15 @@ def test_full_flow_text(
     async_pyppeteer_navigate: None,
     expected_data: List[Dict],
     test_url: str,
+    scraper_save: None,
+    mock_database: mock.MagicMock,
 ) -> None:
     assert scraper_application.has_async is True
     assert len(scraper_application.rules) == 4
-    mock_save = mock.MagicMock()
-    scraper_application.save(format="custom")(mock_save)
+
     scraper_application.run(urls=[test_url], pages=2, format="custom", parser="pyppeteer")
-    mock_save.assert_called_with(expected_data, None)
+
+    mock_database.save.assert_called_with(expected_data)
 
 
 def test_unsupported_regex(
@@ -183,8 +201,7 @@ def test_unsupported_regex(
 ) -> None:
     assert scraper_application.has_async is True
     assert len(scraper_application.rules) == 1
-    mock_save = mock.MagicMock()
-    scraper_application.save(format="custom")(mock_save)
+
     with pytest.raises(Exception):
         scraper_application.run(urls=[test_url], pages=2, format="custom", parser="pyppeteer")
 
@@ -194,11 +211,13 @@ def test_scraper_with_parser(
     async_pyppeteer_select_with_parser: None,
     expected_data: List[Dict],
     test_url: str,
+    scraper_with_parser_save: None,
+    mock_database: mock.MagicMock,
 ) -> None:
     assert scraper_application_with_pyppeteer_parser.has_async is True
     assert scraper_application_with_pyppeteer_parser.scraper is not None
     assert len(scraper_application_with_pyppeteer_parser.scraper.rules) == 4
-    mock_save = mock.MagicMock()
-    scraper_application_with_pyppeteer_parser.save(format="custom")(mock_save)
+
     scraper_application_with_pyppeteer_parser.run(urls=[test_url], pages=2, format="custom", parser="pyppeteer")
-    mock_save.assert_called_with(expected_data, None)
+
+    mock_database.save.assert_called_with(expected_data)
