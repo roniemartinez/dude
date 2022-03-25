@@ -38,6 +38,9 @@ def print_pdf(page):
 
 @shutdown()
 def zip_all():
+    """
+    Perform actions here before the application is terminated.
+    """
     global SAVE_DIR
     shutil.make_archive("images-and-pdfs", "zip", SAVE_DIR)
 
