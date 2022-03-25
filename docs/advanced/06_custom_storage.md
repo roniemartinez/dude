@@ -42,6 +42,43 @@ The custom storage above can then be called using any of the options below.
         dude.run(urls=["<url>"], pages=2, format="table")
     ```
 
+## Saving on every page
+
+It is possible to call the save functions after each page.
+This is useful when running in spider mode to prevent lost of data.
+To make use of this option, the flag `is_per_page` in the `@save()` should be set to `True`.
+
+=== "Python"
+
+    ```python
+    @save("table", is_per_page=True)
+    def save_table(data, output) -> bool:
+        ...
+    ```
+
+To run the scraper in per-page save, pass `--save-per-page` argument.
+
+=== "Terminal"
+
+    ```bash
+    dude scrape --url "<url>" path/to/script.py --format table --save-per-page
+    ```
+
+=== "Python"
+
+    ```python
+    if __name__ == "__main__":
+        import dude
+
+        dude.run(urls=["<url>"], pages=2, format="table", save_per_page=True)
+    ```
+
+!!! note
+
+    The option `--save-per-page` is best used with events to make sure that connections or file handles are opened 
+    and closed properly. Check the examples below.
+
 ## Examples
 
-A more extensive example can be found at [examples/custom_storage.py](https://github.com/roniemartinez/dude/tree/master/examples/custom_storage.py).
+A more extensive example can be found at [examples/custom_storage.py](https://github.com/roniemartinez/dude/tree/master/examples/custom_storage.py) and
+[examples/save_per_page.py](https://github.com/roniemartinez/dude/tree/master/examples/save_per_page.py).

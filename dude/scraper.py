@@ -111,6 +111,6 @@ class Scraper(ScraperBase):
             output=output,
             format=format,
             follow_urls=follow_urls,
-            save_per_page=save_per_page,
+            save_per_page=save_per_page or follow_urls,
             **{"headless": headless, "browser_type": browser_type},
         )

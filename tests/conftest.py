@@ -1,13 +1,11 @@
 import platform
 from pathlib import Path
-from typing import Any, Callable, Dict, List
+from typing import Any, Callable, Dict, List, Optional
 from unittest import mock
 
 import pytest
-from braveblock import Adblocker
 
 from dude import Scraper
-from dude.playwright_scraper import PlaywrightScraper
 
 
 class IsInteger:
@@ -67,15 +65,28 @@ def mock_database() -> mock.MagicMock:
 
 
 @pytest.fixture()
+def mock_database_per_page() -> mock.MagicMock:
+    return mock.MagicMock()
+
+
+@pytest.fixture()
 def scraper_application() -> Scraper:
     return Scraper()
 
 
 @pytest.fixture()
-def scraper_application_with_parser() -> Scraper:
-    scraper = PlaywrightScraper()
-    scraper.adblock = Adblocker(rules=["https://dude.ron.sh/blockme.css"])
-    return Scraper(scraper=scraper)
+def scraper_save(
+    scraper_application: Scraper, mock_database: mock.MagicMock, mock_database_per_page: mock.MagicMock
+) -> None:
+    @scraper_application.save("custom")
+    def save_to_database(data: Any, output: Optional[str]) -> bool:
+        mock_database.save(data)
+        return True
+
+    @scraper_application.save("custom", is_per_page=True)
+    def save_to_database_per_page(data: Any, output: Optional[str]) -> bool:
+        mock_database_per_page.save(data)
+        return True
 
 
 @pytest.fixture()

@@ -479,6 +479,10 @@ class ScraperAbstract(ScraperBase):
             handler = self.save_rules[format, save_per_page]
             data = self.get_flattened_data()
             if not len(data):
+                logger.info(
+                    "No data was scraped. Skipped saving %s.",
+                    dict(format=format, output=format, save_per_page=save_per_page),
+                )
                 return
             if handler(data, output):
                 self.collected_data.clear()
@@ -495,6 +499,10 @@ class ScraperAbstract(ScraperBase):
             handler = self.save_rules[format, save_per_page]
             data = self.get_flattened_data()
             if not len(data):
+                logger.info(
+                    "No data was scraped. Skipped saving %s.",
+                    dict(format=format, output=format, save_per_page=save_per_page),
+                )
                 return
             if asyncio.iscoroutinefunction(handler):
                 is_successful = await handler(data, output)

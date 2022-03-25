@@ -67,3 +67,20 @@ def print_pdf(page):
     unique_name = str(uuid.uuid4())
     page.pdf(path=SAVE_DIR / f"{unique_name}.pdf")
 ```
+
+## Shutdown Event
+
+The Shutdown event is executed before terminating the application.
+
+The `@shutdown()` decorator can be used to register a function for shutdown. 
+
+```python
+import shutil
+
+from dude import shutdown
+
+
+@shutdown()
+def zip_all():
+    shutil.make_archive("images-and-pdfs", "zip", SAVE_DIR)
+```

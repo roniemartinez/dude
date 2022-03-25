@@ -83,14 +83,6 @@ def async_playwright_post_setup(scraper_application: Scraper) -> None:
         assert page is not None
 
 
-@pytest.fixture()
-def playwright_save(scraper_application: Scraper, mock_database: mock.MagicMock) -> None:
-    @scraper_application.save("custom")
-    def save_to_database(data: Any, output: Optional[str]) -> bool:
-        mock_database.save(data)
-        return True
-
-
 def test_full_flow(
     scraper_application: Scraper,
     async_playwright_select: None,
@@ -99,10 +91,11 @@ def test_full_flow(
     async_playwright_startup: None,
     async_playwright_pre_setup: None,
     async_playwright_post_setup: None,
-    playwright_save: None,
+    scraper_save: None,
     expected_data: List[Dict],
     test_url: str,
     mock_database: mock.MagicMock,
+    mock_database_per_page: mock.MagicMock,
 ) -> None:
     assert scraper_application.has_async is True
     assert len(scraper_application.rules) == 6
@@ -110,7 +103,8 @@ def test_full_flow(
     scraper_application.run(urls=[test_url], pages=2, format="custom", parser="playwright", follow_urls=True)
 
     mock_database.setup.assert_called_once()
-    mock_database.save.assert_called_with(expected_data)
+    mock_database_per_page.save.assert_called_with(expected_data)
+    mock_database.save.assert_not_called()
 
 
 def test_full_flow_xpath(
@@ -120,30 +114,41 @@ def test_full_flow_xpath(
     async_playwright_navigate: None,
     expected_data: List[Dict],
     test_url: str,
+    scraper_save: None,
+    mock_database: mock.MagicMock,
 ) -> None:
     assert scraper_application.has_async is True
     assert len(scraper_application.rules) == 4
-    mock_save = mock.MagicMock()
-    scraper_application.save(format="custom")(mock_save)
+
     scraper_application.run(urls=[test_url], pages=2, format="custom", parser="playwright")
-    mock_save.assert_called_with(expected_data, None)
+
+    mock_database.save.assert_called_with(expected_data)
 
 
 def test_custom_save(
-    scraper_application: Scraper, async_playwright_select: None, expected_data: List[Dict], test_url: str
+    scraper_application: Scraper,
+    async_playwright_select: None,
+    expected_data: List[Dict],
+    test_url: str,
+    scraper_save: None,
+    mock_database: mock.MagicMock,
 ) -> None:
     assert scraper_application.has_async is True
     assert len(scraper_application.rules) == 4
-    mock_save = mock.MagicMock()
-    mock_save.return_value = True
-    scraper_application.save(format="custom")(mock_save)
+
     scraper_application.run(urls=[test_url], pages=2, format="custom", parser="playwright")
-    mock_save.assert_called_with(expected_data, None)
+
+    mock_database.save.assert_called_with(expected_data)
 
 
 @pytest.mark.skipif(sys.version_info < (3, 8), reason="AsyncMock is not supported.")
 def test_async_save(
-    scraper_application: Scraper, async_playwright_select: None, expected_data: List[Dict], test_url: str
+    scraper_application: Scraper,
+    async_playwright_select: None,
+    expected_data: List[Dict],
+    test_url: str,
+    scraper_save: None,
+    mock_database: mock.MagicMock,
 ) -> None:
     assert scraper_application.has_async is True
     assert len(scraper_application.rules) == 4

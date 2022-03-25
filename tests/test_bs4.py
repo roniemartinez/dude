@@ -93,13 +93,17 @@ def test_full_flow_bs4(
     bs4_select: None,
     expected_data: List[Dict],
     test_url: str,
+    scraper_save: None,
+    mock_database: mock.MagicMock,
+    mock_database_per_page: mock.MagicMock,
 ) -> None:
     assert scraper_application.has_async is False
     assert len(scraper_application.rules) == 4
-    mock_save = mock.MagicMock()
-    scraper_application.save(format="custom")(mock_save)
+
     scraper_application.run(urls=[test_url], pages=2, format="custom", parser="bs4", follow_urls=True)
-    mock_save.assert_called_with(expected_data, None)
+
+    mock_database_per_page.save.assert_called_with(expected_data)
+    mock_database.save.assert_not_called()
 
 
 @mock.patch.object(httpx, "Client")
@@ -110,19 +114,20 @@ def test_full_flow_bs4_httpx(
     expected_data: List[Dict],
     test_url: str,
     side_effect_func: Callable,
+    scraper_save: None,
+    mock_database_per_page: mock.MagicMock,
 ) -> None:
     assert scraper_application.has_async is False
     assert len(scraper_application.rules) == 4
-    mock_save = mock.MagicMock()
 
     mock_client.return_value.__enter__.return_value.get.side_effect = side_effect_func
 
     test_url = "https://dude.ron.sh"
     expected_data = [{**d, "_page_url": test_url} for d in expected_data]
 
-    scraper_application.save(format="custom")(mock_save)
     scraper_application.run(urls=[test_url], pages=2, format="custom", parser="bs4", follow_urls=True)
-    mock_save.assert_called_with(expected_data, None)
+
+    mock_database_per_page.save.assert_called_with(expected_data)
 
 
 @mock.patch.object(httpx, "Client")
@@ -131,10 +136,11 @@ def test_bs4_httpx_exception(
     scraper_application: Scraper,
     bs4_select: None,
     expected_data: List[Dict],
+    scraper_save: None,
+    mock_database: mock.MagicMock,
 ) -> None:
     assert scraper_application.has_async is False
     assert len(scraper_application.rules) == 4
-    mock_save = mock.MagicMock()
 
     response = mock_client.return_value.__enter__.return_value.get.return_value
     response.raise_for_status.side_effect = httpx.HTTPStatusError(
@@ -145,9 +151,9 @@ def test_bs4_httpx_exception(
 
     test_url = "https://dude.ron.sh"
 
-    scraper_application.save(format="custom")(mock_save)
     scraper_application.run(urls=[test_url], pages=2, format="custom", parser="bs4")
-    mock_save.assert_not_called()
+
+    mock_database.save.assert_not_called()
 
 
 def test_full_flow_bs4_async(
@@ -155,13 +161,15 @@ def test_full_flow_bs4_async(
     async_bs4_select: None,
     expected_data: List[Dict],
     test_url: str,
+    scraper_save: None,
+    mock_database: mock.MagicMock,
 ) -> None:
     assert scraper_application.has_async is True
     assert len(scraper_application.rules) == 4
-    mock_save = mock.MagicMock()
-    scraper_application.save(format="custom")(mock_save)
+
     scraper_application.run(urls=[test_url], pages=2, format="custom", parser="bs4")
-    mock_save.assert_called_with(expected_data, None)
+
+    mock_database.save.assert_called_with(expected_data)
 
 
 @pytest.mark.skipif(sys.version_info < (3, 8), reason="AsyncMock is not supported.")
@@ -173,19 +181,20 @@ def test_full_flow_bs4_httpx_async(
     expected_data: List[Dict],
     test_url: str,
     side_effect_func: Callable,
+    scraper_save: None,
+    mock_database_per_page: mock.MagicMock,
 ) -> None:
     assert scraper_application.has_async is True
     assert len(scraper_application.rules) == 4
-    mock_save = mock.MagicMock()
 
     mock_client.return_value.__aenter__.return_value.get.side_effect = side_effect_func
 
     test_url = "https://dude.ron.sh"
     expected_data = [{**d, "_page_url": test_url} for d in expected_data]
 
-    scraper_application.save(format="custom")(mock_save)
     scraper_application.run(urls=[test_url], pages=2, format="custom", parser="bs4", follow_urls=True)
-    mock_save.assert_called_with(expected_data, None)
+
+    mock_database_per_page.save.assert_called_with(expected_data)
 
 
 @pytest.mark.skipif(sys.version_info < (3, 8), reason="AsyncMock is not supported.")
@@ -195,10 +204,11 @@ def test_bs4_httpx_exception_async(
     scraper_application: Scraper,
     async_bs4_select: None,
     expected_data: List[Dict],
+    scraper_save: None,
+    mock_database: mock.MagicMock,
 ) -> None:
     assert scraper_application.has_async is True
     assert len(scraper_application.rules) == 4
-    mock_save = mock.MagicMock()
 
     response = mock_client.return_value.__aenter__.return_value.get.return_value
     response.raise_for_status = mock.MagicMock(
@@ -211,9 +221,9 @@ def test_bs4_httpx_exception_async(
 
     test_url = "https://dude.ron.sh"
 
-    scraper_application.save(format="custom")(mock_save)
     scraper_application.run(urls=[test_url], pages=2, format="custom", parser="bs4")
-    mock_save.assert_not_called()
+
+    mock_database.save.assert_not_called()
 
 
 def test_unsupported_xpath(
@@ -221,11 +231,12 @@ def test_unsupported_xpath(
     bs4_xpath: None,
     expected_data: List[Dict],
     test_url: str,
+    scraper_save: None,
+    mock_database: mock.MagicMock,
 ) -> None:
     assert scraper_application.has_async is False
     assert len(scraper_application.rules) == 2
-    mock_save = mock.MagicMock()
-    scraper_application.save(format="custom")(mock_save)
+
     with pytest.raises(Exception):
         scraper_application.run(urls=[test_url], pages=2, format="custom", parser="bs4")
 
@@ -235,11 +246,12 @@ def test_unsupported_text(
     bs4_text: None,
     expected_data: List[Dict],
     test_url: str,
+    scraper_save: None,
+    mock_database: mock.MagicMock,
 ) -> None:
     assert scraper_application.has_async is False
     assert len(scraper_application.rules) == 2
-    mock_save = mock.MagicMock()
-    scraper_application.save(format="custom")(mock_save)
+
     with pytest.raises(Exception):
         scraper_application.run(urls=[test_url], pages=2, format="custom", parser="bs4")
 
@@ -249,10 +261,11 @@ def test_unsupported_regex(
     bs4_regex: None,
     expected_data: List[Dict],
     test_url: str,
+    scraper_save: None,
+    mock_database: mock.MagicMock,
 ) -> None:
     assert scraper_application.has_async is False
     assert len(scraper_application.rules) == 2
-    mock_save = mock.MagicMock()
-    scraper_application.save(format="custom")(mock_save)
+
     with pytest.raises(Exception):
         scraper_application.run(urls=[test_url], pages=2, format="custom", parser="bs4")
