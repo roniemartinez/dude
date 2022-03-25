@@ -110,6 +110,13 @@ def playwright_post_setup(scraper_application: Scraper) -> None:
 
 
 @pytest.fixture()
+def playwright_shutdown(scraper_application: Scraper, mock_database: mock.MagicMock) -> None:
+    @scraper_application.shutdown()
+    def close_database() -> None:
+        mock_database.close()
+
+
+@pytest.fixture()
 def scraper_application_with_parser() -> Scraper:
     scraper = PlaywrightScraper()
     scraper.adblock = Adblocker(rules=["https://dude.ron.sh/blockme.css"])
@@ -140,6 +147,7 @@ def test_full_flow(
     playwright_startup: None,
     playwright_pre_setup: None,
     playwright_post_setup: None,
+    playwright_shutdown: None,
     scraper_save: None,
     expected_data: List[Dict],
     test_url: str,
@@ -157,6 +165,7 @@ def test_full_flow(
     mock_database.setup.assert_called_once()
     mock_database_per_page.save.assert_called_with(expected_data)
     mock_database.save.assert_not_called()
+    mock_database.close.assert_called_once()
 
 
 def test_full_flow_xpath(
