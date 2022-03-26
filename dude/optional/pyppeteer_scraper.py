@@ -22,6 +22,8 @@ class PyppeteerScraper(ScraperAbstract):
     Pyppeteer-based scraper
     """
 
+    supports_sync = False
+
     def run(
         self,
         urls: Sequence[str],
@@ -47,24 +49,17 @@ class PyppeteerScraper(ScraperAbstract):
 
         :param headless: Enables headless browser. (default=True)
         """
-        self.initialize_scraper(urls)
-
-        logger.info("Using Pyppeteer...")
-        loop = asyncio.get_event_loop()
-        # FIXME: Tests fail on Python 3.7 when using asyncio.run()
-        loop.run_until_complete(
-            self._run_async(
-                headless=headless,
-                pages=pages,
-                proxy=proxy,
-                output=output,
-                format=format,
-                follow_urls=follow_urls,
-                save_per_page=save_per_page,
-            )
+        super(PyppeteerScraper, self).run(
+            urls=urls,
+            pages=pages,
+            proxy=proxy,
+            output=output,
+            format=format,
+            follow_urls=follow_urls,
+            save_per_page=save_per_page,
+            headless=headless,
+            **kwargs,
         )
-
-        self.event_shutdown()
 
     def setup(self, page: Page = None) -> None:
         raise Exception("Sync is not supported.")  # pragma: no cover
@@ -117,15 +112,29 @@ class PyppeteerScraper(ScraperAbstract):
         else:
             return await request.continue_()
 
-    async def _run_async(
+    def run_sync(
         self,
-        headless: bool,
         pages: int,
         proxy: Optional[Dict],
         output: Optional[str],
         format: str,
         follow_urls: bool,
         save_per_page: bool,
+        headless: bool = True,
+        **kwargs: Any,
+    ) -> None:
+        raise NotImplementedError
+
+    async def run_async(
+        self,
+        pages: int,
+        proxy: Optional[Dict],
+        output: Optional[str],
+        format: str,
+        follow_urls: bool,
+        save_per_page: bool,
+        headless: bool = True,
+        **kwargs: Any,
     ) -> None:
         launch_args: Dict[str, Any] = {"headless": headless, "args": ["--disable-notifications"]}
         if proxy:

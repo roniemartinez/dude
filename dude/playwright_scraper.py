@@ -1,4 +1,3 @@
-import asyncio
 import itertools
 import logging
 from typing import Any, AsyncIterable, Callable, Dict, Iterable, Optional, Sequence, Tuple, Union
@@ -46,39 +45,16 @@ class PlaywrightScraper(ScraperAbstract):
         :param headless: Enables headless browser. (default=True)
         :param browser_type: Playwright supported browser types ("chromium", "webkit" or "firefox").
         """
-        self.initialize_scraper(urls)
-
-        logger.info("Using Playwright...")
-        if self.has_async:
-            logger.info("Using async mode...")
-            loop = asyncio.get_event_loop()
-            # FIXME: Tests fail on Python 3.7 when using asyncio.run()
-            loop.run_until_complete(
-                self._run_async(
-                    headless=headless,
-                    browser_type=browser_type,
-                    pages=pages,
-                    proxy=proxy,
-                    output=output,
-                    format=format,
-                    follow_urls=follow_urls,
-                    save_per_page=save_per_page,
-                )
-            )
-        else:
-            logger.info("Using sync mode...")
-            self._run_sync(
-                headless=headless,
-                browser_type=browser_type,
-                pages=pages,
-                proxy=proxy,
-                output=output,
-                format=format,
-                follow_urls=follow_urls,
-                save_per_page=save_per_page,
-            )
-
-        self.event_shutdown()
+        super(PlaywrightScraper, self).run(
+            urls=urls,
+            pages=pages,
+            proxy=proxy,
+            output=output,
+            format=format,
+            follow_urls=follow_urls,
+            save_per_page=save_per_page,
+            **{**kwargs, "headless": headless, "browser_type": browser_type},
+        )
 
     @staticmethod
     def _query_selector_all(
@@ -173,16 +149,17 @@ class PlaywrightScraper(ScraperAbstract):
             return route.abort()
         return route.continue_()
 
-    def _run_sync(
+    def run_sync(
         self,
-        headless: bool,
-        browser_type: str,
         pages: int,
         proxy: Optional[sync_api.ProxySettings],
         output: Optional[str],
         format: str,
         follow_urls: bool,
         save_per_page: bool,
+        headless: bool = True,
+        browser_type: str = "chromium",
+        **kwargs: Any,
     ) -> None:
         launch_kwargs = self._get_launch_kwargs(browser_type)
         # FIXME: Coverage fails to cover anything within this context manager block
@@ -218,16 +195,17 @@ class PlaywrightScraper(ScraperAbstract):
             browser.close()
         self._save(format, output, save_per_page)
 
-    async def _run_async(
+    async def run_async(
         self,
-        headless: bool,
-        browser_type: str,
         pages: int,
         proxy: Optional[sync_api.ProxySettings],
         output: Optional[str],
         format: str,
         follow_urls: bool,
         save_per_page: bool,
+        headless: bool = True,
+        browser_type: str = "chromium",
+        **kwargs: Any,
     ) -> None:
         launch_kwargs = self._get_launch_kwargs(browser_type)
         async with async_playwright() as p:

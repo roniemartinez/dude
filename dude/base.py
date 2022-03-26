@@ -39,6 +39,8 @@ class ScraperBase(ABC):
     This registers all the selector and saving rules.
     """
 
+    supports_sync = True
+
     def __init__(
         self,
         rules: List[Rule] = None,
@@ -68,6 +70,7 @@ class ScraperBase(ABC):
         format: str,
         follow_urls: bool = False,
         save_per_page: bool = False,
+        **kwargs: Any,
     ) -> None:
         """
         Abstract method for executing the scraper.
@@ -80,7 +83,38 @@ class ScraperBase(ABC):
         :param follow_urls: Automatically follow URLs.
         :param save_per_page: Flag to save data on every page extraction or not. If not, saves all the data at the end.
         """
-        raise NotImplementedError  # pragma: no cover
+        self.initialize_scraper(urls)
+
+        logger.info("Using %s...", self.__class__.__name__)
+
+        if self.has_async or not self.supports_sync:
+            logger.info("Using async mode...")
+            loop = asyncio.get_event_loop()
+            # FIXME: Tests fail on Python 3.7 when using asyncio.run()
+            loop.run_until_complete(
+                self.run_async(  # type: ignore
+                    pages=pages,
+                    proxy=proxy,
+                    output=output,
+                    format=format,
+                    follow_urls=follow_urls,
+                    save_per_page=save_per_page,
+                    **kwargs,
+                )
+            )
+        else:
+            logger.info("Using sync mode...")
+            self.run_sync(  # type: ignore
+                pages=pages,
+                proxy=proxy,
+                output=output,
+                format=format,
+                follow_urls=follow_urls,
+                save_per_page=save_per_page,
+                **kwargs,
+            )
+
+        self.event_shutdown()
 
     def select(
         self,
@@ -344,6 +378,32 @@ class ScraperAbstract(ScraperBase):
     ) -> None:
         super(ScraperAbstract, self).__init__(rules, groups, save_rules, events, has_async)
         self.collected_data: List[ScrapedData] = []
+
+    @abstractmethod
+    async def run_async(
+        self,
+        pages: int,
+        proxy: Optional[Any],
+        output: Optional[str],
+        format: str,
+        follow_urls: bool,
+        save_per_page: bool,
+        **kwargs: Any,
+    ) -> None:
+        raise NotImplementedError  # pragma: no cover
+
+    @abstractmethod
+    def run_sync(
+        self,
+        pages: int,
+        proxy: Optional[Any],
+        output: Optional[str],
+        format: str,
+        follow_urls: bool,
+        save_per_page: bool,
+        **kwargs: Any,
+    ) -> None:
+        raise NotImplementedError  # pragma: no cover
 
     @abstractmethod
     def setup(self) -> None:

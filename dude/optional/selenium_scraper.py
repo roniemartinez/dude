@@ -57,39 +57,18 @@ class SeleniumScraper(ScraperAbstract):
         :param headless: Enables headless browser. (default=True)
         :param browser_type: Selenium supported browser types ("chromium", "firefox").
         """
-        self.initialize_scraper(urls)
-
-        logger.info("Using Selenium...")
-        if self.has_async:
-            logger.info("Using async mode...")
-            loop = asyncio.get_event_loop()
-            # FIXME: Tests fail on Python 3.7 when using asyncio.run()
-            loop.run_until_complete(
-                self._run_async(
-                    headless=headless,
-                    browser_type=browser_type,
-                    pages=pages,
-                    proxy=proxy,
-                    output=output,
-                    format=format,
-                    follow_urls=follow_urls,
-                    save_per_page=save_per_page,
-                )
-            )
-        else:
-            logger.info("Using sync mode...")
-            self._run_sync(
-                headless=headless,
-                browser_type=browser_type,
-                pages=pages,
-                proxy=proxy,
-                output=output,
-                format=format,
-                follow_urls=follow_urls,
-                save_per_page=save_per_page,
-            )
-
-        self.event_shutdown()
+        super(SeleniumScraper, self).run(
+            urls=urls,
+            pages=pages,
+            proxy=proxy,
+            output=output,
+            format=format,
+            follow_urls=follow_urls,
+            save_per_page=save_per_page,
+            headless=headless,
+            browser_type=browser_type,
+            **kwargs,
+        )
 
     def setup(self, driver: WebDriver = None) -> None:
         """
@@ -157,16 +136,17 @@ class SeleniumScraper(ScraperAbstract):
                 return True
         return False
 
-    def _run_sync(
+    def run_sync(
         self,
-        headless: bool,
-        browser_type: str,
         pages: int,
         proxy: Optional[Any],
         output: Optional[str],
         format: str,
         follow_urls: bool,
         save_per_page: bool,
+        headless: bool = True,
+        browser_type: str = "chromium",
+        **kwargs: Any,
     ) -> None:
         driver = self._get_driver(browser_type, headless)
 
@@ -198,16 +178,17 @@ class SeleniumScraper(ScraperAbstract):
         driver.quit()
         self._save(format, output, save_per_page)
 
-    async def _run_async(
+    async def run_async(
         self,
-        headless: bool,
-        browser_type: str,
         pages: int,
         proxy: Optional[Any],
         output: Optional[str],
         format: str,
         follow_urls: bool,
         save_per_page: bool,
+        headless: bool = True,
+        browser_type: str = "chromium",
+        **kwargs: Any,
     ) -> None:
         driver = self._get_driver(browser_type, headless)
 

@@ -1,4 +1,3 @@
-import asyncio
 import itertools
 import logging
 from typing import Any, AsyncIterable, Callable, Iterable, Optional, Sequence, Tuple
@@ -42,37 +41,18 @@ class LxmlScraper(ScraperAbstract):
         :param follow_urls: Automatically follow URLs.
         :param save_per_page: Flag to save data on every page extraction or not. If not, saves all the data at the end.
         """
-        self.initialize_scraper(urls)
+        super(LxmlScraper, self).run(
+            urls=urls,
+            pages=pages,
+            proxy=proxy,
+            output=output,
+            format=format,
+            follow_urls=follow_urls,
+            save_per_page=save_per_page,
+            **kwargs,
+        )
 
-        logger.info("Using lxml...")
-        if self.has_async:
-            logger.info("Using async mode...")
-            loop = asyncio.get_event_loop()
-            # FIXME: Tests fail on Python 3.7 when using asyncio.run()
-            loop.run_until_complete(
-                self._run_async(
-                    pages=pages,
-                    proxy=proxy,
-                    output=output,
-                    format=format,
-                    follow_urls=follow_urls,
-                    save_per_page=save_per_page,
-                )
-            )
-        else:
-            logger.info("Using sync mode...")
-            self._run_sync(
-                pages=pages,
-                proxy=proxy,
-                output=output,
-                format=format,
-                follow_urls=follow_urls,
-                save_per_page=save_per_page,
-            )
-
-        self.event_shutdown()
-
-    def _run_sync(
+    def run_sync(
         self,
         pages: int,
         proxy: Optional[ProxiesTypes],
@@ -80,6 +60,7 @@ class LxmlScraper(ScraperAbstract):
         format: str,
         follow_urls: bool,
         save_per_page: bool,
+        **kwargs: Any,
     ) -> None:
         with httpx.Client(proxies=proxy) as client:
             for url in self.iter_urls():
@@ -116,7 +97,7 @@ class LxmlScraper(ScraperAbstract):
                         break
         self._save(format, output, save_per_page)
 
-    async def _run_async(
+    async def run_async(
         self,
         pages: int,
         proxy: Optional[ProxiesTypes],
@@ -124,6 +105,7 @@ class LxmlScraper(ScraperAbstract):
         format: str,
         follow_urls: bool,
         save_per_page: bool,
+        **kwargs: Any,
     ) -> None:
         async with httpx.AsyncClient(proxies=proxy) as client:
             for url in self.iter_urls():
