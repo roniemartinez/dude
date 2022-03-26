@@ -123,7 +123,7 @@ class PyppeteerScraper(ScraperAbstract):
         headless: bool = True,
         **kwargs: Any,
     ) -> None:
-        raise NotImplementedError
+        raise NotImplementedError  # pragma: no cover
 
     async def run_async(
         self,
