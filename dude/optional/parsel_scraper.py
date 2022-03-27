@@ -1,4 +1,3 @@
-import asyncio
 import itertools
 import logging
 from typing import Any, AsyncIterable, Callable, Iterable, Optional, Sequence, Tuple
@@ -10,6 +9,7 @@ from parsel import Selector as ParselSelector
 
 from ..base import ScraperAbstract
 from ..rule import Selector, SelectorType, rule_grouper, rule_sorter
+from .utils import async_http_get, http_get
 
 logger = logging.getLogger(__name__)
 
@@ -41,37 +41,18 @@ class ParselScraper(ScraperAbstract):
         :param follow_urls: Automatically follow URLs.
         :param save_per_page: Flag to save data on every page extraction or not. If not, saves all the data at the end.
         """
-        self.initialize_scraper(urls)
+        super(ParselScraper, self).run(
+            urls=urls,
+            pages=pages,
+            proxy=proxy,
+            output=output,
+            format=format,
+            follow_urls=follow_urls,
+            save_per_page=save_per_page,
+            **kwargs,
+        )
 
-        logger.info("Using Parsel...")
-        if self.has_async:
-            logger.info("Using async mode...")
-            loop = asyncio.get_event_loop()
-            # TODO: Tests fail on Python 3.7 when using asyncio.run()
-            loop.run_until_complete(
-                self._run_async(
-                    pages=pages,
-                    proxy=proxy,
-                    output=output,
-                    format=format,
-                    follow_urls=follow_urls,
-                    save_per_page=save_per_page,
-                )
-            )
-        else:
-            logger.info("Using sync mode...")
-            self._run_sync(
-                pages=pages,
-                proxy=proxy,
-                output=output,
-                format=format,
-                follow_urls=follow_urls,
-                save_per_page=save_per_page,
-            )
-
-        self.event_shutdown()
-
-    def _run_sync(
+    def run_sync(
         self,
         pages: int,
         proxy: Optional[ProxiesTypes],
@@ -79,22 +60,13 @@ class ParselScraper(ScraperAbstract):
         format: str,
         follow_urls: bool,
         save_per_page: bool,
+        **kwargs: Any,
     ) -> None:
         with httpx.Client(proxies=proxy) as client:
             for url in self.iter_urls():
                 logger.info("Requesting url %s", url)
                 for i in range(1, pages + 1):
-                    if url.startswith("file://"):
-                        content = self.get_file_content(url)
-                    else:
-                        try:
-                            response = client.get(url)
-                            response.raise_for_status()
-                            content = response.text
-                        except httpx.HTTPStatusError as e:
-                            logger.warning(e)
-                            break
-
+                    content, url = http_get(client, url)
                     if not content:
                         break
 
@@ -102,21 +74,20 @@ class ParselScraper(ScraperAbstract):
                     if follow_urls:
                         for link in selector.root.iterlinks():
                             absolute = urljoin(url, link[2])
-                            if absolute.rstrip("/") == url.rstrip("/"):
-                                continue
-                            self.urls.append(absolute)
+                            if absolute.rstrip("/") != url.rstrip("/"):
+                                self.urls.append(absolute)
 
                     self.setup(selector)
 
                     self.collected_data.extend(self.extract_all(page_number=i, selector=selector, url=url))
-                    self._save(format, output, save_per_page)
+
+                    if save_per_page:
+                        self._save(format, output, save_per_page)
 
                     if i == pages or not self.navigate():
                         break
 
-        self._save(format, output, save_per_page)
-
-    async def _run_async(
+    async def run_async(
         self,
         pages: int,
         proxy: Optional[ProxiesTypes],
@@ -124,22 +95,13 @@ class ParselScraper(ScraperAbstract):
         format: str,
         follow_urls: bool,
         save_per_page: bool,
+        **kwargs: Any,
     ) -> None:
         async with httpx.AsyncClient(proxies=proxy) as client:
             for url in self.iter_urls():
                 logger.info("Requesting url %s", url)
                 for i in range(1, pages + 1):
-                    if url.startswith("file://"):
-                        content = self.get_file_content(url)
-                    else:
-                        try:
-                            response = await client.get(url)
-                            response.raise_for_status()
-                            content = response.text
-                        except httpx.HTTPStatusError as e:
-                            logger.warning(e)
-                            break
-
+                    content, url = await async_http_get(client, url)
                     if not content:
                         break
 
@@ -147,21 +109,20 @@ class ParselScraper(ScraperAbstract):
                     if follow_urls:
                         for link in selector.root.iterlinks():
                             absolute = urljoin(url, link[2])
-                            if absolute.rstrip("/") == url.rstrip("/"):
-                                continue
-                            self.urls.append(absolute)
+                            if absolute.rstrip("/") != url.rstrip("/"):
+                                self.urls.append(absolute)
 
                     await self.setup_async(selector)
 
                     self.collected_data.extend(
                         [data async for data in self.extract_all_async(page_number=i, selector=selector, url=url)]
                     )
-                    await self._save_async(format, output, save_per_page)
+
+                    if save_per_page:
+                        await self._save_async(format, output, save_per_page)
 
                     if i == pages or not await self.navigate_async():
                         break
-
-        await self._save_async(format, output, save_per_page)
 
     def setup(self, selector: ParselSelector = None) -> None:
         """

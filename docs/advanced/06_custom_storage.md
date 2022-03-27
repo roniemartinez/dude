@@ -1,6 +1,6 @@
 # Custom Storage
 
-Dude currently support `json`, `yaml/yml` and `csv` formats only (the [`Scraper`](07_the_scraper_application_class.html) class only support `json`). 
+Dude currently support `json`, `yaml/yml` and `csv` formats only. 
 However, this can be extended to support a custom storage or override the existing formats using the `@save()` decorator.
 The save function should accept 2 parameters, `data` (list of dictionary of scraped data) and optional `output` (can be filename or `None`).
 Take note that the save function must return a boolean for success.

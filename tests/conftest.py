@@ -42,6 +42,7 @@ def test_html_path() -> str:
 def side_effect_func(test_html_path: str) -> Callable:
     def side_effect(url: str) -> mock.MagicMock:
         mock_response = mock.MagicMock()
+        mock_response.url = url
         if url == "https://dude.ron.sh":
             with open(test_html_path) as f:
                 mock_response.text = f.read()

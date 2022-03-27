@@ -1,5 +1,5 @@
 import logging
-from typing import Any, Optional, Sequence
+from typing import Any, Optional, Sequence, Type
 
 from .base import ScraperBase
 from .playwright_scraper import PlaywrightScraper
@@ -25,6 +25,7 @@ class Scraper(ScraperBase):
         parser: str = "playwright",
         headless: bool = True,
         browser_type: str = "chromium",
+        **kwargs: Any,
     ) -> None:
         """
         Convenience method to handle switching between different types of parser backends.
@@ -45,64 +46,37 @@ class Scraper(ScraperBase):
         logger.info("Scraper started...")
 
         if not self.scraper:
+            scraper_class: Type[ScraperBase]
             if parser == "bs4":
                 from .optional.beautifulsoup_scraper import BeautifulSoupScraper
 
-                self.scraper = BeautifulSoupScraper(
-                    rules=self.rules,
-                    groups=self.groups,
-                    save_rules=self.save_rules,
-                    events=self.events,
-                    has_async=self.has_async,
-                )
+                scraper_class = BeautifulSoupScraper
             elif parser == "parsel":
                 from .optional.parsel_scraper import ParselScraper
 
-                self.scraper = ParselScraper(
-                    rules=self.rules,
-                    groups=self.groups,
-                    save_rules=self.save_rules,
-                    events=self.events,
-                    has_async=self.has_async,
-                )
+                scraper_class = ParselScraper
             elif parser == "lxml":
                 from .optional.lxml_scraper import LxmlScraper
 
-                self.scraper = LxmlScraper(
-                    rules=self.rules,
-                    groups=self.groups,
-                    save_rules=self.save_rules,
-                    events=self.events,
-                    has_async=self.has_async,
-                )
+                scraper_class = LxmlScraper
             elif parser == "pyppeteer":
                 from .optional.pyppeteer_scraper import PyppeteerScraper
 
-                self.scraper = PyppeteerScraper(
-                    rules=self.rules,
-                    groups=self.groups,
-                    save_rules=self.save_rules,
-                    events=self.events,
-                    has_async=self.has_async,
-                )
+                scraper_class = PyppeteerScraper
             elif parser == "selenium":
                 from .optional.selenium_scraper import SeleniumScraper
 
-                self.scraper = SeleniumScraper(
-                    rules=self.rules,
-                    groups=self.groups,
-                    save_rules=self.save_rules,
-                    events=self.events,
-                    has_async=self.has_async,
-                )
+                scraper_class = SeleniumScraper
             else:
-                self.scraper = PlaywrightScraper(
-                    rules=self.rules,
-                    groups=self.groups,
-                    save_rules=self.save_rules,
-                    events=self.events,
-                    has_async=self.has_async,
-                )
+                scraper_class = PlaywrightScraper
+
+            self.scraper = scraper_class(
+                rules=self.rules,
+                groups=self.groups,
+                save_rules=self.save_rules,
+                events=self.events,
+                has_async=self.has_async,
+            )
 
         self.scraper.run(
             urls=urls,

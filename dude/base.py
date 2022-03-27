@@ -2,7 +2,6 @@ import asyncio
 import collections
 import itertools
 import logging
-import platform
 from abc import ABC, abstractmethod
 from pathlib import Path
 from typing import (
@@ -27,7 +26,7 @@ from braveblock import Adblocker
 
 from .rule import Rule, Selector, rule_filter
 from .scraped_data import ScrapedData, scraped_data_grouper, scraped_data_sorter
-from .storage import save_json
+from .storage import save_csv, save_json, save_yaml
 
 logger = logging.getLogger(__name__)
 
@@ -38,6 +37,8 @@ class ScraperBase(ABC):
 
     This registers all the selector and saving rules.
     """
+
+    supports_sync = True
 
     def __init__(
         self,
@@ -50,7 +51,15 @@ class ScraperBase(ABC):
     ) -> None:
         self.rules: List[Rule] = rules or []
         self.groups: Dict[Callable, Selector] = groups or {}
-        self.save_rules: Dict[Tuple[str, bool], Any] = save_rules or {("json", False): save_json}
+        if save_rules is None:
+            save_rules = {}
+        self.save_rules: Dict[Tuple[str, bool], Any] = {
+            ("json", False): save_json,
+            ("csv", False): save_csv,
+            ("yml", False): save_yaml,
+            ("yaml", False): save_yaml,
+            **save_rules,
+        }
         self.events: DefaultDict = events or collections.defaultdict(list)
         self.has_async = has_async
         self.scraper = scraper
@@ -68,6 +77,7 @@ class ScraperBase(ABC):
         format: str,
         follow_urls: bool = False,
         save_per_page: bool = False,
+        **kwargs: Any,
     ) -> None:
         """
         Abstract method for executing the scraper.
@@ -80,7 +90,42 @@ class ScraperBase(ABC):
         :param follow_urls: Automatically follow URLs.
         :param save_per_page: Flag to save data on every page extraction or not. If not, saves all the data at the end.
         """
-        raise NotImplementedError  # pragma: no cover
+        self.initialize_scraper(urls)
+
+        logger.info("Using %s...", self.__class__.__name__)
+
+        if self.has_async or not self.supports_sync:
+            logger.info("Using async mode...")
+            loop = asyncio.get_event_loop()
+            # FIXME: Tests fail on Python 3.7 when using asyncio.run()
+            loop.run_until_complete(
+                self.run_async(  # type: ignore
+                    pages=pages,
+                    proxy=proxy,
+                    output=output,
+                    format=format,
+                    follow_urls=follow_urls,
+                    save_per_page=save_per_page,
+                    **kwargs,
+                )
+            )
+            if not save_per_page:
+                loop.run_until_complete(self._save_async(format, output, save_per_page))  # type: ignore
+        else:
+            logger.info("Using sync mode...")
+            self.run_sync(  # type: ignore
+                pages=pages,
+                proxy=proxy,
+                output=output,
+                format=format,
+                follow_urls=follow_urls,
+                save_per_page=save_per_page,
+                **kwargs,
+            )
+            if not save_per_page:
+                self._save(format, output, save_per_page)  # type: ignore
+
+        self.event_shutdown()
 
     def select(
         self,
@@ -346,6 +391,32 @@ class ScraperAbstract(ScraperBase):
         self.collected_data: List[ScrapedData] = []
 
     @abstractmethod
+    async def run_async(
+        self,
+        pages: int,
+        proxy: Optional[Any],
+        output: Optional[str],
+        format: str,
+        follow_urls: bool,
+        save_per_page: bool,
+        **kwargs: Any,
+    ) -> None:
+        raise NotImplementedError  # pragma: no cover
+
+    @abstractmethod
+    def run_sync(
+        self,
+        pages: int,
+        proxy: Optional[Any],
+        output: Optional[str],
+        format: str,
+        follow_urls: bool,
+        save_per_page: bool,
+        **kwargs: Any,
+    ) -> None:
+        raise NotImplementedError  # pragma: no cover
+
+    @abstractmethod
     def setup(self) -> None:
         raise NotImplementedError  # pragma: no cover
 
@@ -514,21 +585,3 @@ class ScraperAbstract(ScraperBase):
                 raise Exception("Failed to save output %s.", {"output": output, "format": format})
         except KeyError:
             raise
-
-    @staticmethod
-    def file_url_to_path(url: str) -> str:
-        if platform.system() == "Windows":
-            path = url[8:].replace("/", "\\")
-        else:
-            path = url[7:]
-        return path
-
-    def get_file_content(self, url: str) -> Optional[str]:
-        path = self.file_url_to_path(url)
-        try:
-            with open(path) as f:
-                content = f.read()
-            return content
-        except FileNotFoundError as e:
-            logger.warning(e)
-            return None

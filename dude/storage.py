@@ -76,7 +76,7 @@ def _save_csv(data: List[Dict], output: str) -> None:  # pragma: no cover
         headers.update(item.keys())
         rows.append(item)
     with open(output, "w") as f:
-        writer = csv.DictWriter(f, fieldnames=headers)
+        writer = csv.DictWriter(f, fieldnames=sorted(headers))
         writer.writeheader()
         writer.writerows(rows)
     logger.info("%d items saved to %s.", len(data), output)
