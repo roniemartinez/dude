@@ -484,8 +484,10 @@ class ScraperAbstract(ScraperBase):
 
         for page_url, group_index, group_id, element_index, element, handler in collected_elements:
             data = handler(element)
-            if not len(data):
+
+            if not data:
                 continue
+
             scraped_data = ScrapedData(
                 page_number=page_number,
                 page_url=page_url,
@@ -506,7 +508,7 @@ class ScraperAbstract(ScraperBase):
         for page_url, group_index, group_id, element_index, element, handler in collected_elements:
             data = await handler(element)
 
-            if not len(data):
+            if not data:
                 continue
 
             scraped_data = ScrapedData(
