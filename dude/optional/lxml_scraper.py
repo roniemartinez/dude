@@ -10,6 +10,7 @@ from lxml.etree import _Element, _ElementTree
 
 from ..base import ScraperAbstract
 from ..rule import Selector, SelectorType, rule_grouper, rule_sorter
+from .utils import async_http_get, http_get
 
 logger = logging.getLogger(__name__)
 
@@ -66,16 +67,7 @@ class LxmlScraper(ScraperAbstract):
             for url in self.iter_urls():
                 logger.info("Requesting url %s", url)
                 for i in range(1, pages + 1):
-                    if url.startswith("file://"):
-                        content = self.get_file_content(url)
-                    else:
-                        try:
-                            response = client.get(url)
-                            response.raise_for_status()
-                            content = response.text
-                        except httpx.HTTPStatusError as e:
-                            logger.warning(e)
-                            break
+                    content, url = http_get(client, url)
 
                     if not content:
                         break
@@ -84,18 +76,18 @@ class LxmlScraper(ScraperAbstract):
                     if follow_urls:
                         for link in tree.iterlinks():
                             absolute = urljoin(url, link[2])
-                            if absolute.rstrip("/") == url.rstrip("/"):
-                                continue
-                            self.urls.append(absolute)
+                            if absolute.rstrip("/") != url.rstrip("/"):
+                                self.urls.append(absolute)
 
                     self.setup(tree)
 
                     self.collected_data.extend(self.extract_all(page_number=i, tree=tree, url=url))
-                    self._save(format, output, save_per_page)
+
+                    if save_per_page:
+                        self._save(format, output, save_per_page)
 
                     if i == pages or not self.navigate():
                         break
-        self._save(format, output, save_per_page)
 
     async def run_async(
         self,
@@ -111,17 +103,7 @@ class LxmlScraper(ScraperAbstract):
             for url in self.iter_urls():
                 logger.info("Requesting url %s", url)
                 for i in range(1, pages + 1):
-                    if url.startswith("file://"):
-                        content = self.get_file_content(url)
-                    else:
-                        try:
-                            response = await client.get(url)
-                            response.raise_for_status()
-                            content = response.text
-                        except httpx.HTTPStatusError as e:
-                            logger.warning(e)
-                            break
-
+                    content, url = await async_http_get(client, url)
                     if not content:
                         break
 
@@ -129,21 +111,20 @@ class LxmlScraper(ScraperAbstract):
                     if follow_urls:
                         for link in tree.iterlinks():
                             absolute = urljoin(url, link[2])
-                            if absolute.rstrip("/") == url.rstrip("/"):
-                                continue
-                            self.urls.append(absolute)
+                            if absolute.rstrip("/") != url.rstrip("/"):
+                                self.urls.append(absolute)
 
                     await self.setup_async(tree)
 
                     self.collected_data.extend(
                         [data async for data in self.extract_all_async(page_number=i, tree=tree, url=url)]
                     )
-                    await self._save_async(format, output, save_per_page)
+
+                    if save_per_page:
+                        await self._save_async(format, output, save_per_page)
 
                     if i == pages or not await self.navigate_async():
                         break
-
-        await self._save_async(format, output, save_per_page)
 
     def setup(self, tree: _ElementTree = None) -> None:
         """

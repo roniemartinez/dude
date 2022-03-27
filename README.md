@@ -96,6 +96,10 @@ The output in `data.json` should contain the actual URL and the metadata prepend
 ]
 ```
 
+Changing the output to `--output data.csv` should result in the following CSV content.
+
+![data.csv](docs/csv.png)
+
 ## Features
 
 - Simple [Flask](https://github.com/pallets/flask)-inspired design - build a scraper with decorators.

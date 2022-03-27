@@ -161,22 +161,22 @@ class SeleniumScraper(ScraperAbstract):
             if follow_urls:
                 for link in driver.find_elements(by=By.CSS_SELECTOR, value="a"):
                     absolute = urljoin(driver.current_url, link.get_attribute("href"))
-                    if absolute.rstrip("/") == driver.current_url.rstrip("/"):
-                        continue
-                    self.urls.append(absolute)
+                    if absolute.rstrip("/") != driver.current_url.rstrip("/"):
+                        self.urls.append(absolute)
 
             self.setup(driver=driver)
 
             for i in range(1, pages + 1):
                 current_page = driver.current_url
                 self.collected_data.extend(self.extract_all(page_number=i, driver=driver))
-                self._save(format, output, save_per_page)
+
+                if save_per_page:
+                    self._save(format, output, save_per_page)
 
                 if i == pages or not self.navigate(driver=driver) or current_page == driver.current_url:
                     break
 
         driver.quit()
-        self._save(format, output, save_per_page)
 
     async def run_async(
         self,
@@ -203,9 +203,8 @@ class SeleniumScraper(ScraperAbstract):
             if follow_urls:
                 for link in driver.find_elements(by=By.CSS_SELECTOR, value="a"):
                     absolute = urljoin(driver.current_url, link.get_attribute("href"))
-                    if absolute.rstrip("/") == driver.current_url.rstrip("/"):
-                        continue
-                    self.urls.append(absolute)
+                    if absolute.rstrip("/") != driver.current_url.rstrip("/"):
+                        self.urls.append(absolute)
 
             await self.setup_async(driver=driver)
 
@@ -214,7 +213,9 @@ class SeleniumScraper(ScraperAbstract):
                 self.collected_data.extend(
                     [data async for data in self.extract_all_async(page_number=i, driver=driver)]
                 )
-                await self._save_async(format, output, save_per_page)
+
+                if save_per_page:
+                    await self._save_async(format, output, save_per_page)
 
                 if i == pages or not await self.navigate_async(driver=driver) or current_page == driver.current_url:
                     break

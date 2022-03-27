@@ -163,22 +163,22 @@ class PyppeteerScraper(ScraperAbstract):
                     href = await handle.jsonValue()
                     if isinstance(href, str):
                         absolute = urljoin(page.url, href)
-                        if absolute.rstrip("/") == page.url.rstrip("/"):
-                            continue
-                        self.urls.append(absolute)
+                        if absolute.rstrip("/") != page.url.rstrip("/"):
+                            self.urls.append(absolute)
 
             await self.setup_async(page=page)
 
             for i in range(1, pages + 1):
                 current_page = page.url
                 self.collected_data.extend([data async for data in self.extract_all_async(page_number=i, page=page)])
-                await self._save_async(format, output, save_per_page)
+
+                if save_per_page:
+                    await self._save_async(format, output, save_per_page)
 
                 if i == pages or not await self.navigate_async(page=page) or current_page == page.url:
                     break
 
         await browser.close()
-        await self._save_async(format, output, save_per_page)
 
     def collect_elements(self, page: Page = None) -> Iterable[Tuple[str, int, int, int, Any, Callable]]:
         raise Exception("Sync is not supported.")  # pragma: no cover

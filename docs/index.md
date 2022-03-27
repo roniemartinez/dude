@@ -96,6 +96,10 @@ The output in `data.json` should contain the actual URL and the metadata prepend
 ]
 ```
 
+Changing the output to `--output data.csv` should result in the following CSV content.
+
+![data.csv](csv.png)
+
 ## License
 
 This project is licensed under the terms of the GNU AGPLv3+ license.

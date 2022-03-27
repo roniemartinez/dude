@@ -178,9 +178,8 @@ class PlaywrightScraper(ScraperAbstract):
                 if follow_urls:
                     for link in page.query_selector_all("a"):
                         absolute = urljoin(page.url, link.get_attribute("href"))
-                        if absolute.rstrip("/") == page.url.rstrip("/"):
-                            continue
-                        self.urls.append(absolute)
+                        if absolute.rstrip("/") != page.url.rstrip("/"):
+                            self.urls.append(absolute)
 
                 self.setup(page=page)
 
@@ -193,7 +192,6 @@ class PlaywrightScraper(ScraperAbstract):
                         break
 
             browser.close()
-        self._save(format, output, save_per_page)
 
     async def run_async(
         self,
@@ -223,9 +221,8 @@ class PlaywrightScraper(ScraperAbstract):
                 if follow_urls:
                     for link in await page.query_selector_all("a"):
                         absolute = urljoin(page.url, await link.get_attribute("href"))
-                        if absolute.rstrip("/") == page.url.rstrip("/"):
-                            continue
-                        self.urls.append(absolute)
+                        if absolute.rstrip("/") != page.url.rstrip("/"):
+                            self.urls.append(absolute)
 
                 await self.setup_async(page=page)
 
@@ -239,7 +236,6 @@ class PlaywrightScraper(ScraperAbstract):
                     if i == pages or not await self.navigate_async(page=page) or current_page == page.url:
                         break
             await browser.close()
-        await self._save_async(format, output, save_per_page)
 
     def collect_elements(self, page: sync_api.Page = None) -> Iterable[Tuple[str, int, int, int, Any, Callable]]:
         """
