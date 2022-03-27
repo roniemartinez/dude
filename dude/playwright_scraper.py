@@ -186,7 +186,9 @@ class PlaywrightScraper(ScraperAbstract):
                 for i in range(1, pages + 1):
                     current_page = page.url
                     self.collected_data.extend(self.extract_all(page_number=i, page=page))
-                    self._save(format, output, save_per_page)
+
+                    if save_per_page:
+                        self._save(format, output, save_per_page)
 
                     if i == pages or not self.navigate(page=page) or current_page == page.url:
                         break
@@ -231,7 +233,9 @@ class PlaywrightScraper(ScraperAbstract):
                     self.collected_data.extend(
                         [data async for data in self.extract_all_async(page_number=i, page=page)]
                     )
-                    await self._save_async(format, output, save_per_page)
+
+                    if save_per_page:
+                        await self._save_async(format, output, save_per_page)
 
                     if i == pages or not await self.navigate_async(page=page) or current_page == page.url:
                         break
