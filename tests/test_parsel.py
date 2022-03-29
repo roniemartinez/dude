@@ -21,7 +21,7 @@ def parsel_css(scraper_application: Scraper) -> None:
         return {}
 
     @scraper_application.group(css=".custom-group")
-    @scraper_application.select(css=".title::text", url=r"example\.com")
+    @scraper_application.select(css=".title::text", url="example.com")
     def url_dont_match(selector: parsel.Selector) -> Dict:
         return {"title": selector.get()}
 
@@ -42,7 +42,7 @@ def async_parsel_css(scraper_application: Scraper) -> None:
         return {}
 
     @scraper_application.group(css=".custom-group")
-    @scraper_application.select(css=".title::text", url=r"example\.com")
+    @scraper_application.select(css=".title::text", url="example.com")
     async def url_dont_match(selector: parsel.Selector) -> Dict:
         return {"title": selector.get()}
 

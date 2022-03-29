@@ -21,7 +21,7 @@ def async_playwright_select(scraper_application: Scraper) -> None:
         return {}
 
     @scraper_application.group(css=".custom-group")
-    @scraper_application.select(css=".title", url=r"example\.com")
+    @scraper_application.select(css=".title", url="example.com")
     async def url_dont_match(element: async_api.ElementHandle) -> Dict:
         return {"title": await element.text_content()}
 
