@@ -29,7 +29,7 @@ def async_pyppeteer_select(scraper_application: Scraper) -> None:
         return {}
 
     @scraper_application.group(css=".custom-group")
-    @scraper_application.select(css=".title", url=r"example\.com")
+    @scraper_application.select(css=".title", url="example.com")
     async def url_dont_match(element: ElementHandle, page: Page) -> Dict:
         return {"title": await page.evaluate("(element) => element.textContent", element)}
 
@@ -51,7 +51,7 @@ def async_pyppeteer_select_with_parser(scraper_application_with_pyppeteer_parser
         return {}
 
     @scraper_application_with_pyppeteer_parser.group(css=".custom-group")
-    @scraper_application_with_pyppeteer_parser.select(css=".title", url=r"example\.com")
+    @scraper_application_with_pyppeteer_parser.select(css=".title", url="example.com")
     async def url_dont_match(element: ElementHandle, page: Page) -> Dict:
         return {"title": await page.evaluate("(element) => element.textContent", element)}
 

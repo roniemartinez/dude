@@ -29,7 +29,7 @@ def selenium_select(scraper_application: Scraper) -> None:
         return {}
 
     @scraper_application.group(css=".custom-group")
-    @scraper_application.select(css=".title", url=r"example\.com")
+    @scraper_application.select(css=".title", url="example.com")
     def url_dont_match(element: WebElement) -> Dict:
         return {"title": element.text}
 
@@ -50,7 +50,7 @@ def selenium_select_with_parser(scraper_application_with_selenium_parser: Scrape
         return {}
 
     @scraper_application_with_selenium_parser.group(css=".custom-group")
-    @scraper_application_with_selenium_parser.select(css=".title", url=r"example\.com")
+    @scraper_application_with_selenium_parser.select(css=".title", url="example.com")
     def url_dont_match(element: WebElement) -> Dict:
         return {"title": element.text}
 
@@ -119,7 +119,7 @@ def async_selenium_select(scraper_application: Scraper) -> None:
         return {}
 
     @scraper_application.group(css=".custom-group")
-    @scraper_application.select(css=".title", url=r"example\.com")
+    @scraper_application.select(css=".title", url="example.com")
     async def url_dont_match(element: WebElement) -> Dict:
         return {"title": element.text}
 
