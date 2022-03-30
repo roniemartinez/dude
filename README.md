@@ -1,7 +1,4 @@
 <table>
-<!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
-[![All Contributors](https://img.shields.io/badge/all_contributors-1-orange.svg?style=flat-square)](#contributors-)
-<!-- ALL-CONTRIBUTORS-BADGE:END -->
     <tr>
         <td>License</td>
         <td><img src='https://img.shields.io/pypi/l/pydude.svg?style=for-the-badge' alt="License"></td>
@@ -25,6 +22,10 @@
         <td><img src='https://img.shields.io/pypi/status/pydude.svg?style=for-the-badge' alt="Status"></td>
         <td>Downloads</td>
         <td><img src='https://img.shields.io/pypi/dm/pydude.svg?style=for-the-badge' alt="Downloads"></td>
+    </tr>
+    <tr>
+        <td>All Contributors</td>
+        <td><a href="#contributors-"><img src='https://img.shields.io/github/all-contributors/roniemartinez/dude?style=for-the-badge' alt="All Contributors"></a></td>
     </tr>
 </table>
 
