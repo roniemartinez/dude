@@ -10,12 +10,12 @@ from lxml.etree import _Element, _ElementTree
 
 from ..base import ScraperAbstract
 from ..rule import Selector, SelectorType, rule_grouper, rule_sorter
-from .utils import async_http_get, http_get
+from .utils import HTTPXMixin, async_http_get, http_get
 
 logger = logging.getLogger(__name__)
 
 
-class LxmlScraper(ScraperAbstract):
+class LxmlScraper(ScraperAbstract, HTTPXMixin):
     """
     Scraper using lxml parser backend and HTTPX for requests
     """
@@ -63,7 +63,7 @@ class LxmlScraper(ScraperAbstract):
         save_per_page: bool,
         **kwargs: Any,
     ) -> None:
-        with httpx.Client(proxies=proxy) as client:
+        with httpx.Client(proxies=proxy, event_hooks={"request": [self._block_httpx_request_if_needed]}) as client:
             for url in self.iter_urls():
                 logger.info("Requesting url %s", url)
                 for i in range(1, pages + 1):
@@ -99,7 +99,9 @@ class LxmlScraper(ScraperAbstract):
         save_per_page: bool,
         **kwargs: Any,
     ) -> None:
-        async with httpx.AsyncClient(proxies=proxy) as client:
+        async with httpx.AsyncClient(
+            proxies=proxy, event_hooks={"request": [self._block_httpx_request_if_needed]}
+        ) as client:
             for url in self.iter_urls():
                 logger.info("Requesting url %s", url)
                 for i in range(1, pages + 1):

@@ -9,12 +9,12 @@ from httpx._types import ProxiesTypes
 
 from ..base import ScraperAbstract
 from ..rule import Selector, SelectorType, rule_grouper, rule_sorter
-from .utils import async_http_get, http_get
+from .utils import HTTPXMixin, async_http_get, http_get
 
 logger = logging.getLogger(__name__)
 
 
-class BeautifulSoupScraper(ScraperAbstract):
+class BeautifulSoupScraper(ScraperAbstract, HTTPXMixin):
     """
     Scraper using BeautifulSoup4 parser and HTTPX for requests
     """
@@ -62,7 +62,7 @@ class BeautifulSoupScraper(ScraperAbstract):
         save_per_page: bool,
         **kwargs: Any,
     ) -> None:
-        with httpx.Client(proxies=proxy) as client:
+        with httpx.Client(proxies=proxy, event_hooks={"request": [self._block_httpx_request_if_needed]}) as client:
             for url in self.iter_urls():
                 logger.info("Requesting url %s", url)
                 for i in range(1, pages + 1):
@@ -96,7 +96,9 @@ class BeautifulSoupScraper(ScraperAbstract):
         save_per_page: bool,
         **kwargs: Any,
     ) -> None:
-        async with httpx.AsyncClient(proxies=proxy) as client:
+        async with httpx.AsyncClient(
+            proxies=proxy, event_hooks={"request": [self._block_httpx_request_if_needed]}
+        ) as client:
             for url in self.iter_urls():
                 logger.info("Requesting url %s", url)
                 for i in range(1, pages + 1):
