@@ -331,9 +331,6 @@ class ScraperBase(ABC):
                 if urlparse(url).netloc not in self.allowed_domains:
                     logger.info("URL %s is not in allowed domains.", url)
                     continue
-                if self.adblock.check_network_urls(url=url, source_url=url, request_type="document"):
-                    logger.info("URL %s has been blocked.", url)
-                    continue
                 yield url
         except IndexError:
             pass
