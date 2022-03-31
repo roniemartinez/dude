@@ -109,4 +109,4 @@ To start scraping, use any of the following options. Click on the annotations (+
 
 ## Examples
 
-Check out the example in [examples/flat.py](examples/flat.py) and run it on your terminal using the command `python examples/flat.py`.
+Check out the example in [examples/flat.py](https://github.com/roniemartinez/dude/blob/master/examples/flat.py) and run it on your terminal using the command `python examples/flat.py`.
