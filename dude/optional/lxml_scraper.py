@@ -100,7 +100,7 @@ class LxmlScraper(ScraperAbstract, HTTPXMixin):
         **kwargs: Any,
     ) -> None:
         async with httpx.AsyncClient(
-            proxies=proxy, event_hooks={"request": [self._block_httpx_request_if_needed]}
+            proxies=proxy, event_hooks={"request": [self._async_block_httpx_request_if_needed]}
         ) as client:
             for url in self.iter_urls():
                 logger.info("Requesting url %s", url)
