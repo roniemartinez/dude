@@ -68,3 +68,6 @@ class HTTPXMixin:
         ):
             logger.info("URL %s has been blocked.", url)
             raise httpx.RequestError(message=f"URL {url} has been blocked.", request=request)
+
+    async def _async_block_httpx_request_if_needed(self, request: Request) -> None:
+        self._block_httpx_request_if_needed(request)
