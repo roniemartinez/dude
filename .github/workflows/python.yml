@@ -75,7 +75,7 @@ jobs:
           make lint
       - name: Test
         env:
-          CHROMEDRIVER_VERSION: 98.0.4758.102
+          CHROMEDRIVER_VERSION: 100.0.4896.60
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           make test
