@@ -3,8 +3,8 @@
 === "CLI"
 
     ```commandline
-    usage: dude scrape [-h] [--url URL] [--playwright | --bs4 | --parsel | --lxml | --pyppeteer | --selenium] [--headed] [--browser {chromium,firefox,webkit}] [--pages PAGES] [--output OUTPUT]
-                       [--format FORMAT] [--proxy-server PROXY_SERVER] [--proxy-user PROXY_USER] [--proxy-pass PROXY_PASS] [--follow-urls] [--save-per-page]
+    usage: dude scrape [-h] [--url URL] [--playwright | --bs4 | --parsel | --lxml | --pyppeteer | --selenium] [--headed] [--browser {chromium,firefox,webkit}] [--pages PAGES] [--output OUTPUT] [--format FORMAT] [--proxy-server PROXY_SERVER] [--proxy-user PROXY_USER]
+                       [--proxy-pass PROXY_PASS] [--follow-urls] [--save-per-page]
                        PATH [PATH ...]
     
     Run the dude scraper.
@@ -28,8 +28,7 @@
                             Browser type to use.
       --pages PAGES         Maximum number of pages to crawl before exiting (default=1). This is only valid when a navigate handler is defined.
       --output OUTPUT       Output file. If not provided, prints into the terminal.
-      --format FORMAT       Output file format. If not provided, uses the extension of the output file or defaults to "json". Supports "json", "yaml/yml", and "csv" but can be extended using the @save()
-                            decorator.
+      --format FORMAT       Output file format. If not provided, uses the extension of the output file or defaults to "json". Supports "json", "yaml/yml", and "csv" but can be extended using the @save() decorator.
       --proxy-server PROXY_SERVER
                             Proxy server.
       --proxy-user PROXY_USER
