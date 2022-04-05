@@ -1,5 +1,5 @@
 import logging
-from typing import Optional, Tuple
+from typing import Iterable, Optional, Tuple
 
 import httpx
 from httpx import Request
@@ -43,3 +43,16 @@ class HTTPXMixin:
 
     async def _async_block_httpx_request_if_needed(self, request: Request) -> None:
         self._block_httpx_request_if_needed(request)
+
+    def iter_requests(self) -> Iterable[Request]:
+        try:
+            while True:
+                try:
+                    url = next(self.iter_urls())  # type: ignore
+                    yield Request(method="GET", url=url)
+                    continue
+                except StopIteration:
+                    pass
+                yield self.requests.popleft()  # type: ignore
+        except IndexError:
+            pass

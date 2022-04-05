@@ -5,7 +5,6 @@ import logging
 from abc import ABC, abstractmethod
 from pathlib import Path
 from typing import (
-    TYPE_CHECKING,
     Any,
     AsyncIterable,
     Callable,
@@ -29,9 +28,6 @@ from braveblock import Adblocker
 from .rule import Rule, Selector, rule_filter
 from .scraped_data import ScrapedData, scraped_data_grouper, scraped_data_sorter
 from .storage import save_csv, save_json, save_yaml
-
-if TYPE_CHECKING:
-    from httpx import Request
 
 logger = logging.getLogger(__name__)
 
@@ -354,21 +350,6 @@ class ScraperBase(ABC):
                     logger.info("URL %s is not in allowed domains.", url)
                     continue
                 yield url
-        except IndexError:
-            pass
-
-    def iter_requests(self) -> Iterable["Request"]:
-        from httpx import Request
-
-        try:
-            while True:
-                try:
-                    url = next(self.iter_urls())
-                    yield Request(method="GET", url=url)
-                    continue
-                except StopIteration:
-                    pass
-                yield self.requests.popleft()
         except IndexError:
             pass
 
