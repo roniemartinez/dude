@@ -5,6 +5,7 @@ import logging
 from abc import ABC, abstractmethod
 from pathlib import Path
 from typing import (
+    TYPE_CHECKING,
     Any,
     AsyncIterable,
     Callable,
@@ -24,11 +25,13 @@ from typing import (
 from urllib.parse import urlparse
 
 from braveblock import Adblocker
-from httpx import Request
 
 from .rule import Rule, Selector, rule_filter
 from .scraped_data import ScrapedData, scraped_data_grouper, scraped_data_sorter
 from .storage import save_csv, save_json, save_yaml
+
+if TYPE_CHECKING:
+    from httpx import Request
 
 logger = logging.getLogger(__name__)
 
@@ -332,6 +335,7 @@ class ScraperBase(ABC):
         """
         Decorator to register custom Request objects.
         """
+        from httpx import Request
 
         def wrapper(func: Callable) -> Callable:
             requests = self.scraper.requests if self.scraper else self.requests
@@ -353,7 +357,9 @@ class ScraperBase(ABC):
         except IndexError:
             pass
 
-    def iter_requests(self) -> Iterable[Request]:
+    def iter_requests(self) -> Iterable["Request"]:
+        from httpx import Request
+
         try:
             while True:
                 try:
