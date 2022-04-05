@@ -126,8 +126,8 @@ def test_full_flow(
     async_pyppeteer_select: None,
     async_pyppeteer_setup: None,
     async_pyppeteer_navigate: None,
-    expected_data: List[Dict],
-    test_url: str,
+    expected_browser_data: List[Dict],
+    file_url: str,
     scraper_save: None,
     mock_database: mock.MagicMock,
     mock_database_per_page: mock.MagicMock,
@@ -135,26 +135,26 @@ def test_full_flow(
     assert scraper_application.has_async is True
     assert len(scraper_application.rules) == 6
 
-    scraper_application.run(urls=[test_url], pages=2, format="custom", parser="pyppeteer", follow_urls=True)
+    scraper_application.run(urls=[file_url], pages=2, format="custom", parser="pyppeteer", follow_urls=True)
 
-    mock_database_per_page.save.assert_called_with(expected_data)
+    mock_database_per_page.save.assert_called_with(expected_browser_data)
     mock_database.save.assert_not_called()
 
 
 def test_full_flow_async_without_setup_and_navigate(
     scraper_application: Scraper,
     async_pyppeteer_select: None,
-    expected_data: List[Dict],
-    test_url: str,
+    expected_browser_data: List[Dict],
+    file_url: str,
     scraper_save: None,
     mock_database: mock.MagicMock,
 ) -> None:
     assert scraper_application.has_async is True
     assert len(scraper_application.rules) == 4
 
-    scraper_application.run(urls=[test_url], pages=2, format="custom", parser="pyppeteer")
+    scraper_application.run(urls=[file_url], pages=2, format="custom", parser="pyppeteer")
 
-    mock_database.save.assert_called_with(expected_data)
+    mock_database.save.assert_called_with(expected_browser_data)
 
 
 def test_full_flow_xpath(
@@ -162,17 +162,17 @@ def test_full_flow_xpath(
     async_pyppeteer_xpath: None,
     async_pyppeteer_setup: None,
     async_pyppeteer_navigate: None,
-    expected_data: List[Dict],
-    test_url: str,
+    expected_browser_data: List[Dict],
+    file_url: str,
     scraper_save: None,
     mock_database: mock.MagicMock,
 ) -> None:
     assert scraper_application.has_async is True
     assert len(scraper_application.rules) == 4
 
-    scraper_application.run(urls=[test_url], pages=2, format="custom", parser="pyppeteer")
+    scraper_application.run(urls=[file_url], pages=2, format="custom", parser="pyppeteer")
 
-    mock_database.save.assert_called_with(expected_data)
+    mock_database.save.assert_called_with(expected_browser_data)
 
 
 def test_full_flow_text(
@@ -180,37 +180,37 @@ def test_full_flow_text(
     async_pyppeteer_text: None,
     async_pyppeteer_setup: None,
     async_pyppeteer_navigate: None,
-    expected_data: List[Dict],
-    test_url: str,
+    expected_browser_data: List[Dict],
+    file_url: str,
     scraper_save: None,
     mock_database: mock.MagicMock,
 ) -> None:
     assert scraper_application.has_async is True
     assert len(scraper_application.rules) == 4
 
-    scraper_application.run(urls=[test_url], pages=2, format="custom", parser="pyppeteer")
+    scraper_application.run(urls=[file_url], pages=2, format="custom", parser="pyppeteer")
 
-    mock_database.save.assert_called_with(expected_data)
+    mock_database.save.assert_called_with(expected_browser_data)
 
 
 def test_unsupported_regex(
     scraper_application: Scraper,
     async_pyppeteer_regex: None,
-    expected_data: List[Dict],
-    test_url: str,
+    expected_browser_data: List[Dict],
+    file_url: str,
 ) -> None:
     assert scraper_application.has_async is True
     assert len(scraper_application.rules) == 1
 
     with pytest.raises(Exception):
-        scraper_application.run(urls=[test_url], pages=2, format="custom", parser="pyppeteer")
+        scraper_application.run(urls=[file_url], pages=2, format="custom", parser="pyppeteer")
 
 
 def test_scraper_with_parser(
     scraper_application_with_pyppeteer_parser: Scraper,
     async_pyppeteer_select_with_parser: None,
-    expected_data: List[Dict],
-    test_url: str,
+    expected_browser_data: List[Dict],
+    file_url: str,
     scraper_with_parser_save: None,
     mock_database: mock.MagicMock,
 ) -> None:
@@ -218,6 +218,6 @@ def test_scraper_with_parser(
     assert scraper_application_with_pyppeteer_parser.scraper is not None
     assert len(scraper_application_with_pyppeteer_parser.scraper.rules) == 4
 
-    scraper_application_with_pyppeteer_parser.run(urls=[test_url], pages=2, format="custom", parser="pyppeteer")
+    scraper_application_with_pyppeteer_parser.run(urls=[file_url], pages=2, format="custom", parser="pyppeteer")
 
-    mock_database.save.assert_called_with(expected_data)
+    mock_database.save.assert_called_with(expected_browser_data)

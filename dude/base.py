@@ -13,6 +13,7 @@ from typing import (
     Deque,
     Dict,
     Iterable,
+    Iterator,
     List,
     Optional,
     Sequence,
@@ -23,6 +24,7 @@ from typing import (
 from urllib.parse import urlparse
 
 from braveblock import Adblocker
+from httpx import Request
 
 from .rule import Rule, Selector, rule_filter
 from .scraped_data import ScrapedData, scraped_data_grouper, scraped_data_sorter
@@ -47,6 +49,7 @@ class ScraperBase(ABC):
         save_rules: Dict[Tuple[str, bool], Any] = None,
         events: Optional[DefaultDict] = None,
         has_async: bool = False,
+        requests: Optional[Deque] = None,  # only valid for BeautifulSoup4, lxml and Parsel backends
         scraper: Optional["ScraperAbstract"] = None,
     ) -> None:
         self.rules: List[Rule] = rules or []
@@ -65,6 +68,7 @@ class ScraperBase(ABC):
         self.scraper = scraper
         self.adblock = Adblocker()
         self.urls: Deque = collections.deque()  # allows dynamically appending new URLs for crawling
+        self.requests: Deque = requests or collections.deque()  # allows dynamically appending new requests for crawling
         self.allowed_domains: Set[str] = set()
 
     @abstractmethod
@@ -324,7 +328,21 @@ class ScraperBase(ABC):
 
         return wrapper
 
-    def iter_urls(self) -> Iterable[str]:
+    def start_requests(self) -> Callable:
+        """
+        Decorator to register custom Request objects.
+        """
+
+        def wrapper(func: Callable) -> Callable:
+            requests = self.scraper.requests if self.scraper else self.requests
+            for request in func():
+                assert isinstance(request, Request)
+                requests.append(request)
+            return func
+
+        return wrapper
+
+    def iter_urls(self) -> Iterator[str]:
         try:
             while True:
                 url = self.urls.popleft()
@@ -332,6 +350,19 @@ class ScraperBase(ABC):
                     logger.info("URL %s is not in allowed domains.", url)
                     continue
                 yield url
+        except IndexError:
+            pass
+
+    def iter_requests(self) -> Iterable[Request]:
+        try:
+            while True:
+                try:
+                    url = next(self.iter_urls())
+                    yield Request(method="GET", url=url)
+                    continue
+                except StopIteration:
+                    pass
+                yield self.requests.popleft()
         except IndexError:
             pass
 
@@ -383,8 +414,9 @@ class ScraperAbstract(ScraperBase):
         save_rules: Dict[Tuple[str, bool], Any] = None,
         events: Optional[DefaultDict] = None,
         has_async: bool = False,
+        requests: Optional[Deque] = None,
     ) -> None:
-        super(ScraperAbstract, self).__init__(rules, groups, save_rules, events, has_async)
+        super(ScraperAbstract, self).__init__(rules, groups, save_rules, events, has_async, requests)
         self.collected_data: List[ScrapedData] = []
 
     @abstractmethod

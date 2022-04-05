@@ -189,8 +189,8 @@ def test_full_flow(
     selenium_select: None,
     selenium_setup: None,
     selenium_navigate: None,
-    expected_data: List[Dict],
-    test_url: str,
+    expected_browser_data: List[Dict],
+    file_url: str,
     browser_type: str,
     scraper_save: None,
     mock_database: mock.MagicMock,
@@ -200,27 +200,27 @@ def test_full_flow(
     assert len(scraper_application.rules) == 6
 
     scraper_application.run(
-        urls=[test_url], pages=2, format="custom", parser="selenium", browser_type=browser_type, follow_urls=True
+        urls=[file_url], pages=2, format="custom", parser="selenium", browser_type=browser_type, follow_urls=True
     )
 
-    mock_database_per_page.save.assert_called_with(expected_data)
+    mock_database_per_page.save.assert_called_with(expected_browser_data)
     mock_database.save.assert_not_called()
 
 
 def test_full_flow_without_setup_and_navigate(
     scraper_application: Scraper,
     selenium_select: None,
-    expected_data: List[Dict],
-    test_url: str,
+    expected_browser_data: List[Dict],
+    file_url: str,
     scraper_save: None,
     mock_database: mock.MagicMock,
 ) -> None:
     assert scraper_application.has_async is False
     assert len(scraper_application.rules) == 4
 
-    scraper_application.run(urls=[test_url], pages=2, format="custom", parser="selenium")
+    scraper_application.run(urls=[file_url], pages=2, format="custom", parser="selenium")
 
-    mock_database.save.assert_called_with(expected_data)
+    mock_database.save.assert_called_with(expected_browser_data)
 
 
 def test_full_flow_xpath(
@@ -228,17 +228,17 @@ def test_full_flow_xpath(
     selenium_xpath: None,
     selenium_setup: None,
     selenium_navigate: None,
-    expected_data: List[Dict],
-    test_url: str,
+    expected_browser_data: List[Dict],
+    file_url: str,
     scraper_save: None,
     mock_database: mock.MagicMock,
 ) -> None:
     assert scraper_application.has_async is False
     assert len(scraper_application.rules) == 4
 
-    scraper_application.run(urls=[test_url], pages=2, format="custom", parser="selenium")
+    scraper_application.run(urls=[file_url], pages=2, format="custom", parser="selenium")
 
-    mock_database.save.assert_called_with(expected_data)
+    mock_database.save.assert_called_with(expected_browser_data)
 
 
 def test_full_flow_text(
@@ -246,17 +246,17 @@ def test_full_flow_text(
     selenium_text: None,
     selenium_setup: None,
     selenium_navigate: None,
-    expected_data: List[Dict],
-    test_url: str,
+    expected_browser_data: List[Dict],
+    file_url: str,
     scraper_save: None,
     mock_database: mock.MagicMock,
 ) -> None:
     assert scraper_application.has_async is False
     assert len(scraper_application.rules) == 4
 
-    scraper_application.run(urls=[test_url], pages=2, format="custom", parser="selenium")
+    scraper_application.run(urls=[file_url], pages=2, format="custom", parser="selenium")
 
-    mock_database.save.assert_called_with(expected_data)
+    mock_database.save.assert_called_with(expected_browser_data)
 
 
 @pytest.mark.parametrize(
@@ -271,8 +271,8 @@ def test_full_flow_async(
     async_selenium_select: None,
     async_selenium_setup: None,
     async_selenium_navigate: None,
-    expected_data: List[Dict],
-    test_url: str,
+    expected_browser_data: List[Dict],
+    file_url: str,
     browser_type: str,
     scraper_save: None,
     mock_database: mock.MagicMock,
@@ -282,10 +282,10 @@ def test_full_flow_async(
     assert len(scraper_application.rules) == 6
 
     scraper_application.run(
-        urls=[test_url], pages=2, format="custom", parser="selenium", browser_type=browser_type, follow_urls=True
+        urls=[file_url], pages=2, format="custom", parser="selenium", browser_type=browser_type, follow_urls=True
     )
 
-    mock_database_per_page.save.assert_called_with(expected_data)
+    mock_database_per_page.save.assert_called_with(expected_browser_data)
     mock_database.save.assert_not_called()
 
 
@@ -294,33 +294,33 @@ def test_full_flow_async_with_sync_setup_and_navigate(
     async_selenium_select: None,
     selenium_setup: None,
     selenium_navigate: None,
-    expected_data: List[Dict],
-    test_url: str,
+    expected_browser_data: List[Dict],
+    file_url: str,
     scraper_save: None,
     mock_database: mock.MagicMock,
 ) -> None:
     assert scraper_application.has_async is True
     assert len(scraper_application.rules) == 6
 
-    scraper_application.run(urls=[test_url], pages=2, format="custom", parser="selenium")
+    scraper_application.run(urls=[file_url], pages=2, format="custom", parser="selenium")
 
-    mock_database.save.assert_called_with(expected_data)
+    mock_database.save.assert_called_with(expected_browser_data)
 
 
 def test_full_flow_async_without_setup_and_navigate(
     scraper_application: Scraper,
     async_selenium_select: None,
-    expected_data: List[Dict],
-    test_url: str,
+    expected_browser_data: List[Dict],
+    file_url: str,
     scraper_save: None,
     mock_database: mock.MagicMock,
 ) -> None:
     assert scraper_application.has_async is True
     assert len(scraper_application.rules) == 4
 
-    scraper_application.run(urls=[test_url], pages=2, format="custom", parser="selenium")
+    scraper_application.run(urls=[file_url], pages=2, format="custom", parser="selenium")
 
-    mock_database.save.assert_called_with(expected_data)
+    mock_database.save.assert_called_with(expected_browser_data)
 
 
 def test_full_flow_xpath_async(
@@ -328,17 +328,17 @@ def test_full_flow_xpath_async(
     async_selenium_xpath: None,
     async_selenium_setup: None,
     async_selenium_navigate: None,
-    expected_data: List[Dict],
-    test_url: str,
+    expected_browser_data: List[Dict],
+    file_url: str,
     scraper_save: None,
     mock_database: mock.MagicMock,
 ) -> None:
     assert scraper_application.has_async is True
     assert len(scraper_application.rules) == 4
 
-    scraper_application.run(urls=[test_url], pages=2, format="custom", parser="selenium")
+    scraper_application.run(urls=[file_url], pages=2, format="custom", parser="selenium")
 
-    mock_database.save.assert_called_with(expected_data)
+    mock_database.save.assert_called_with(expected_browser_data)
 
 
 def test_full_flow_text_async(
@@ -346,38 +346,38 @@ def test_full_flow_text_async(
     async_selenium_text: None,
     async_selenium_setup: None,
     async_selenium_navigate: None,
-    expected_data: List[Dict],
-    test_url: str,
+    expected_browser_data: List[Dict],
+    file_url: str,
     scraper_save: None,
     mock_database: mock.MagicMock,
 ) -> None:
     assert scraper_application.has_async is True
     assert len(scraper_application.rules) == 4
 
-    scraper_application.run(urls=[test_url], pages=2, format="custom", parser="selenium")
+    scraper_application.run(urls=[file_url], pages=2, format="custom", parser="selenium")
 
-    mock_database.save.assert_called_with(expected_data)
+    mock_database.save.assert_called_with(expected_browser_data)
 
 
 def test_unsupported_regex(
     scraper_application: Scraper,
     selenium_regex: None,
-    expected_data: List[Dict],
-    test_url: str,
+    expected_browser_data: List[Dict],
+    file_url: str,
 ) -> None:
     assert scraper_application.has_async is False
     assert len(scraper_application.rules) == 1
     mock_save = mock.MagicMock()
     scraper_application.save(format="custom")(mock_save)
     with pytest.raises(Exception):
-        scraper_application.run(urls=[test_url], pages=2, format="custom", parser="selenium")
+        scraper_application.run(urls=[file_url], pages=2, format="custom", parser="selenium")
 
 
 def test_scraper_with_parser(
     scraper_application_with_selenium_parser: Scraper,
     selenium_select_with_parser: None,
-    expected_data: List[Dict],
-    test_url: str,
+    expected_browser_data: List[Dict],
+    file_url: str,
     scraper_with_parser_save: None,
     mock_database: mock.MagicMock,
 ) -> None:
@@ -385,6 +385,6 @@ def test_scraper_with_parser(
     assert scraper_application_with_selenium_parser.scraper is not None
     assert len(scraper_application_with_selenium_parser.scraper.rules) == 4
 
-    scraper_application_with_selenium_parser.run(urls=[test_url], pages=2, format="custom", parser="selenium")
+    scraper_application_with_selenium_parser.run(urls=[file_url], pages=2, format="custom", parser="selenium")
 
-    mock_database.save.assert_called_with(expected_data)
+    mock_database.save.assert_called_with(expected_browser_data)

@@ -13,3 +13,4 @@ startup = _scraper.startup
 shutdown = _scraper.shutdown
 pre_setup = _scraper.pre_setup
 post_setup = _scraper.post_setup
+start_requests = _scraper.start_requests

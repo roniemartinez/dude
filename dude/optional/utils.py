@@ -1,5 +1,4 @@
 import logging
-import platform
 from typing import Optional, Tuple
 
 import httpx
@@ -8,51 +7,24 @@ from httpx import Request
 logger = logging.getLogger(__name__)
 
 
-def file_url_to_path(url: str) -> str:
-    if platform.system() == "Windows":
-        path = url[8:].replace("/", "\\")
-    else:
-        path = url[7:]
-    return path
-
-
-def get_file_content(url: str) -> Optional[str]:
-    path = file_url_to_path(url)
+async def async_http_get(client: httpx.AsyncClient, request: Request) -> Tuple[Optional[str], str]:
     try:
-        with open(path) as f:
-            content = f.read()
-        return content
-    except FileNotFoundError as e:
+        response = await client.send(request)
+        response.raise_for_status()
+        return response.text, str(response.url)
+    except (httpx.HTTPStatusError, httpx.RequestError) as e:
         logger.warning(e)
-        return None
+        return None, str(request.url)
 
 
-async def async_http_get(client: httpx.AsyncClient, url: str) -> Tuple[Optional[str], str]:
-    if url.startswith("file://"):
-        content = get_file_content(url)
-        return content, url
-    else:
-        try:
-            response = await client.get(url)
-            response.raise_for_status()
-            return response.text, str(response.url)
-        except (httpx.HTTPStatusError, httpx.RequestError) as e:
-            logger.warning(e)
-            return None, url
-
-
-def http_get(client: httpx.Client, url: str) -> Tuple[Optional[str], str]:
-    if url.startswith("file://"):
-        content = get_file_content(url)
-        return content, url
-    else:
-        try:
-            response = client.get(url)
-            response.raise_for_status()
-            return response.text, str(response.url)
-        except (httpx.HTTPStatusError, httpx.RequestError) as e:
-            logger.warning(e)
-            return None, url
+def http_get(client: httpx.Client, request: Request) -> Tuple[Optional[str], str]:
+    try:
+        response = client.send(request)
+        response.raise_for_status()
+        return response.text, str(response.url)
+    except (httpx.HTTPStatusError, httpx.RequestError) as e:
+        logger.warning(e)
+        return None, str(request.url)
 
 
 class HTTPXMixin:
