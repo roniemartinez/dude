@@ -95,14 +95,16 @@ def test_full_flow_lxml(
     base_url: str,
     scraper_save: None,
     mock_database: mock.MagicMock,
+    mock_database_per_page: mock.MagicMock,
     mock_httpx: Router,
 ) -> None:
     assert scraper_application.has_async is False
     assert len(scraper_application.rules) == 4
 
-    scraper_application.run(urls=[base_url], pages=2, format="custom", parser="lxml")
+    scraper_application.run(urls=[base_url], pages=2, format="custom", parser="lxml", follow_urls=True)
 
-    mock_database.save.assert_called_with(expected_data)
+    mock_database_per_page.save.assert_called_with(expected_data)
+    mock_database.save.assert_not_called()
 
 
 def test_lxml_httpx_exception(
