@@ -64,10 +64,10 @@ class LxmlScraper(ScraperAbstract, HTTPXMixin):
         **kwargs: Any,
     ) -> None:
         with httpx.Client(proxies=proxy, event_hooks={"request": [self._block_httpx_request_if_needed]}) as client:
-            for url in self.iter_urls():
-                logger.info("Requesting url %s", url)
+            for request in self.iter_requests():
+                logger.info("Requesting url %s - %s", request.method, request.url)
                 for i in range(1, pages + 1):
-                    content, url = http_get(client, url)
+                    content, url = http_get(client, request)
 
                     if not content:
                         break
@@ -102,10 +102,10 @@ class LxmlScraper(ScraperAbstract, HTTPXMixin):
         async with httpx.AsyncClient(
             proxies=proxy, event_hooks={"request": [self._async_block_httpx_request_if_needed]}
         ) as client:
-            for url in self.iter_urls():
-                logger.info("Requesting url %s", url)
+            for request in self.iter_requests():
+                logger.info("Requesting url %s - %s", request.method, request.url)
                 for i in range(1, pages + 1):
-                    content, url = await async_http_get(client, url)
+                    content, url = await async_http_get(client, request)
                     if not content:
                         break
 

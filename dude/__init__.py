@@ -3,10 +3,29 @@ import sys
 from pathlib import Path
 from typing import Any
 
-from .context import group, post_setup, pre_setup, run, save, select, shutdown, startup  # noqa: F401
+from .context import group, post_setup, pre_setup, run, save, select, shutdown, start_requests, startup  # noqa: F401
 from .scraper import Scraper  # noqa: F401
 
-__al__ = ["Scraper", "group", "run", "save", "select", "startup", "shutdown", "pre_setup", "post_setup"]
+EXTRA_EXPORTS = []
+try:
+    from httpx import Request  # noqa: F401
+
+    EXTRA_EXPORTS.append("Request")
+except ImportError:
+    pass
+
+__all__ = [
+    "Scraper",
+    "group",
+    "run",
+    "save",
+    "select",
+    "startup",
+    "shutdown",
+    "pre_setup",
+    "post_setup",
+    "start_requests",
+] + EXTRA_EXPORTS
 
 
 logging.basicConfig(stream=sys.stdout, level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
@@ -36,7 +55,8 @@ def cli() -> None:  # pragma: no cover
         dest="urls",
         action="append",
         type=str,
-        required=True,
+        required=False,
+        default=[],
         help='Website URL to scrape. Accepts one or more url (e.g. "dude scrape --url <url1> --url <url2> ...")',
     )
     # optional parameters

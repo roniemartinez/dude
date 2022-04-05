@@ -1,10 +1,10 @@
-import sys
-from typing import Any, Callable, Dict, List
+from typing import Dict, List
 from unittest import mock
+from urllib.parse import urljoin
 
-import httpx
 import pytest
 from lxml.etree import _Element
+from respx import Router
 
 from dude import Scraper
 
@@ -92,66 +92,34 @@ def test_full_flow_lxml(
     scraper_application: Scraper,
     lxml_css: None,
     expected_data: List[Dict],
-    test_url: str,
-    scraper_save: None,
-    mock_database: mock.MagicMock,
-) -> None:
-    assert scraper_application.has_async is False
-    assert len(scraper_application.rules) == 4
-
-    scraper_application.run(urls=[test_url], pages=2, format="custom", parser="lxml")
-
-    mock_database.save.assert_called_with(expected_data)
-
-
-@mock.patch.object(httpx, "Client")
-def test_full_flow_lxml_httpx(
-    mock_client: mock.MagicMock,
-    scraper_application: Scraper,
-    lxml_css: None,
-    expected_data: List[Dict],
-    test_url: str,
-    side_effect_func: Callable,
+    base_url: str,
     scraper_save: None,
     mock_database: mock.MagicMock,
     mock_database_per_page: mock.MagicMock,
+    mock_httpx: Router,
 ) -> None:
     assert scraper_application.has_async is False
     assert len(scraper_application.rules) == 4
 
-    mock_client.return_value.__enter__.return_value.get.side_effect = side_effect_func
-
-    test_url = "https://dude.ron.sh"
-    expected_data = [{**d, "_page_url": test_url} for d in expected_data]
-
-    scraper_application.run(urls=[test_url], pages=2, format="custom", parser="lxml", follow_urls=True)
+    scraper_application.run(urls=[base_url], pages=2, format="custom", parser="lxml", follow_urls=True)
 
     mock_database_per_page.save.assert_called_with(expected_data)
     mock_database.save.assert_not_called()
 
 
-@mock.patch.object(httpx, "Client")
 def test_lxml_httpx_exception(
-    mock_client: mock.MagicMock,
     scraper_application: Scraper,
     lxml_css: None,
     expected_data: List[Dict],
     scraper_save: None,
     mock_database: mock.MagicMock,
+    base_url: str,
+    mock_httpx: Router,
 ) -> None:
     assert scraper_application.has_async is False
     assert len(scraper_application.rules) == 4
 
-    response = mock_client.return_value.__enter__.return_value.get.return_value
-    response.raise_for_status.side_effect = httpx.HTTPStatusError(
-        message="Mock exception",
-        request=mock.MagicMock(),
-        response=mock.MagicMock(),
-    )
-
-    test_url = "https://dude.ron.sh"
-
-    scraper_application.run(urls=[test_url], pages=2, format="custom", parser="lxml")
+    scraper_application.run(urls=[urljoin(base_url, "error.html")], pages=2, format="custom", parser="lxml")
 
     mock_database.save.assert_not_called()
 
@@ -160,68 +128,49 @@ def test_full_flow_lxml_async(
     scraper_application: Scraper,
     async_lxml_css: None,
     expected_data: List[Dict],
-    test_url: str,
+    base_url: str,
     scraper_save: None,
     mock_database: mock.MagicMock,
+    mock_httpx: Router,
 ) -> None:
     assert scraper_application.has_async is True
     assert len(scraper_application.rules) == 4
 
-    scraper_application.run(urls=[test_url], pages=2, format="custom", parser="lxml")
+    scraper_application.run(urls=[base_url], pages=2, format="custom", parser="lxml")
 
     mock_database.save.assert_called_with(expected_data)
 
 
-@pytest.mark.skipif(sys.version_info < (3, 8), reason="AsyncMock is not supported.")
-@mock.patch.object(httpx, "AsyncClient")
 def test_full_flow_lxml_httpx_async(
-    mock_client: Any,  # mock.AsyncMock
     scraper_application: Scraper,
     async_lxml_css: None,
     expected_data: List[Dict],
-    test_url: str,
-    side_effect_func: Callable,
+    base_url: str,
     scraper_save: None,
     mock_database_per_page: mock.MagicMock,
+    mock_httpx: Router,
 ) -> None:
     assert scraper_application.has_async is True
     assert len(scraper_application.rules) == 4
 
-    mock_client.return_value.__aenter__.return_value.get.side_effect = side_effect_func
-
-    test_url = "https://dude.ron.sh"
-    expected_data = [{**d, "_page_url": test_url} for d in expected_data]
-
-    scraper_application.run(urls=[test_url], pages=2, format="custom", parser="lxml", follow_urls=True)
+    scraper_application.run(urls=[base_url], pages=2, format="custom", parser="lxml", follow_urls=True)
 
     mock_database_per_page.save.assert_called_with(expected_data)
 
 
-@pytest.mark.skipif(sys.version_info < (3, 8), reason="AsyncMock is not supported.")
-@mock.patch.object(httpx, "AsyncClient")
 def test_lxml_httpx_exception_async(
-    mock_client: Any,  # mock.AsyncMock
     scraper_application: Scraper,
     async_lxml_css: None,
     expected_data: List[Dict],
     scraper_save: None,
     mock_database: mock.MagicMock,
+    base_url: str,
+    mock_httpx: Router,
 ) -> None:
     assert scraper_application.has_async is True
     assert len(scraper_application.rules) == 4
 
-    response = mock_client.return_value.__aenter__.return_value.get.return_value
-    response.raise_for_status = mock.MagicMock(
-        side_effect=httpx.HTTPStatusError(
-            message="Mock exception",
-            request=mock.MagicMock(),
-            response=mock.MagicMock(),
-        )
-    )
-
-    test_url = "https://dude.ron.sh"
-
-    scraper_application.run(urls=[test_url], pages=2, format="custom", parser="lxml")
+    scraper_application.run(urls=[urljoin(base_url, "error.html")], pages=2, format="custom", parser="lxml")
 
     mock_database.save.assert_not_called()
 
@@ -230,14 +179,15 @@ def test_full_flow_lxml_xpath(
     scraper_application: Scraper,
     lxml_xpath: None,
     expected_data: List[Dict],
-    test_url: str,
+    base_url: str,
     scraper_save: None,
     mock_database: mock.MagicMock,
+    mock_httpx: Router,
 ) -> None:
     assert scraper_application.has_async is False
     assert len(scraper_application.rules) == 2
 
-    scraper_application.run(urls=[test_url], pages=2, format="custom", parser="lxml")
+    scraper_application.run(urls=[base_url], pages=2, format="custom", parser="lxml")
 
     mock_database.save.assert_called_with(expected_data)
 
@@ -246,14 +196,15 @@ def test_full_flow_lxml_text(
     scraper_application: Scraper,
     lxml_text: None,
     expected_data: List[Dict],
-    test_url: str,
+    base_url: str,
     scraper_save: None,
     mock_database: mock.MagicMock,
+    mock_httpx: Router,
 ) -> None:
     assert scraper_application.has_async is False
     assert len(scraper_application.rules) == 2
 
-    scraper_application.run(urls=[test_url], pages=2, format="custom", parser="lxml")
+    scraper_application.run(urls=[base_url], pages=2, format="custom", parser="lxml")
 
     mock_database.save.assert_called_with(expected_data)
 
@@ -262,13 +213,14 @@ def test_full_flow_lxml_regex(
     scraper_application: Scraper,
     lxml_regex: None,
     expected_data: List[Dict],
-    test_url: str,
+    base_url: str,
     scraper_save: None,
     mock_database: mock.MagicMock,
+    mock_httpx: Router,
 ) -> None:
     assert scraper_application.has_async is False
     assert len(scraper_application.rules) == 2
 
-    scraper_application.run(urls=[test_url], pages=2, format="custom", parser="lxml")
+    scraper_application.run(urls=[base_url], pages=2, format="custom", parser="lxml")
 
     mock_database.save.assert_called_with(expected_data)

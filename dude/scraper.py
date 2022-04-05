@@ -76,6 +76,7 @@ class Scraper(ScraperBase):
                 save_rules=self.save_rules,
                 events=self.events,
                 has_async=self.has_async,
+                requests=self.requests,
             )
 
         self.scraper.run(

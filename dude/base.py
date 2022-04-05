@@ -13,6 +13,7 @@ from typing import (
     Deque,
     Dict,
     Iterable,
+    Iterator,
     List,
     Optional,
     Sequence,
@@ -47,6 +48,7 @@ class ScraperBase(ABC):
         save_rules: Dict[Tuple[str, bool], Any] = None,
         events: Optional[DefaultDict] = None,
         has_async: bool = False,
+        requests: Optional[Deque] = None,  # only valid for BeautifulSoup4, lxml and Parsel backends
         scraper: Optional["ScraperAbstract"] = None,
     ) -> None:
         self.rules: List[Rule] = rules or []
@@ -65,6 +67,7 @@ class ScraperBase(ABC):
         self.scraper = scraper
         self.adblock = Adblocker()
         self.urls: Deque = collections.deque()  # allows dynamically appending new URLs for crawling
+        self.requests: Deque = requests or collections.deque()  # allows dynamically appending new requests for crawling
         self.allowed_domains: Set[str] = set()
 
     @abstractmethod
@@ -324,7 +327,22 @@ class ScraperBase(ABC):
 
         return wrapper
 
-    def iter_urls(self) -> Iterable[str]:
+    def start_requests(self) -> Callable:
+        """
+        Decorator to register custom Request objects.
+        """
+        from httpx import Request
+
+        def wrapper(func: Callable) -> Callable:
+            requests = self.scraper.requests if self.scraper else self.requests
+            for request in func():
+                assert isinstance(request, Request)
+                requests.append(request)
+            return func
+
+        return wrapper
+
+    def iter_urls(self) -> Iterator[str]:
         try:
             while True:
                 url = self.urls.popleft()
@@ -383,8 +401,9 @@ class ScraperAbstract(ScraperBase):
         save_rules: Dict[Tuple[str, bool], Any] = None,
         events: Optional[DefaultDict] = None,
         has_async: bool = False,
+        requests: Optional[Deque] = None,
     ) -> None:
-        super(ScraperAbstract, self).__init__(rules, groups, save_rules, events, has_async)
+        super(ScraperAbstract, self).__init__(rules, groups, save_rules, events, has_async, requests)
         self.collected_data: List[ScrapedData] = []
 
     @abstractmethod

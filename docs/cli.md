@@ -3,7 +3,7 @@
 === "CLI"
 
     ```commandline
-    usage: dude scrape [-h] --url URL [--playwright | --bs4 | --parsel | --lxml | --pyppeteer | --selenium] [--headed] [--browser {chromium,firefox,webkit}] [--pages PAGES] [--output OUTPUT] [--format FORMAT] [--proxy-server PROXY_SERVER] [--proxy-user PROXY_USER]
+    usage: dude scrape [-h] [--url URL] [--playwright | --bs4 | --parsel | --lxml | --pyppeteer | --selenium] [--headed] [--browser {chromium,firefox,webkit}] [--pages PAGES] [--output OUTPUT] [--format FORMAT] [--proxy-server PROXY_SERVER] [--proxy-user PROXY_USER]
                        [--proxy-pass PROXY_PASS] [--follow-urls] [--save-per-page]
                        PATH [PATH ...]
     

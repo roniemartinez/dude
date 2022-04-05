@@ -32,9 +32,6 @@ async def result_description(text):
 
 
 if __name__ == "__main__":
-    from pathlib import Path
-
     import dude
 
-    html = f"file://{(Path(__file__).resolve().parent / 'dude.html').absolute()}"
-    dude.run(urls=[html, "https://dude.ron.sh"], parser="lxml")
+    dude.run(urls=["https://dude.ron.sh"], parser="lxml")
