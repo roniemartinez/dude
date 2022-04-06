@@ -21,7 +21,7 @@ def lxml_css(scraper_application: Scraper) -> None:
         return {}
 
     @scraper_application.group(css=".custom-group")
-    @scraper_application.select(css=".title", url="example.com")
+    @scraper_application.select(css=".title", url_match="example.com")
     def url_dont_match(element: _Element) -> Dict:
         return {"title": element.text}
 
@@ -42,7 +42,7 @@ def async_lxml_css(scraper_application: Scraper) -> None:
         return {}
 
     @scraper_application.group(css=".custom-group")
-    @scraper_application.select(css=".title", url="example.com")
+    @scraper_application.select(css=".title", url_match="example.com")
     async def url_dont_match(element: _Element) -> Dict:
         return {"title": element.text}
 

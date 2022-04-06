@@ -11,7 +11,7 @@ try:
     from httpx import Request  # noqa: F401
 
     EXTRA_EXPORTS.append("Request")
-except ImportError:
+except ImportError:  # pragma: no cover
     pass
 
 __all__ = [

@@ -25,7 +25,7 @@ def playwright_select(scraper_application: Scraper) -> None:
         return {}
 
     @scraper_application.group(css=".custom-group")
-    @scraper_application.select(css=".title", url="example.com")
+    @scraper_application.select(css=".title", url_match="example.com")
     def url_dont_match(element: sync_api.ElementHandle) -> Dict:
         return {"title": element.text_content()}
 
@@ -53,7 +53,7 @@ def playwright_xpath(scraper_application: Scraper) -> None:
 def playwright_select_with_parser(scraper_application_with_parser: Scraper) -> None:
     @scraper_application_with_parser.group(selector=":root")  # will be skipped
     @scraper_application_with_parser.group(css=".custom-group")
-    @scraper_application_with_parser.select(css=".title")
+    @scraper_application_with_parser.select(css=".title", url_match=lambda x: x.endswith(".html"))
     def title(element: sync_api.ElementHandle) -> Dict:
         return {"title": element.text_content()}
 
@@ -62,7 +62,7 @@ def playwright_select_with_parser(scraper_application_with_parser: Scraper) -> N
         return {}
 
     @scraper_application_with_parser.group(css=".custom-group")
-    @scraper_application_with_parser.select(css=".title", url="example.com")
+    @scraper_application_with_parser.select(css=".title", url_match="example.com")
     def url_dont_match(element: sync_api.ElementHandle) -> Dict:
         return {"title": element.text_content()}
 

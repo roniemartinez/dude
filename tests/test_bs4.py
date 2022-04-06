@@ -31,7 +31,7 @@ def bs4_select(scraper_application: Scraper) -> None:
         return {}
 
     @scraper_application.group(css=".custom-group")
-    @scraper_application.select(css=".title", url="example.com")
+    @scraper_application.select(css=".title", url_match="example.com")
     def url_dont_match(element: BeautifulSoup) -> Dict:
         return {"title": element.get_text()}
 
@@ -52,7 +52,7 @@ def async_bs4_select(scraper_application: Scraper) -> None:
         return {}
 
     @scraper_application.group(css=".custom-group")
-    @scraper_application.select(css=".title", url="example.com")
+    @scraper_application.select(css=".title", url_match="example.com")
     async def url_dont_match(element: BeautifulSoup) -> Dict:
         return {"title": element.get_text()}
 
@@ -110,7 +110,7 @@ def bs4_select_with_parser(scraper_application_with_bs4_parser: Scraper) -> None
         return {}
 
     @scraper_application_with_bs4_parser.group(css=".custom-group")
-    @scraper_application_with_bs4_parser.select(css=".title", url="example.com")
+    @scraper_application_with_bs4_parser.select(css=".title", url_match="example.com")
     def url_dont_match(element: BeautifulSoup) -> Dict:
         return {"title": element.get_text()}
 
@@ -131,7 +131,7 @@ def async_bs4_select_with_parser(scraper_application_with_bs4_parser: Scraper) -
         return {}
 
     @scraper_application_with_bs4_parser.group(css=".custom-group")
-    @scraper_application_with_bs4_parser.select(css=".title", url="example.com")
+    @scraper_application_with_bs4_parser.select(css=".title", url_match="example.com")
     async def url_dont_match(element: BeautifulSoup) -> Dict:
         return {"title": element.get_text()}
 
