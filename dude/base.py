@@ -136,7 +136,7 @@ class ScraperBase(ABC):
         group: str = None,
         setup: bool = False,
         navigate: bool = False,
-        url: str = "*",
+        url_match: Union[str, Callable] = "*",
         priority: int = 100,
         css: str = None,
         xpath: str = None,
@@ -154,7 +154,7 @@ class ScraperBase(ABC):
         :param group: (Optional) Element selector where the matched element should be grouped. Defaults to ":root".
         :param setup: Flag to register a setup handler.
         :param navigate: Flag to register a navigate handler.
-        :param url: URL pattern. Run the handler function only when the pattern matches (defaults to *).
+        :param url_match: URL pattern matcher. Run the handler function only when the pattern matches (defaults to *) or when custom function/lambda returns True. # noqa
         :param priority: Priority, the lowest value will be executed first (default 100).
         :param css: CSS selector.
         :param xpath: XPath selector.
@@ -176,7 +176,7 @@ class ScraperBase(ABC):
             rule = Rule(
                 selector=sel,
                 group=Selector(selector=group, css=group_css, xpath=group_xpath, text=group_text, regex=group_regex),
-                url_pattern=url,
+                url_matcher=url_match,
                 handler=func,
                 setup=setup,
                 navigate=navigate,

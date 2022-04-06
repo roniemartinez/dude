@@ -21,7 +21,7 @@ def async_playwright_select(scraper_application: Scraper) -> None:
         return {}
 
     @scraper_application.group(css=".custom-group")
-    @scraper_application.select(css=".title", url="example.com")
+    @scraper_application.select(css=".title", url_match="example.com")
     async def url_dont_match(element: async_api.ElementHandle) -> Dict:
         return {"title": await element.text_content()}
 
@@ -83,6 +83,13 @@ def async_playwright_post_setup(scraper_application: Scraper) -> None:
         assert page is not None
 
 
+@pytest.fixture()
+def async_playwright_shutdown(scraper_application: Scraper, mock_database: mock.MagicMock) -> None:
+    @scraper_application.shutdown()
+    async def shutdown() -> None:
+        mock_database.close()
+
+
 def test_full_flow(
     scraper_application: Scraper,
     async_playwright_select: None,
@@ -91,6 +98,7 @@ def test_full_flow(
     async_playwright_startup: None,
     async_playwright_pre_setup: None,
     async_playwright_post_setup: None,
+    async_playwright_shutdown: None,
     scraper_save: None,
     expected_browser_data: List[Dict],
     file_url: str,
@@ -105,6 +113,7 @@ def test_full_flow(
     mock_database.setup.assert_called_once()
     mock_database_per_page.save.assert_called_with(expected_browser_data)
     mock_database.save.assert_not_called()
+    mock_database.close.assert_called_once()
 
 
 def test_full_flow_xpath(
