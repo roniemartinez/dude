@@ -1,3 +1,5 @@
+import unittest.mock
+import urllib
 from typing import Any, Dict, Iterable, List, Optional
 from unittest import mock
 from urllib.parse import urljoin
@@ -161,7 +163,9 @@ def test_full_flow_bs4(
     assert scraper_application.has_async is False
     assert len(scraper_application.rules) == 4
 
-    scraper_application.run(urls=[base_url], pages=2, format="custom", parser="bs4", follow_urls=True)
+    scraper_application.run(
+        urls=[base_url], pages=2, format="custom", parser="bs4", follow_urls=True, ignore_robots_txt=True
+    )
 
     mock_database_per_page.save.assert_called_with(expected_data)
     mock_database.save.assert_not_called()
@@ -341,4 +345,41 @@ def test_full_flow_post_bs4(
     )
 
     mock_database_per_page.save.assert_called_with(expected_data)
+    mock_database.save.assert_not_called()
+
+
+def test_robots(
+    scraper_application: Scraper,
+    bs4_select: None,
+    scraper_save: None,
+    mock_database: mock.MagicMock,
+    base_url: str,
+    mock_httpx: Router,
+) -> None:
+    unauthorized_url = urljoin(base_url, "/unauthorized.html")
+    robots_url = urljoin(base_url, "/robots.txt")
+
+    @scraper_application.start_requests()
+    def start_requests() -> Iterable[Request]:
+        yield Request(method="GET", url=unauthorized_url)
+
+    assert scraper_application.has_async is False
+    assert scraper_application.scraper is None
+    assert len(scraper_application.rules) == 4
+
+    class MockResponse:
+        def read(self) -> "MockResponse":
+            return self
+
+        def decode(self, encoding: str) -> str:
+            return """
+User-Agent: *
+Disallow: /unauthorized.html
+Crawl-Delay: 1
+"""
+
+    with unittest.mock.patch.object(urllib.request, "urlopen", return_value=MockResponse()) as r:
+        scraper_application.run(urls=[unauthorized_url], pages=2, format="custom", parser="bs4")
+        r.assert_has_calls(calls=[unittest.mock.call(robots_url), unittest.mock.call(robots_url)])
+
     mock_database.save.assert_not_called()

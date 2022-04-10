@@ -2,6 +2,7 @@ import asyncio
 import collections
 import itertools
 import logging
+import time
 from abc import ABC, abstractmethod
 from pathlib import Path
 from typing import (
@@ -21,7 +22,9 @@ from typing import (
     Tuple,
     Union,
 )
-from urllib.parse import urlparse
+from urllib.error import URLError
+from urllib.parse import urljoin, urlparse
+from urllib.robotparser import RobotFileParser
 
 from braveblock import Adblocker
 
@@ -69,6 +72,7 @@ class ScraperBase(ABC):
         self.urls: Deque = collections.deque()  # allows dynamically appending new URLs for crawling
         self.requests: Deque = requests or collections.deque()  # allows dynamically appending new requests for crawling
         self.allowed_domains: Set[str] = set()
+        self.ignore_robots_txt: bool = False
 
     @abstractmethod
     def run(
@@ -80,6 +84,7 @@ class ScraperBase(ABC):
         format: str,
         follow_urls: bool = False,
         save_per_page: bool = False,
+        ignore_robots_txt: bool = False,
         **kwargs: Any,
     ) -> None:
         """
@@ -92,8 +97,10 @@ class ScraperBase(ABC):
         :param format: Output file format. If not provided, uses the extension of the output file or defaults to json.
         :param follow_urls: Automatically follow URLs.
         :param save_per_page: Flag to save data on every page extraction or not. If not, saves all the data at the end.
+        :param ignore_robots_txt: Flag to ignore robots.txt.
         """
         self.initialize_scraper(urls)
+        self.ignore_robots_txt = ignore_robots_txt
 
         logger.info("Using %s...", self.__class__.__name__)
 
@@ -349,9 +356,29 @@ class ScraperBase(ABC):
                 if urlparse(url).netloc not in self.allowed_domains:
                     logger.info("URL %s is not in allowed domains.", url)
                     continue
+                can_fetch, crawl_delay = self.can_fetch_and_crawl_delay(url)
+                if not can_fetch:
+                    logger.info("Not allowed to crawl %s", url)
+                    continue
+                time.sleep(crawl_delay)
                 yield url
         except IndexError:
             pass
+
+    def can_fetch_and_crawl_delay(self, url: str) -> Tuple[bool, int]:
+        if self.ignore_robots_txt:
+            return True, 0
+        user_agent = "dude"  # TODO: https://github.com/roniemartinez/dude/issues/63
+        # TODO: Store content so as to prevent re-fetching
+        robots_url = urljoin(url, "/robots.txt")
+        parser = RobotFileParser(url=robots_url)
+        try:
+            parser.read()
+        except URLError:
+            parser.parse([""])
+        crawl_delay = parser.crawl_delay(user_agent) or 0
+        can_fetch = parser.can_fetch(user_agent, url)
+        return can_fetch, int(crawl_delay)
 
     def _update_rule_groups(self) -> Iterable[Rule]:
         for rule in self.rules:
