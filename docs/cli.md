@@ -4,7 +4,7 @@
 
     ```commandline
     usage: dude scrape [-h] [--url URL] [--playwright | --bs4 | --parsel | --lxml | --pyppeteer | --selenium] [--headed] [--browser {chromium,firefox,webkit}] [--pages PAGES] [--output OUTPUT] [--format FORMAT] [--proxy-server PROXY_SERVER] [--proxy-user PROXY_USER]
-                       [--proxy-pass PROXY_PASS] [--follow-urls] [--save-per-page]
+                       [--proxy-pass PROXY_PASS] [--follow-urls] [--save-per-page] [--ignore-robots-txt]
                        PATH [PATH ...]
     
     Run the dude scraper.
@@ -37,4 +37,5 @@
                             Proxy password.
       --follow-urls         Automatically follow URLs.
       --save-per-page       Flag to save data on every page extraction or not. If not, saves all the data at the end.If --follow-urls is set to true, this variable will be automatically set to true.
+      --ignore-robots-txt   Flag to ignore robots.txt.
     ```

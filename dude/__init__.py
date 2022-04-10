@@ -176,6 +176,13 @@ def cli() -> None:  # pragma: no cover
         help="Flag to save data on every page extraction or not. If not, saves all the data at the end."
         "If --follow-urls is set to true, this variable will be automatically set to true.",
     )
+    optional.add_argument(
+        "--ignore-robots-txt",
+        dest="ignore_robots_txt",
+        default=False,
+        action="store_true",
+        help="Flag to ignore robots.txt.",
+    )
     arguments = parser.parse_args()
 
     if arguments.version:
@@ -233,4 +240,5 @@ def cli() -> None:  # pragma: no cover
         format=arguments.format,
         follow_urls=arguments.follow_urls,
         save_per_page=arguments.save_per_page,
+        ignore_robots_txt=arguments.ignore_robots_txt,
     )

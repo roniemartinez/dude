@@ -1,4 +1,5 @@
 import logging
+import time
 from typing import Iterable, Optional, Tuple
 
 import httpx
@@ -53,6 +54,12 @@ class HTTPXMixin:
                     continue
                 except StopIteration:
                     pass
-                yield self.requests.popleft()  # type: ignore
+                request = self.requests.popleft()  # type: ignore
+                can_fetch, crawl_delay = self.can_fetch_and_crawl_delay(str(request.url))  # type: ignore
+                if not can_fetch:
+                    logger.info("Not allowed to crawl %s", str(request.url))
+                    continue
+                time.sleep(crawl_delay)
+                yield request
         except IndexError:
             pass
