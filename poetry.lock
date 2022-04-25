@@ -520,8 +520,8 @@ mkdocs = ">=1.1"
 
 [[package]]
 name = "mkdocs-material"
-version = "8.2.9"
-description = "A Material Design theme for MkDocs"
+version = "8.2.11"
+description = "Documentation that simply works"
 category = "dev"
 optional = false
 python-versions = ">=3.6"
@@ -531,8 +531,8 @@ jinja2 = ">=2.11.1"
 markdown = ">=3.2"
 mkdocs = ">=1.3.0"
 mkdocs-material-extensions = ">=1.0.3"
-pygments = ">=2.10"
-pymdown-extensions = ">=9.0"
+pygments = ">=2.10,<2.12"
+pymdown-extensions = ">=9.0,<9.4"
 
 [[package]]
 name = "mkdocs-material-extensions"
@@ -1269,7 +1269,7 @@ selenium = ["selenium-wire", "webdriver-manager"]
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.7"
-content-hash = "cd4542f58d8c1bb82d233bc13fd43aff6edec1f21e52084cce38502f4348c1ad"
+content-hash = "ed7bf8abcc80429f7c1d7a5f65490b4763a528a7af41808456a46984e864af3b"
 
 [metadata.files]
 anyio = [
@@ -1793,8 +1793,8 @@ mkdocs-autorefs = [
     {file = "mkdocs_autorefs-0.4.1-py3-none-any.whl", hash = "sha256:a2248a9501b29dc0cc8ba4c09f4f47ff121945f6ce33d760f145d6f89d313f5b"},
 ]
 mkdocs-material = [
-    {file = "mkdocs-material-8.2.9.tar.gz", hash = "sha256:c177ff180b024bc061714c9483a8d26d36e1b9fdef4be8e70e243770416fe9d7"},
-    {file = "mkdocs_material-8.2.9-py2.py3-none-any.whl", hash = "sha256:fbe39baa57c70fdbe9d1a24c6c2d0625e255e74f22b20aff43abb64157446f4d"},
+    {file = "mkdocs-material-8.2.11.tar.gz", hash = "sha256:af6bbd608a54b8493cb5fa0d2f2cf29cde3bf348837ab718afb1be0a8bea6509"},
+    {file = "mkdocs_material-8.2.11-py2.py3-none-any.whl", hash = "sha256:4a3631ba22cff7ceca00c39465a8db5b2116fcd74f3abd82b801f7711cceb699"},
 ]
 mkdocs-material-extensions = [
     {file = "mkdocs-material-extensions-1.0.3.tar.gz", hash = "sha256:bfd24dfdef7b41c312ede42648f9eb83476ea168ec163b613f9abd12bbfddba2"},
