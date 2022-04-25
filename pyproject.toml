@@ -61,7 +61,7 @@ mkdocs-material = "^8.2.9"
 mkdocstrings = "^0.18.1"
 mypy = "^0.942"
 pyproject-flake8 = "^0.0.1a4"
-pytest = "^7.1.1"
+pytest = "^7.1.2"
 pytest-clarity = "^1.0.1"
 pytest-cov = "^3.0.0"
 tabulate = { git = "https://github.com/astanin/python-tabulate" }
