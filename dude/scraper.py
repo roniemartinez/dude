@@ -83,7 +83,7 @@ class Scraper(ScraperBase):
 
         if not ignore_robots_txt:
             logger.info(
-                f""" robots.txt is currently not ignored. 
+                f"""robots.txt is currently not ignored.
         {"=" * 80}
         Any rules/restrictions set in a website's robots.txt, will be followed by default.
         To ignore robots.txt, add `--ignore-robots-txt` to CLI arguments or  pass `ignore_robots_txt=True` to `run()`
