@@ -14,3 +14,5 @@ shutdown = _scraper.shutdown
 pre_setup = _scraper.pre_setup
 post_setup = _scraper.post_setup
 start_requests = _scraper.start_requests
+get_current_url = _scraper.get_current_url
+follow_url = _scraper.follow_url

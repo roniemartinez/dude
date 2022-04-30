@@ -43,6 +43,7 @@ class ScraperBase(ABC):
     """
 
     supports_sync = True
+    current_url = ""
 
     def __init__(
         self,
@@ -349,6 +350,12 @@ class ScraperBase(ABC):
 
         return wrapper
 
+    def get_current_url(self) -> str:
+        return self.scraper.current_url if self.scraper else self.current_url
+
+    def follow_url(self, url: str) -> None:
+        self.scraper.urls.append(url) if self.scraper else self.urls.append(url)
+
     def iter_urls(self) -> Iterator[str]:
         try:
             while True:
@@ -361,6 +368,7 @@ class ScraperBase(ABC):
                     logger.info("Not allowed to crawl %s", url)
                     continue
                 time.sleep(crawl_delay)
+                self.current_url = url
                 yield url
         except IndexError:
             pass

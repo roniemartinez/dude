@@ -3,7 +3,18 @@ import sys
 from pathlib import Path
 from typing import Any
 
-from .context import group, post_setup, pre_setup, run, save, select, shutdown, start_requests, startup  # noqa: F401
+from .context import (  # noqa: F401
+    get_current_url,
+    group,
+    post_setup,
+    pre_setup,
+    run,
+    save,
+    select,
+    shutdown,
+    start_requests,
+    startup,
+)
 from .scraper import Scraper  # noqa: F401
 
 EXTRA_EXPORTS = []
@@ -25,6 +36,7 @@ __all__ = [
     "pre_setup",
     "post_setup",
     "start_requests",
+    "current_url",
 ] + EXTRA_EXPORTS
 
 

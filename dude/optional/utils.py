@@ -60,6 +60,7 @@ class HTTPXMixin:
                     logger.info("Not allowed to crawl %s", str(request.url))
                     continue
                 time.sleep(crawl_delay)
+                self.current_url = str(request.url)  # type: ignore
                 yield request
         except IndexError:
             pass

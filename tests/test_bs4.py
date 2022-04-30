@@ -150,6 +150,24 @@ def scraper_with_parser_save(scraper_application_with_bs4_parser: Scraper, mock_
         return True
 
 
+@pytest.fixture()
+def bs4_follow_url(scraper_application: Scraper) -> None:
+    @scraper_application.group(css=".custom-group")
+    @scraper_application.select(css=".title")
+    def title(element: BeautifulSoup) -> Dict:
+        return {"title": element.get_text()}
+
+    @scraper_application.group(css=".custom-group")
+    @scraper_application.select(css=".title", url_match="example.com")
+    def url_dont_match(element: BeautifulSoup) -> Dict:
+        return {"title": element.get_text()}
+
+    @scraper_application.select(css=".url", group_css=".custom-group")
+    def url(element: BeautifulSoup) -> Dict:
+        scraper_application.follow_url(urljoin(scraper_application.get_current_url(), element["href"]))
+        return {"url": element["href"]}
+
+
 def test_full_flow_bs4(
     scraper_application: Scraper,
     bs4_select: None,
@@ -166,6 +184,39 @@ def test_full_flow_bs4(
     scraper_application.run(
         urls=[base_url], pages=2, format="custom", parser="bs4", follow_urls=True, ignore_robots_txt=True
     )
+
+    mock_database_per_page.save.assert_called_with(expected_data)
+    mock_database.save.assert_not_called()
+
+
+def test_follow_url(
+    scraper_application: Scraper,
+    bs4_follow_url: None,
+    expected_data: List[Dict],
+    base_url: str,
+    scraper_save: None,
+    mock_database: mock.MagicMock,
+    mock_database_per_page: mock.MagicMock,
+    mock_httpx: Router,
+) -> None:
+    assert scraper_application.has_async is False
+    assert len(scraper_application.rules) == 3
+
+    scraper_application.run(
+        urls=[base_url],
+        pages=2,
+        format="custom",
+        parser="bs4",
+        follow_urls=False,
+        ignore_robots_txt=True,
+        save_per_page=True,
+    )
+
+    called_urls = [str(request.url) for request, _ in mock_httpx.calls]
+    assert urljoin(base_url, "/") in called_urls
+    assert urljoin(base_url, "url-1.html") in called_urls
+    assert urljoin(base_url, "url-1.html") in called_urls
+    assert urljoin(base_url, "url-1.html") in called_urls
 
     mock_database_per_page.save.assert_called_with(expected_data)
     mock_database.save.assert_not_called()
