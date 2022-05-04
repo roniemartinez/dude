@@ -208,15 +208,14 @@ def test_follow_url(
         format="custom",
         parser="bs4",
         follow_urls=False,
-        ignore_robots_txt=True,
         save_per_page=True,
     )
 
     called_urls = [str(request.url) for request, _ in mock_httpx.calls]
     assert urljoin(base_url, "/") in called_urls
     assert urljoin(base_url, "url-1.html") in called_urls
-    assert urljoin(base_url, "url-1.html") in called_urls
-    assert urljoin(base_url, "url-1.html") in called_urls
+    assert urljoin(base_url, "url-2.html") in called_urls
+    assert urljoin(base_url, "url-3.html") in called_urls
 
     mock_database_per_page.save.assert_called_with(expected_data)
     mock_database.save.assert_not_called()

@@ -1,6 +1,7 @@
 import json
 from typing import Any, Dict, List, Optional
 from unittest import mock
+from urllib.parse import urljoin
 
 import pytest
 import yaml
@@ -131,6 +132,24 @@ def scraper_with_parser_save(scraper_application_with_parser: Scraper, mock_data
         return True
 
 
+@pytest.fixture()
+def playwright_follow_url(scraper_application: Scraper) -> None:
+    @scraper_application.group(css=".custom-group")
+    @scraper_application.select(css=".title")
+    def title(element: sync_api.ElementHandle) -> Dict:
+        return {"title": element.text_content()}
+
+    @scraper_application.group(css=".custom-group")
+    @scraper_application.select(css=".title", url_match="example.com")
+    def url_dont_match(element: sync_api.ElementHandle) -> Dict:
+        return {"title": element.text_content()}
+
+    @scraper_application.select(css=".url", group_css=".custom-group")
+    def url(element: sync_api.ElementHandle) -> Dict:
+        scraper_application.follow_url(urljoin(scraper_application.get_current_url(), element.get_attribute("href")))
+        return {"url": element.get_attribute("href")}
+
+
 @pytest.mark.parametrize(
     "browser_type",
     (
@@ -160,6 +179,34 @@ def test_full_flow(
 
     scraper_application.run(
         urls=[file_url], pages=2, format="custom", parser="playwright", browser_type=browser_type, follow_urls=True
+    )
+
+    mock_database.setup.assert_called_once()
+    mock_database_per_page.save.assert_called_with(expected_browser_data)
+    mock_database.save.assert_not_called()
+    mock_database.close.assert_called_once()
+
+
+def test_follow_url(
+    scraper_application: Scraper,
+    playwright_follow_url: None,
+    playwright_setup: None,
+    playwright_navigate: None,
+    playwright_startup: None,
+    playwright_pre_setup: None,
+    playwright_post_setup: None,
+    playwright_shutdown: None,
+    scraper_save: None,
+    expected_browser_data: List[Dict],
+    file_url: str,
+    mock_database: mock.MagicMock,
+    mock_database_per_page: mock.MagicMock,
+) -> None:
+    assert scraper_application.has_async is False
+    assert len(scraper_application.rules) == 5
+
+    scraper_application.run(
+        urls=[file_url], pages=2, format="custom", parser="playwright", follow_urls=False, save_per_page=True
     )
 
     mock_database.setup.assert_called_once()

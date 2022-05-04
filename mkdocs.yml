@@ -45,6 +45,7 @@ nav:
       - Selenium Scraper: advanced/13_selenium.md
       - Events: advanced/14_events.md
       - "@start_requests": advanced/15_start_requests.md
+      - Helper Functions: advanced/16_helper_functions.md
   - Supported Parser Backends:
       - supported_parser_backends/index.md
       - Migrating Your Web Scrapers to Dude: supported_parser_backends/migrating.md
