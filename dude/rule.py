@@ -1,6 +1,6 @@
 import fnmatch
 from enum import Enum, auto
-from typing import Callable, NamedTuple, Optional, Tuple, Union
+from typing import Callable, NamedTuple, Optional, Set, Tuple, Union
 
 
 class SelectorType(Enum):
@@ -75,12 +75,19 @@ def rule_grouper(rule: Rule) -> Selector:
     return rule.group
 
 
-def rule_filter(url: str, setup: bool = False, navigate: bool = False) -> Callable:
+def rule_filter(url: str, pattern: Set[str], skip: Set[str], setup: bool = False, navigate: bool = False) -> Callable:
     def wrapper(rule: Rule) -> bool:
+        if len(pattern) and not any(p in rule.handler.__name__ for p in pattern):
+            return False
+
+        if len(skip) and any(p in rule.handler.__name__ for p in skip):
+            return False
+
         if callable(rule.url_matcher):
             matches = rule.url_matcher(url)
         else:
             matches = fnmatch.fnmatch(url, rule.url_matcher)
+
         return matches and rule.setup is setup and rule.navigate is navigate
 
     return wrapper

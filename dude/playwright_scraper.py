@@ -28,6 +28,8 @@ class PlaywrightScraper(ScraperAbstract):
         follow_urls: bool = False,
         save_per_page: bool = False,
         ignore_robots_txt: bool = False,
+        pattern: Sequence[str] = None,
+        skip: Sequence[str] = None,
         headless: bool = True,
         browser_type: str = "chromium",
         **kwargs: Any,
@@ -43,6 +45,8 @@ class PlaywrightScraper(ScraperAbstract):
         :param follow_urls: Automatically follow URLs.
         :param save_per_page: Flag to save data on every page extraction or not. If not, saves all the data at the end.
         :param ignore_robots_txt: Flag to ignore robots.txt.
+        :param pattern: Run handlers that match the provided patterns.
+        :param skip: Skip handlers that match the provided patterns.
 
         :param headless: Enables headless browser. (default=True)
         :param browser_type: Playwright supported browser types ("chromium", "webkit" or "firefox").
@@ -56,6 +60,8 @@ class PlaywrightScraper(ScraperAbstract):
             follow_urls=follow_urls,
             save_per_page=save_per_page,
             ignore_robots_txt=ignore_robots_txt,
+            pattern=pattern,
+            skip=skip,
             **{**kwargs, "headless": headless, "browser_type": browser_type},
         )
 

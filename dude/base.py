@@ -74,6 +74,8 @@ class ScraperBase(ABC):
         self.requests: Deque = requests or collections.deque()  # allows dynamically appending new requests for crawling
         self.allowed_domains: Set[str] = set()
         self.ignore_robots_txt: bool = False
+        self.pattern: Set[str] = set()
+        self.skip: Set[str] = set()
 
     @abstractmethod
     def run(
@@ -86,6 +88,8 @@ class ScraperBase(ABC):
         follow_urls: bool = False,
         save_per_page: bool = False,
         ignore_robots_txt: bool = False,
+        pattern: Sequence[str] = None,
+        skip: Sequence[str] = None,
         **kwargs: Any,
     ) -> None:
         """
@@ -99,9 +103,15 @@ class ScraperBase(ABC):
         :param follow_urls: Automatically follow URLs.
         :param save_per_page: Flag to save data on every page extraction or not. If not, saves all the data at the end.
         :param ignore_robots_txt: Flag to ignore robots.txt.
+        :param pattern: Run handlers that match the provided patterns.
+        :param skip: Skip handlers that match the provided patterns.
         """
         self.initialize_scraper(urls)
         self.ignore_robots_txt = ignore_robots_txt
+        if pattern:
+            self.pattern = set(pattern)
+        if skip:
+            self.skip = set(skip)
 
         logger.info("Using %s...", self.__class__.__name__)
 
@@ -573,13 +583,17 @@ class ScraperAbstract(ScraperBase):
             yield scraped_data
 
     def get_scraping_rules(self, url: str) -> Iterable[Rule]:
-        return filter(rule_filter(url), self.rules)
+        return filter(rule_filter(url, self.pattern, self.skip), self.rules)
 
     def get_setup_rules(self, url: str) -> Iterable[Rule]:
-        return sorted(filter(rule_filter(url, setup=True), self.rules), key=lambda r: r.priority)
+        return sorted(
+            filter(rule_filter(url, self.pattern, self.skip, setup=True), self.rules), key=lambda r: r.priority
+        )
 
     def get_navigate_rules(self, url: str) -> Iterable[Rule]:
-        return sorted(filter(rule_filter(url, navigate=True), self.rules), key=lambda r: r.priority)
+        return sorted(
+            filter(rule_filter(url, self.pattern, self.skip, navigate=True), self.rules), key=lambda r: r.priority
+        )
 
     def get_flattened_data(self) -> List[Dict]:
         items = []
