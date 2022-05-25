@@ -4,6 +4,7 @@ from pathlib import Path
 from typing import Any
 
 from .context import (  # noqa: F401
+    follow_url,
     get_current_url,
     group,
     post_setup,
@@ -14,7 +15,6 @@ from .context import (  # noqa: F401
     shutdown,
     start_requests,
     startup,
-    follow_url,
 )
 from .scraper import Scraper  # noqa: F401
 
