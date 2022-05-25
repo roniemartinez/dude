@@ -4,6 +4,7 @@ from pathlib import Path
 from typing import Any
 
 from .context import (  # noqa: F401
+    follow_url,
     get_current_url,
     group,
     post_setup,
@@ -36,7 +37,8 @@ __all__ = [
     "pre_setup",
     "post_setup",
     "start_requests",
-    "current_url",
+    "get_current_url",
+    "follow_url",
 ] + EXTRA_EXPORTS
 
 
