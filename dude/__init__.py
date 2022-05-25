@@ -14,6 +14,7 @@ from .context import (  # noqa: F401
     shutdown,
     start_requests,
     startup,
+    follow_url,
 )
 from .scraper import Scraper  # noqa: F401
 
@@ -36,7 +37,8 @@ __all__ = [
     "pre_setup",
     "post_setup",
     "start_requests",
-    "current_url",
+    "get_current_url",
+    "follow_url",
 ] + EXTRA_EXPORTS
 
 
