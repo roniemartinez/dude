@@ -38,13 +38,13 @@ playwright = "^1.19.0"
 PyYAML = "^6.0"
 # optionals
 beautifulsoup4 = { version = "^4.10.0", optional = true }
-cssselect = {version = "^1.1.0", optional = true}
+cssselect = { version = "^1.1.0", optional = true }
 httpx = { version = ">=0.22,<0.24", optional = true }
-lxml = {version = "^4.8.0", optional = true}
-parsel = {version = "^1.6.0", optional = true}
-pyppeteer = {version = "^1.0.2", optional = true}
-selenium-wire = {version = "^4.6.2", optional = true}
-webdriver-manager = {version = "^3.7.0", optional = true}
+lxml = { version = "^4.8.0", optional = true }
+parsel = { version = "^1.6.0", optional = true }
+pyppeteer = { version = "^1.0.2", optional = true }
+selenium-wire = { version = "^4.6.2", optional = true }
+webdriver-manager = { version = "^3.7.0", optional = true }
 
 [tool.poetry.extras]
 bs4 = ["beautifulsoup4", "httpx"]
@@ -58,7 +58,7 @@ autoflake = "^1.3.1"
 black = "^22.3"
 isort = "^5.10.1"
 mkdocs-material = "^8.2.16"
-mkdocstrings = "^0.19.0"
+mkdocstrings = { version = "^0.19.0", extras = ["python-legacy"] }
 mypy = "^0.960"
 pyproject-flake8 = "^0.0.1a4"
 pytest = "^7.1.2"
