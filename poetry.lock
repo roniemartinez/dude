@@ -1245,7 +1245,7 @@ selenium = ["selenium-wire", "webdriver-manager"]
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.7"
-content-hash = "fc2f6b1f9d7b629a6822ad731eb17fced199d7a3e81fbfb4a5f39b75f2941779"
+content-hash = "2c40510398659fbe9e4dbc5928045a6c818c6ae791e3335f1b91c0d53ff23e8c"
 
 [metadata.files]
 anyio = [
