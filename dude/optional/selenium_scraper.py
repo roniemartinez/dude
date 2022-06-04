@@ -18,9 +18,9 @@ from webdriver_manager.chrome import ChromeDriverManager
 from webdriver_manager.core.utils import ChromeType
 from webdriver_manager.firefox import GeckoDriverManager
 
-from .utils import get_chromedriver_latest_release
 from ..base import ScraperAbstract
 from ..rule import Selector, SelectorType, rule_grouper, rule_sorter
+from .utils import get_chromedriver_latest_release
 
 logger = logging.getLogger(__name__)
 
