@@ -1,13 +1,17 @@
 from typing import Any, Dict, List, Optional
 from unittest import mock
 
+import browsers
 import pytest
+import respx
 from braveblock import Adblocker
+from httpx import Response
 from selenium.webdriver.remote.webdriver import WebDriver
 from selenium.webdriver.remote.webelement import WebElement
 
 from dude import Scraper
 from dude.optional.selenium_scraper import SeleniumScraper
+from dude.optional.utils import get_chromedriver_latest_release
 
 
 @pytest.fixture()
@@ -388,3 +392,23 @@ def test_scraper_with_parser(
     scraper_application_with_selenium_parser.run(urls=[file_url], pages=2, format="custom", parser="selenium")
 
     mock_database.save.assert_called_with(expected_browser_data)
+
+
+@pytest.mark.parametrize(
+    ("response", "expected_version"),
+    (
+        (Response(200, content="102.0.5005.61"), "102.0.5005.61"),
+        (Response(404), "latest"),
+    ),
+)
+@respx.mock(base_url="https://chromedriver.storage.googleapis.com")
+@mock.patch.object(browsers, "get", return_value={"version": "102.0.5005.0"})
+def test_get_chromedriver_latest_release(
+    mock_browser: mock.MagicMock, respx_mock: respx.Router, response: Response, expected_version: str
+) -> None:
+    respx_mock.get("/LATEST_RELEASE_102.0.5005").mock(return_value=response)
+
+    version = get_chromedriver_latest_release()
+    assert version == expected_version
+
+    mock_browser.assert_called()

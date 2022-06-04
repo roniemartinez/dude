@@ -27,15 +27,12 @@ jobs:
           - os: ubuntu-latest
             pip-cache: ~/.cache/pip
             poetry-cache: ~/.cache/pypoetry
-            chromedriver-version: 101.0.4951.41  # https://chromedriver.chromium.org/downloads
           - os: macos-latest
             pip-cache: ~/Library/Caches/pip
             poetry-cache: ~/Library/Caches/pypoetry
-            chromedriver-version: 100.0.4896.60  # https://chromedriver.chromium.org/downloads
           - os: windows-latest
             pip-cache: ~\AppData\Local\pip\Cache
             poetry-cache: ~\AppData\Local\pypoetry\Cache
-            chromedriver-version: 101.0.4951.41  # https://chromedriver.chromium.org/downloads
     steps:
       - uses: actions/checkout@v2
       - name: Set up Python ${{ matrix.python-version }}
@@ -78,7 +75,6 @@ jobs:
           make lint
       - name: Test
         env:
-          CHROMEDRIVER_VERSION: ${{ matrix.chromedriver-version }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           make test

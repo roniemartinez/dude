@@ -64,3 +64,24 @@ class HTTPXMixin:
                 yield request
         except IndexError:
             pass
+
+
+def get_chromedriver_latest_release() -> str:
+    """
+    https://chromedriver.chromium.org/downloads/version-selection
+    """
+    import browsers
+
+    version = browsers.get("chrome")["version"].rsplit(".", 1)[0]
+
+    with httpx.Client() as client:
+        try:
+            response = client.get(f"https://chromedriver.storage.googleapis.com/LATEST_RELEASE_{version}")
+            response.raise_for_status()
+            latest = response.text.strip()
+            logger.info("Matching ChromeDriver latest release is %s", latest)
+            return latest
+        except httpx.HTTPStatusError as e:
+            logger.exception(e)
+
+        return "latest"

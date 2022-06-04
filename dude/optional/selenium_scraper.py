@@ -1,7 +1,6 @@
 import asyncio
 import itertools
 import logging
-import os
 from typing import Any, AsyncIterable, Callable, Iterable, Optional, Sequence, Tuple, Union
 from urllib.parse import urljoin
 
@@ -21,6 +20,7 @@ from webdriver_manager.firefox import GeckoDriverManager
 
 from ..base import ScraperAbstract
 from ..rule import Selector, SelectorType, rule_grouper, rule_sorter
+from .utils import get_chromedriver_latest_release
 
 logger = logging.getLogger(__name__)
 
@@ -254,7 +254,7 @@ class SeleniumScraper(ScraperAbstract):
             chrome_options.add_argument("--no-sandbox")
             chrome_options.add_argument("--disable-notifications")
             executable_path = ChromeDriverManager(
-                chrome_type=ChromeType.CHROMIUM, version=os.getenv("CHROMEDRIVER_VERSION", "latest")
+                chrome_type=ChromeType.CHROMIUM, version=get_chromedriver_latest_release()
             ).install()
             driver = Chrome(service=ChromeService(executable_path=executable_path), options=chrome_options)
 
