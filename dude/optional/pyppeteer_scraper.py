@@ -34,6 +34,8 @@ class PyppeteerScraper(ScraperAbstract):
         follow_urls: bool = False,
         save_per_page: bool = False,
         ignore_robots_txt: bool = False,
+        pattern: Sequence[str] = None,
+        skip: Sequence[str] = None,
         headless: bool = True,
         **kwargs: Any,
     ) -> None:
@@ -48,6 +50,8 @@ class PyppeteerScraper(ScraperAbstract):
         :param follow_urls: Automatically follow URLs.
         :param save_per_page: Flag to save data on every page extraction or not. If not, saves all the data at the end.
         :param ignore_robots_txt: Flag to ignore robots.txt.
+        :param pattern: Run handlers that match the provided patterns.
+        :param skip: Skip handlers that match the provided patterns.
 
         :param headless: Enables headless browser. (default=True)
         """
@@ -60,6 +64,8 @@ class PyppeteerScraper(ScraperAbstract):
             follow_urls=follow_urls,
             save_per_page=save_per_page,
             ignore_robots_txt=ignore_robots_txt,
+            pattern=pattern,
+            skip=skip,
             headless=headless,
             **kwargs,
         )

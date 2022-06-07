@@ -29,6 +29,8 @@ class BeautifulSoupScraper(ScraperAbstract, HTTPXMixin):
         follow_urls: bool = False,
         save_per_page: bool = False,
         ignore_robots_txt: bool = False,
+        pattern: Sequence[str] = None,
+        skip: Sequence[str] = None,
         **kwargs: Any,
     ) -> None:
         """
@@ -42,6 +44,8 @@ class BeautifulSoupScraper(ScraperAbstract, HTTPXMixin):
         :param follow_urls: Automatically follow URLs.
         :param save_per_page: Flag to save data on every page extraction or not. If not, saves all the data at the end.
         :param ignore_robots_txt: Flag to ignore robots.txt.
+        :param pattern: Run handlers that match the provided patterns.
+        :param skip: Skip handlers that match the provided patterns.
         """
         super(BeautifulSoupScraper, self).run(
             urls=urls,
@@ -52,6 +56,8 @@ class BeautifulSoupScraper(ScraperAbstract, HTTPXMixin):
             follow_urls=follow_urls,
             save_per_page=save_per_page,
             ignore_robots_txt=ignore_robots_txt,
+            pattern=pattern,
+            skip=skip,
             **kwargs,
         )
 

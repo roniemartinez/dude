@@ -197,6 +197,18 @@ def cli() -> None:  # pragma: no cover
         action="store_true",
         help="Flag to ignore robots.txt.",
     )
+    optional.add_argument(
+        "--pattern",
+        dest="pattern",
+        action="append",
+        help="Run handlers that match the provided patterns.",
+    )
+    optional.add_argument(
+        "--skip",
+        dest="skip",
+        action="append",
+        help="Skip handlers that match the provided patterns.",
+    )
     arguments = parser.parse_args()
 
     if arguments.version:
@@ -255,4 +267,6 @@ def cli() -> None:  # pragma: no cover
         follow_urls=arguments.follow_urls,
         save_per_page=arguments.save_per_page,
         ignore_robots_txt=arguments.ignore_robots_txt,
+        pattern=arguments.pattern,
+        skip=arguments.skip,
     )
