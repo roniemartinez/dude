@@ -168,14 +168,15 @@ class PlaywrightScraper(ScraperAbstract):
         # FIXME: Coverage fails to cover anything within this context manager block
         with sync_playwright() as p:
             browser = p[browser_type].launch(headless=headless, proxy=proxy, **launch_kwargs)
-            page = browser.new_page()
-            page.route("**/*", self._block_url_if_needed)
             for url in self.iter_urls():
+                page = browser.new_page()
+                page.route("**/*", self._block_url_if_needed)
                 logger.info("Requesting url %s", url)
                 try:
                     page.goto(url)
                 except sync_api.Error as e:
                     logger.warning(e)
+                    page.close()
                     continue
                 logger.info("Loaded page %s", page.url)
                 if follow_urls:
@@ -194,7 +195,10 @@ class PlaywrightScraper(ScraperAbstract):
                         self._save(format, output, save_per_page)
 
                     if i == pages or not self.navigate(page=page) or current_page == page.url:
+                        page.close()
                         break
+
+                page.close()
 
             browser.close()
 
