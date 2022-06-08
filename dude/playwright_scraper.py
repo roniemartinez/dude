@@ -217,14 +217,15 @@ class PlaywrightScraper(ScraperAbstract):
         launch_kwargs = self._get_launch_kwargs(browser_type)
         async with async_playwright() as p:
             browser = await p[browser_type].launch(headless=headless, proxy=proxy, **launch_kwargs)
-            page = await browser.new_page()
-            await page.route("**/*", self._block_url_if_needed)
             for url in self.iter_urls():
+                page = await browser.new_page()
+                await page.route("**/*", self._block_url_if_needed)
                 logger.info("Requesting url %s", url)
                 try:
                     await page.goto(url)
                 except async_api.Error as e:
                     logger.warning(e)
+                    await page.close()
                     continue
                 logger.info("Loaded page %s", page.url)
                 if follow_urls:
@@ -245,7 +246,11 @@ class PlaywrightScraper(ScraperAbstract):
                         await self._save_async(format, output, save_per_page)
 
                     if i == pages or not await self.navigate_async(page=page) or current_page == page.url:
+                        await page.close()
                         break
+
+                await page.close()
+
             await browser.close()
 
     def collect_elements(self, page: sync_api.Page = None) -> Iterable[Tuple[str, int, int, int, Any, Callable]]:

@@ -224,7 +224,7 @@ Here is the summary of features supported by each parser backend.
 </tbody>
 </table>
 
-## using the Docker image
+## Using the Docker image
 
 Pull the docker image using the following command.
 
