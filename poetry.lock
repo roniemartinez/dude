@@ -519,7 +519,7 @@ mkdocs = ">=1.1"
 
 [[package]]
 name = "mkdocs-material"
-version = "8.3.5"
+version = "8.3.6"
 description = "Documentation that simply works"
 category = "dev"
 optional = false
@@ -1321,7 +1321,7 @@ selenium = ["selenium-wire", "webdriver-manager", "pybrowsers"]
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.7"
-content-hash = "10a5b8db22b2300e17c02613dba4b7a94c27bec36dd9fb66c04f0a2d03f45c53"
+content-hash = "5274765545f9c68c3cdcab61c8705cee4dc680555042bdccdc272b7d87bba5b6"
 
 [metadata.files]
 anyio = [
@@ -1848,8 +1848,8 @@ mkdocs-autorefs = [
     {file = "mkdocs_autorefs-0.4.1-py3-none-any.whl", hash = "sha256:a2248a9501b29dc0cc8ba4c09f4f47ff121945f6ce33d760f145d6f89d313f5b"},
 ]
 mkdocs-material = [
-    {file = "mkdocs-material-8.3.5.tar.gz", hash = "sha256:0d7ae82b28fa57a2ad9a4eeb5fd01704cb8fe963eb20c56a68afdd735e52b432"},
-    {file = "mkdocs_material-8.3.5-py2.py3-none-any.whl", hash = "sha256:9190aef365bd6ed43b27f47d1de956d9e67b61f4b9edb444563337ef717cacd3"},
+    {file = "mkdocs-material-8.3.6.tar.gz", hash = "sha256:be8f95c0dfb927339b55b2cc066423dc0b381be9828ff74a5b02df979a859b66"},
+    {file = "mkdocs_material-8.3.6-py2.py3-none-any.whl", hash = "sha256:01f3fbab055751b3b75a64b538e86b9ce0c6a0f8d43620f6287dfa16534443e5"},
 ]
 mkdocs-material-extensions = [
     {file = "mkdocs-material-extensions-1.0.3.tar.gz", hash = "sha256:bfd24dfdef7b41c312ede42648f9eb83476ea168ec163b613f9abd12bbfddba2"},
