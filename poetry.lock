@@ -519,7 +519,7 @@ mkdocs = ">=1.1"
 
 [[package]]
 name = "mkdocs-material"
-version = "8.3.6"
+version = "8.3.7"
 description = "Documentation that simply works"
 category = "dev"
 optional = false
@@ -1106,11 +1106,11 @@ python-versions = ">=3.6"
 
 [[package]]
 name = "tabulate"
-version = "0.8.10"
+version = "0.8.11"
 description = ""
 category = "dev"
 optional = false
-python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*"
+python-versions = ">=3.7"
 develop = false
 
 [package.extras]
@@ -1120,7 +1120,7 @@ widechars = ["wcwidth"]
 type = "git"
 url = "https://github.com/astanin/python-tabulate"
 reference = "master"
-resolved_reference = "a59d1dee2b4378f048d959ab36a246b441f62105"
+resolved_reference = "46307a531dc616fc6af75628f811727105339ca4"
 
 [[package]]
 name = "tomli"
@@ -1321,7 +1321,7 @@ selenium = ["selenium-wire", "webdriver-manager", "pybrowsers"]
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.7"
-content-hash = "5274765545f9c68c3cdcab61c8705cee4dc680555042bdccdc272b7d87bba5b6"
+content-hash = "7623a4a32b3199322687549324b591198e86b3ddeff6661157c30a507ba4b0aa"
 
 [metadata.files]
 anyio = [
@@ -1848,8 +1848,8 @@ mkdocs-autorefs = [
     {file = "mkdocs_autorefs-0.4.1-py3-none-any.whl", hash = "sha256:a2248a9501b29dc0cc8ba4c09f4f47ff121945f6ce33d760f145d6f89d313f5b"},
 ]
 mkdocs-material = [
-    {file = "mkdocs-material-8.3.6.tar.gz", hash = "sha256:be8f95c0dfb927339b55b2cc066423dc0b381be9828ff74a5b02df979a859b66"},
-    {file = "mkdocs_material-8.3.6-py2.py3-none-any.whl", hash = "sha256:01f3fbab055751b3b75a64b538e86b9ce0c6a0f8d43620f6287dfa16534443e5"},
+    {file = "mkdocs-material-8.3.7.tar.gz", hash = "sha256:e0e01f5deeacb126ad0a64998bb66d512c24467f4c9550a0afc74f7f0719a9ae"},
+    {file = "mkdocs_material-8.3.7-py2.py3-none-any.whl", hash = "sha256:f24ed0fc185dd88b036abc0425ce9e31ecf1e7e673bf01d3b168b373c08e629a"},
 ]
 mkdocs-material-extensions = [
     {file = "mkdocs-material-extensions-1.0.3.tar.gz", hash = "sha256:bfd24dfdef7b41c312ede42648f9eb83476ea168ec163b613f9abd12bbfddba2"},
