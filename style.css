@@ -1,0 +1,7 @@
+.c1 {
+    visibility: collapse;
+}
+
+.c1 aside {
+    visibility: visible;
+}
