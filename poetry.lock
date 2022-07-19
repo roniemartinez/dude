@@ -1244,7 +1244,7 @@ watchmedo = ["PyYAML (>=3.10)"]
 
 [[package]]
 name = "webdriver-manager"
-version = "3.8.1"
+version = "3.8.2"
 description = "Library provides the way to automatically manage drivers for different browsers"
 category = "main"
 optional = true
@@ -2202,8 +2202,8 @@ watchdog = [
     {file = "watchdog-2.1.8.tar.gz", hash = "sha256:6d03149126864abd32715d4e9267d2754cede25a69052901399356ad3bc5ecff"},
 ]
 webdriver-manager = [
-    {file = "webdriver_manager-3.8.1-py2.py3-none-any.whl", hash = "sha256:821e0737415044d7ad2fc4c1b25fbe0c0de602c62c94c5a25e4a096cf10f792f"},
-    {file = "webdriver_manager-3.8.1.tar.gz", hash = "sha256:9e115be96f04f4a912431766e7675679527f62867a3c73f4738901ea89e2a1e9"},
+    {file = "webdriver_manager-3.8.2-py2.py3-none-any.whl", hash = "sha256:df23786e34d4c1f8c4490e1922618c2fe5a58a2bf6444b94c6664fc3fefba2e4"},
+    {file = "webdriver_manager-3.8.2.tar.gz", hash = "sha256:5282e957fe59bc5cd96eae58b2ec4cc6f0de649fa832e5ab40d6284f6ee7830e"},
 ]
 websockets = [
     {file = "websockets-10.1-cp310-cp310-macosx_10_9_universal2.whl", hash = "sha256:38db6e2163b021642d0a43200ee2dec8f4980bdbda96db54fde72b283b54cbfc"},
