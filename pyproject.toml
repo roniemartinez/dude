@@ -55,7 +55,7 @@ pyppeteer = ["pyppeteer"]
 selenium = ["selenium-wire", "webdriver-manager", "pybrowsers"]
 
 [tool.poetry.dev-dependencies]
-autoflake = "^1.5.1"
+autoflake = "^1.5.2"
 black = "^22.6"
 isort = "^5.10.1"
 mkdocs-material = "^8.4.2"
