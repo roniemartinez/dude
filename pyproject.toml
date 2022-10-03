@@ -58,7 +58,7 @@ selenium = ["selenium-wire", "webdriver-manager", "pybrowsers"]
 autoflake = "^1.6.1"
 black = "^22.8"
 isort = "^5.10.1"
-mkdocs-material = "^8.5.3"
+mkdocs-material = "^8.5.6"
 mkdocstrings = { version = "^0.19.0", extras = ["python-legacy"] }
 mypy = "^0.981"
 pyproject-flake8 = "^3.9.2"
