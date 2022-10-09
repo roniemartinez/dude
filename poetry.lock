@@ -60,7 +60,7 @@ tests_no_zope = ["cloudpickle", "coverage[toml] (>=5.0.2)", "hypothesis", "mypy"
 
 [[package]]
 name = "autoflake"
-version = "1.6.1"
+version = "1.7.0"
 description = "Removes unused imports and unused variables"
 category = "dev"
 optional = false
@@ -1100,8 +1100,8 @@ python-versions = ">=3.6"
 
 [[package]]
 name = "tabulate"
-version = "0.8.11"
-description = ""
+version = "0.9.1.dev5+g90fbd7e"
+description = "Pretty-print tabular data"
 category = "dev"
 optional = false
 python-versions = ">=3.7"
@@ -1114,7 +1114,7 @@ widechars = ["wcwidth"]
 type = "git"
 url = "https://github.com/astanin/python-tabulate"
 reference = "master"
-resolved_reference = "3f0757e117ed2ca1171bbf84b61793f353d67282"
+resolved_reference = "90fbd7e5b127bafd0aecfe118798743589b1a60b"
 
 [[package]]
 name = "tomli"
@@ -1316,7 +1316,7 @@ selenium = ["selenium-wire", "webdriver-manager", "pybrowsers"]
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.7"
-content-hash = "721c7cf5259298ad04bdf57eff1860820af062c2d07416ad097eb47bc51588fa"
+content-hash = "e90bf083b70b663a70c952f84e2f649d36af22a23ceb7f6cdaccf65144838cd4"
 
 [metadata.files]
 anyio = [
@@ -1340,8 +1340,8 @@ attrs = [
     {file = "attrs-21.4.0.tar.gz", hash = "sha256:626ba8234211db98e869df76230a137c4c40a12d72445c45d5f5b716f076e2fd"},
 ]
 autoflake = [
-    {file = "autoflake-1.6.1-py2.py3-none-any.whl", hash = "sha256:dfef4c851fb07e6111f9115d3e7c8c52d8564cbf71c12ade2d8b8a2a7b8bd176"},
-    {file = "autoflake-1.6.1.tar.gz", hash = "sha256:72bce741144ef6db26005d47dba242c1fd6a91ea53f7f4c5a90ad4b051e394c2"},
+    {file = "autoflake-1.7.0-py2.py3-none-any.whl", hash = "sha256:cb46baf67d7114302cf66363f384d34704508828f1606a42a267957531f2bab3"},
+    {file = "autoflake-1.7.0.tar.gz", hash = "sha256:ac2f7d61cd54e675319fc67ce4a9b4ba69cb054af9ae4e8e565cfcb57ba15c6a"},
 ]
 beautifulsoup4 = [
     {file = "beautifulsoup4-4.11.1-py3-none-any.whl", hash = "sha256:58d5c3d29f5a36ffeb94f02f0d786cd53014cf9b3b3951d42e0080d8a9498d30"},
