@@ -1040,7 +1040,7 @@ urllib3 = {version = ">=1.26,<2.0", extras = ["secure", "socks"]}
 
 [[package]]
 name = "selenium-wire"
-version = "5.0.0"
+version = "5.1.0"
 description = "Extends Selenium to give you the ability to inspect requests made by the browser."
 category = "main"
 optional = true
@@ -1055,10 +1055,10 @@ hyperframe = {version = ">=6.0", markers = "python_version >= \"3.6.0\""}
 kaitaistruct = ">=0.7"
 pyasn1 = ">=0.3.1"
 pydivert = {version = ">=2.0.3", markers = "sys_platform == \"win32\""}
-pyOpenSSL = ">=19.1.0,<=22.0.0"
+pyOpenSSL = ">=22.0.0"
 pyparsing = ">=2.4.2"
 pysocks = ">=1.7.1"
-selenium = ">=3.4.0"
+selenium = ">=4.0.0"
 wsproto = ">=0.14"
 zstandard = ">=0.14.1"
 
@@ -2102,8 +2102,8 @@ selenium = [
     {file = "selenium-4.2.0-py3-none-any.whl", hash = "sha256:ba5b2633f43cf6fe9d308fa4a6996e00a101ab9cb1aad6fd91ae1f3dbe57f56f"},
 ]
 selenium-wire = [
-    {file = "selenium-wire-5.0.0.tar.gz", hash = "sha256:7f616ea0d21b489eddaed787e3a4fbc6da63bfd5af3a8dcf8b39f66685d7e399"},
-    {file = "selenium_wire-5.0.0-py3-none-any.whl", hash = "sha256:d941d6c358c01a9c56bbdd7f45fcea24ef820a4a5c03c660035d21edebdfa4ce"},
+    {file = "selenium-wire-5.1.0.tar.gz", hash = "sha256:b1cd4eae44d9959381abe3bb186472520d063c658e279f98555def3d4e6dd29b"},
+    {file = "selenium_wire-5.1.0-py3-none-any.whl", hash = "sha256:fbf930d9992f8b6d24bb16b3e6221bab596a41f6ae7548270b7d5a92f3402622"},
 ]
 six = [
     {file = "six-1.16.0-py2.py3-none-any.whl", hash = "sha256:8abb2f1d86890a2dfb989f9a77cfcfd3e47c2a354b01111771326f8aa26e0254"},
