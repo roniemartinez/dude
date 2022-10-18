@@ -60,7 +60,7 @@ tests-no-zope = ["cloudpickle", "coverage[toml] (>=5.0.2)", "hypothesis", "mypy"
 
 [[package]]
 name = "autoflake"
-version = "1.7.4"
+version = "1.7.6"
 description = "Removes unused imports and unused variables"
 category = "dev"
 optional = false
@@ -1315,7 +1315,7 @@ selenium = ["selenium-wire", "webdriver-manager", "pybrowsers"]
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.7"
-content-hash = "d34e93846ebb986a0ace09afd27eb98d5c71b441aafce7ad3625ab0ac902be14"
+content-hash = "caf1e02b1b22a0ae72fc34e15cf6d07e62323597ada362018b8c41e794e16eaf"
 
 [metadata.files]
 anyio = [
@@ -1339,8 +1339,8 @@ attrs = [
     {file = "attrs-21.4.0.tar.gz", hash = "sha256:626ba8234211db98e869df76230a137c4c40a12d72445c45d5f5b716f076e2fd"},
 ]
 autoflake = [
-    {file = "autoflake-1.7.4-py2.py3-none-any.whl", hash = "sha256:9daac24b55cb0eed619e8260c4c15e6572b7a28e8f55c8ac23530766d7f4c957"},
-    {file = "autoflake-1.7.4.tar.gz", hash = "sha256:57dcc60a1c20ba92644230d812a7a8c64a6bff9d78b61d5374e07d666a1f4d32"},
+    {file = "autoflake-1.7.6-py3-none-any.whl", hash = "sha256:9fa63cb814c1dfc02103a361b449c024226348c2130b6839cd94278c309c4a65"},
+    {file = "autoflake-1.7.6.tar.gz", hash = "sha256:f2a8e107ba6c02a25e0acf2beebab247792998132e6b1f24efa7b0b7faa30cb6"},
 ]
 beautifulsoup4 = [
     {file = "beautifulsoup4-4.11.1-py3-none-any.whl", hash = "sha256:58d5c3d29f5a36ffeb94f02f0d786cd53014cf9b3b3951d42e0080d8a9498d30"},
