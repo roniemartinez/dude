@@ -514,7 +514,7 @@ mkdocs = ">=1.1"
 
 [[package]]
 name = "mkdocs-material"
-version = "8.5.6"
+version = "8.5.7"
 description = "Documentation that simply works"
 category = "dev"
 optional = false
@@ -1099,7 +1099,7 @@ python-versions = ">=3.6"
 
 [[package]]
 name = "tabulate"
-version = "0.9.1.dev6+g20c6370"
+version = "0.9.1.dev9+g69dc8ed"
 description = "Pretty-print tabular data"
 category = "dev"
 optional = false
@@ -1113,7 +1113,7 @@ widechars = ["wcwidth"]
 type = "git"
 url = "https://github.com/astanin/python-tabulate"
 reference = "master"
-resolved_reference = "20c6370d5da2dae89b305bfb6c7f12a0f8b7236c"
+resolved_reference = "69dc8ed3633ef8221df50bed90d32911da24c9df"
 
 [[package]]
 name = "tomli"
@@ -1315,7 +1315,7 @@ selenium = ["selenium-wire", "webdriver-manager", "pybrowsers"]
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.7"
-content-hash = "caf1e02b1b22a0ae72fc34e15cf6d07e62323597ada362018b8c41e794e16eaf"
+content-hash = "13f99fb1bd52b69b681f719ee3edc0656153aeb43c12f84160836fadb14dc27e"
 
 [metadata.files]
 anyio = [
@@ -1852,8 +1852,8 @@ mkdocs-autorefs = [
     {file = "mkdocs_autorefs-0.4.1-py3-none-any.whl", hash = "sha256:a2248a9501b29dc0cc8ba4c09f4f47ff121945f6ce33d760f145d6f89d313f5b"},
 ]
 mkdocs-material = [
-    {file = "mkdocs_material-8.5.6-py3-none-any.whl", hash = "sha256:b473162c800321b9760453f301a91f7cb40a120a85a9d0464e1e484e74b76bb2"},
-    {file = "mkdocs_material-8.5.6.tar.gz", hash = "sha256:38a21d817265d0c203ab3dad64996e45859c983f72180f6937bd5540a4eb84e4"},
+    {file = "mkdocs_material-8.5.7-py3-none-any.whl", hash = "sha256:07fc70dfa325a8019b99a124751c43e4c1c2a739ed1b0b82c00f823f31c9a1e2"},
+    {file = "mkdocs_material-8.5.7.tar.gz", hash = "sha256:ff4c7851b2e5f9a6cfa0a8b247e973ebae753b9836a53bd68742827541ab73e5"},
 ]
 mkdocs-material-extensions = [
     {file = "mkdocs-material-extensions-1.0.3.tar.gz", hash = "sha256:bfd24dfdef7b41c312ede42648f9eb83476ea168ec163b613f9abd12bbfddba2"},
