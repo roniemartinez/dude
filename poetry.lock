@@ -1099,7 +1099,7 @@ python-versions = ">=3.6"
 
 [[package]]
 name = "tabulate"
-version = "0.9.1.dev6+g20c6370"
+version = "0.9.1.dev9+g69dc8ed"
 description = "Pretty-print tabular data"
 category = "dev"
 optional = false
@@ -1113,7 +1113,7 @@ widechars = ["wcwidth"]
 type = "git"
 url = "https://github.com/astanin/python-tabulate"
 reference = "master"
-resolved_reference = "20c6370d5da2dae89b305bfb6c7f12a0f8b7236c"
+resolved_reference = "69dc8ed3633ef8221df50bed90d32911da24c9df"
 
 [[package]]
 name = "tomli"
@@ -1179,8 +1179,8 @@ optional = false
 python-versions = ">=3.6"
 
 [[package]]
-name = "types-PyYAML"
-version = "6.0.12"
+name = "types-pyyaml"
+version = "6.0.12.1"
 description = "Typing stubs for PyYAML"
 category = "dev"
 optional = false
@@ -2164,9 +2164,9 @@ typed-ast = [
     {file = "typed_ast-1.5.4-cp39-cp39-win_amd64.whl", hash = "sha256:0fdbcf2fef0ca421a3f5912555804296f0b0960f0418c440f5d6d3abb549f3e1"},
     {file = "typed_ast-1.5.4.tar.gz", hash = "sha256:39e21ceb7388e4bb37f4c679d72707ed46c2fbf2a5609b8b8ebc4b067d977df2"},
 ]
-types-PyYAML = [
-    {file = "types-PyYAML-6.0.12.tar.gz", hash = "sha256:f6f350418125872f3f0409d96a62a5a5ceb45231af5cc07ee0034ec48a3c82fa"},
-    {file = "types_PyYAML-6.0.12-py3-none-any.whl", hash = "sha256:29228db9f82df4f1b7febee06bbfb601677882e98a3da98132e31c6874163e15"},
+types-pyyaml = [
+    {file = "types-PyYAML-6.0.12.1.tar.gz", hash = "sha256:70ccaafcf3fb404d57bffc1529fdd86a13e8b4f2cf9fc3ee81a6408ce0ad59d2"},
+    {file = "types_PyYAML-6.0.12.1-py3-none-any.whl", hash = "sha256:aaf5e51444c13bd34104695a89ad9c48412599a4f615d65a60e649109714f608"},
 ]
 typing-extensions = [
     {file = "typing_extensions-4.2.0-py3-none-any.whl", hash = "sha256:6657594ee297170d19f67d55c05852a874e7eb634f4f753dbd667855e07c1708"},
