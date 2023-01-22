@@ -34,7 +34,7 @@ dude = "dude:cli"
 [tool.poetry.dependencies]
 python = "^3.7"
 braveblock = "^0.4.0"
-playwright = "^1.29.1"
+playwright = "^1.19.0"
 PyYAML = "^6.0"
 # optionals
 beautifulsoup4 = { version = "^4.10.0", optional = true }
@@ -43,6 +43,7 @@ httpx = { version = ">=0.22,<0.24", optional = true }
 lxml = { version = "^4.8.0", optional = true }
 parsel = { version = "^1.6.0", optional = true }
 pybrowsers = {version = ">=0.4.1,<0.6.0", optional = true}
+pyppeteer = { version = "^1.0.2", optional = true }
 selenium-wire = { version = ">=4.6.2,<6.0.0", optional = true }
 webdriver-manager = { version = "^3.7.0", optional = true }
 
