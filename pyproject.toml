@@ -33,7 +33,7 @@ dude = "dude:cli"
 
 [tool.poetry.dependencies]
 python = "^3.7"
-braveblock = ">=0.1.13,<0.4.0"
+braveblock = "^0.4.0"
 playwright = "^1.19.0"
 PyYAML = "^6.0"
 # optionals
