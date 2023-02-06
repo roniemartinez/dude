@@ -70,18 +70,18 @@ tests-no-zope = ["cloudpickle", "coverage[toml] (>=5.0.2)", "hypothesis", "mypy"
 
 [[package]]
 name = "autoflake"
-version = "1.7.6"
+version = "1.7.8"
 description = "Removes unused imports and unused variables"
 category = "dev"
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "autoflake-1.7.6-py3-none-any.whl", hash = "sha256:9fa63cb814c1dfc02103a361b449c024226348c2130b6839cd94278c309c4a65"},
-    {file = "autoflake-1.7.6.tar.gz", hash = "sha256:f2a8e107ba6c02a25e0acf2beebab247792998132e6b1f24efa7b0b7faa30cb6"},
+    {file = "autoflake-1.7.8-py3-none-any.whl", hash = "sha256:46373ef69b6714f5064c923bb28bd797c4f8a9497f557d87fc36665c6d956b39"},
+    {file = "autoflake-1.7.8.tar.gz", hash = "sha256:e7e46372dee46fa1c97acf310d99d922b63d369718a270809d7c278d34a194cf"},
 ]
 
 [package.dependencies]
-pyflakes = ">=1.1.0"
+pyflakes = ">=1.1.0,<3"
 tomli = {version = ">=2.0.1", markers = "python_version < \"3.11\""}
 
 [[package]]
@@ -2352,4 +2352,4 @@ selenium = ["selenium-wire", "webdriver-manager", "pybrowsers"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.7"
-content-hash = "2eb29f09e309b1dcf5cd4a7db2a2c57d70407c3bb9045b97d50cf02dcee364c8"
+content-hash = "1adf6d7d97498e92269a49f342a2b9f14e61b9e74f5e5c538ac9ebc85b4c893d"
