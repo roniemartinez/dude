@@ -22,7 +22,7 @@ jobs:
     strategy:
       matrix:
         os: [ ubuntu-latest, macos-latest, windows-latest ]
-        python-version: [ '3.7', '3.8', '3.9', '3.10', '3.11' ]
+        python-version: [ '3.8', '3.9', '3.10', '3.11' ]
         include:
           - os: ubuntu-latest
             pip-cache: ~/.cache/pip
@@ -35,49 +35,59 @@ jobs:
             poetry-cache: ~\AppData\Local\pypoetry\Cache
     steps:
       - uses: actions/checkout@v2
+
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v2
         with:
           python-version: ${{ matrix.python-version }}
+
       - uses: actions/cache@v2
         with:
           path: ${{ matrix.pip-cache }}
           key: ${{ runner.os }}-${{ matrix.python-version }}-pip-${{ hashFiles('**/poetry.lock') }}
           restore-keys: |
             ${{ runner.os }}-${{ matrix.python-version }}-pip-
+
       - uses: actions/cache@v2
         with:
           path: ${{ matrix.poetry-cache }}
           key: ${{ runner.os }}-${{ matrix.python-version }}-poetry-${{ hashFiles('**/poetry.lock') }}
           restore-keys: |
             ${{ runner.os }}-${{ matrix.python-version }}-poetry-
+
       - uses: actions/cache@v2
         with:
           path: .mypy_cache
           key: ${{ runner.os }}-${{ matrix.python-version }}-mypy-${{ hashFiles('**/poetry.lock') }}
           restore-keys: |
             ${{ runner.os }}-${{ matrix.python-version }}-mypy-
+
       - uses: actions/cache@v2
         with:
           path: ~/.cache/ms-playwright
           key: ${{ runner.os }}-${{ matrix.python-version }}-ms-playwright-${{ hashFiles('**/poetry.lock') }}
           restore-keys: |
             ${{ runner.os }}-${{ matrix.python-version }}-ms-playwright-
+
       - uses: actions/cache@v2
         with:
           path: ~/.wdm
           key: ${{ runner.os }}-webdriver-manager
+
       - name: Install dependencies
         run: |
           make install-actions
+
       - name: Lint
         run: |
           make lint
+
       - name: Test
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           make test
+
       - name: Code Coverage
         uses: codecov/codecov-action@v2.1.0
         if: ${{ success() }}
