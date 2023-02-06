@@ -13,7 +13,6 @@
     - [BeautifulSoup4](https://www.crummy.com/software/BeautifulSoup/bs4/doc/) - `pip install pydude[bs4]`
     - [Parsel](https://github.com/scrapy/parsel) - `pip install pydude[parsel]`
     - [lxml](https://lxml.de/) - `pip install pydude[lxml]`
-    - [Pyppeteer](https://github.com/pyppeteer/pyppeteer) - `pip install pydude[pyppeteer]`
     - [Selenium](https://github.com/SeleniumHQ/Selenium) - `pip install pydude[selenium]`
 - Option to follow all links indefinitely (Crawler/Spider).
 - Events - attach functions to startup, pre-setup, post-setup and shutdown events.

@@ -28,7 +28,7 @@ class IsUrl:
 
     def __eq__(self, other: Any) -> bool:
         """
-        When loading an HTML file from local, Pyppeteer and Selenium prepends "file://" to href.
+        When loading an HTML file from local, Selenium prepends "file://" to href.
         On Windows, "file:///<Drive>:" is prepended, e.g. "file:///D:".
         """
         return isinstance(other, str) and (other == self.url or other == urljoin(self.full_html_path, self.url))

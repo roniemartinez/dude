@@ -41,7 +41,6 @@ nav:
       - BeautifulSoup4 Scraper: advanced/09_beautifulsoup4.md
       - Parsel Scraper: advanced/10_parsel.md
       - lxml Scraper: advanced/11_lxml.md
-      - Pyppeteer Scraper: advanced/12_pyppeteer.md
       - Selenium Scraper: advanced/13_selenium.md
       - Events: advanced/14_events.md
       - "@start_requests": advanced/15_start_requests.md

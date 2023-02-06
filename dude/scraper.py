@@ -40,7 +40,7 @@ class Scraper(ScraperBase):
         :param save_per_page: Flag to save data on every page extraction or not. If not, saves all the data at the end.
         :param ignore_robots_txt: Flag to ignore robots.txt.
 
-        :param parser: Parser backend ["playwright" (default), "bs4", "parsel, "lxml", "pyppeteer" or "selenium"]
+        :param parser: Parser backend ["playwright" (default), "bs4", "parsel, "lxml" or "selenium"]
         :param headless: Enables headless browser. (default=True)
         :param browser_type: Playwright supported browser types ("chromium", "chrome", "webkit", or "firefox").
         """
@@ -61,10 +61,6 @@ class Scraper(ScraperBase):
                 from .optional.lxml_scraper import LxmlScraper
 
                 scraper_class = LxmlScraper
-            elif parser == "pyppeteer":
-                from .optional.pyppeteer_scraper import PyppeteerScraper
-
-                scraper_class = PyppeteerScraper
             elif parser == "selenium":
                 from .optional.selenium_scraper import SeleniumScraper
 
