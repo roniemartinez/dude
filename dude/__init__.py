@@ -105,13 +105,6 @@ def cli() -> None:  # pragma: no cover
         help="Use lxml.",
     )
     parser_group.add_argument(
-        "--pyppeteer",
-        dest="pyppeteer",
-        default=False,
-        action="store_true",
-        help="Use Pyppeteer.",
-    )
-    parser_group.add_argument(
         "--selenium",
         dest="selenium",
         default=False,
@@ -223,14 +216,12 @@ def cli() -> None:  # pragma: no cover
         parser_type = "parsel"
     elif arguments.lxml:
         parser_type = "lxml"
-    elif arguments.pyppeteer:
-        parser_type = "pyppeteer"
     elif arguments.selenium:
         parser_type = "selenium"
 
     proxy: Any = None
     if arguments.proxy_server:
-        if parser_type in ("playwright", "pyppeteer"):
+        if parser_type == "playwright":
             proxy = {
                 "server": arguments.proxy_server,
                 "username": arguments.proxy_user or "",

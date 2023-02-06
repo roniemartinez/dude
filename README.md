@@ -119,7 +119,6 @@ Changing the output to `--output data.csv` should result in the following CSV co
   - [BeautifulSoup4](https://roniemartinez.github.io/dude/advanced/09_beautifulsoup4.html) - `pip install pydude[bs4]`
   - [Parsel](https://roniemartinez.github.io/dude/advanced/10_parsel.html) - `pip install pydude[parsel]`
   - [lxml](https://roniemartinez.github.io/dude/advanced/11_lxml.html) - `pip install pydude[lxml]`
-  - [Pyppeteer](https://roniemartinez.github.io/dude/advanced/12_pyppeteer.html) - `pip install pydude[pyppeteer]`
   - [Selenium](https://roniemartinez.github.io/dude/advanced/13_selenium.html) - `pip install pydude[selenium]`
 - Option to follow all links indefinitely (Crawler/Spider).
 - Events - attach functions to startup, pre-setup, post-setup and shutdown events.
@@ -132,7 +131,6 @@ It is possible to use parser backends like
 [BeautifulSoup4](https://roniemartinez.github.io/dude/advanced/09_beautifulsoup4.html), 
 [Parsel](https://roniemartinez.github.io/dude/advanced/10_parsel.html),
 [lxml](https://roniemartinez.github.io/dude/advanced/11_lxml.html),
-[Pyppeteer](https://roniemartinez.github.io/dude/advanced/12_pyppeteer.html), 
 and [Selenium](https://roniemartinez.github.io/dude/advanced/13_selenium.html).
 
 Here is the summary of features supported by each parser backend.
@@ -146,6 +144,7 @@ Here is the summary of features supported by each parser backend.
     <td colspan="4" style='text-align:center;'>Selectors</td>
     <td rowspan="2" style='text-align:center;'><a href="https://roniemartinez.github.io/dude/advanced/01_setup.html">Setup<br>Handler</a></td>
     <td rowspan="2" style='text-align:center;'><a href="https://roniemartinez.github.io/dude/advanced/02_navigate.html">Navigate<br>Handler</a></td>
+    <td rowspan="2" style='text-align:center;'>Comments</td>
   </tr>
   <tr>
     <td>CSS</td>
@@ -165,6 +164,7 @@ Here is the summary of features supported by each parser backend.
     <td>✅</td>
     <td>✅</td>
     <td>✅</td>
+    <td></td>
   </tr>
   <tr>
     <td>BeautifulSoup4</td>
@@ -176,6 +176,7 @@ Here is the summary of features supported by each parser backend.
     <td>🚫</td>
     <td>🚫</td>
     <td>🚫</td>
+    <td></td>
   </tr>
   <tr>
     <td>Parsel</td>
@@ -187,6 +188,7 @@ Here is the summary of features supported by each parser backend.
     <td>✅</td>
     <td>🚫</td>
     <td>🚫</td>
+    <td></td>
   </tr>
   <tr>
     <td>lxml</td>
@@ -198,6 +200,7 @@ Here is the summary of features supported by each parser backend.
     <td>✅</td>
     <td>🚫</td>
     <td>🚫</td>
+    <td></td>
   </tr>
   <tr>
     <td>Pyppeteer</td>
@@ -209,6 +212,7 @@ Here is the summary of features supported by each parser backend.
     <td>🚫</td>
     <td>✅</td>
     <td>✅</td>
+    <td>Not supported from 0.23.0</td>
   </tr>
   <tr>
     <td>Selenium</td>
@@ -220,6 +224,7 @@ Here is the summary of features supported by each parser backend.
     <td>🚫</td>
     <td>✅</td>
     <td>✅</td>
+    <td></td>
   </tr>
 </tbody>
 </table>

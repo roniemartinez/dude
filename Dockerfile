@@ -6,5 +6,5 @@ ENV PYTHONUNBUFFERED=1
 RUN mkdir /code
 WORKDIR /code
 
-RUN pip3 install pydude[bs4,parsel,lxml,pyppeteer,selenium]
+RUN pip3 install pydude[bs4,parsel,lxml,selenium]
 RUN playwright install

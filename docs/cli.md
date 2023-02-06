@@ -3,13 +3,13 @@
 === "CLI"
 
     ```commandline
-    usage: dude scrape [-h] [--url URL] [--playwright | --bs4 | --parsel | --lxml | --pyppeteer | --selenium] [--headed] [--browser {chromium,firefox,webkit}] [--pages PAGES] [--output OUTPUT] [--format FORMAT] [--proxy-server PROXY_SERVER] [--proxy-user PROXY_USER]
-                       [--proxy-pass PROXY_PASS] [--follow-urls] [--save-per-page] [--ignore-robots-txt]
+    usage: dude scrape [-h] [--url URL] [--playwright | --bs4 | --parsel | --lxml | --selenium] [--headed] [--browser {chromium,firefox,webkit}] [--pages PAGES] [--output OUTPUT] [--format FORMAT]
+                       [--proxy-server PROXY_SERVER] [--proxy-user PROXY_USER] [--proxy-pass PROXY_PASS] [--follow-urls] [--save-per-page] [--ignore-robots-txt]
                        PATH [PATH ...]
     
     Run the dude scraper.
     
-    optional arguments:
+    options:
       -h, --help            show this help message and exit
     
     required arguments:
@@ -21,7 +21,6 @@
       --bs4                 Use BeautifulSoup4.
       --parsel              Use Parsel.
       --lxml                Use lxml.
-      --pyppeteer           Use Pyppeteer.
       --selenium            Use Selenium.
       --headed              Run headed browser.
       --browser {chromium,firefox,webkit}
