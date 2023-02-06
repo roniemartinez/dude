@@ -53,7 +53,7 @@ parsel = ["parsel", "httpx"]
 selenium = ["selenium-wire", "webdriver-manager", "pybrowsers"]
 
 [tool.poetry.dev-dependencies]
-autoflake = "^1.7.6"
+autoflake = "^1.7.8"
 black = "^22.10"
 isort = "^5.10.1"
 mkdocs-material = "^8.5.6"
