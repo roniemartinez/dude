@@ -52,7 +52,7 @@ lxml = ["lxml", "cssselect", "httpx"]
 parsel = ["parsel", "httpx"]
 selenium = ["selenium-wire", "webdriver-manager", "pybrowsers"]
 
-[tool.poetry.dev-dependencies]
+[tool.poetry.group.dev.dependencies]
 autoflake = "^1.7.8"
 black = "^23.1"
 isort = "^5.11.5"

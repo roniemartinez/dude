@@ -2459,4 +2459,4 @@ selenium = ["selenium-wire", "webdriver-manager", "pybrowsers"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.7"
-content-hash = "1d470659623f9537b6160637dbcfde43d9ed338383923991511648241807dcca"
+content-hash = "53fb6982c465894a271734919bc4d304dc958487e3f36282f3f5d7f80781123f"

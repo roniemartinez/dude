@@ -47,9 +47,9 @@ class ScraperBase(ABC):
 
     def __init__(
         self,
-        rules: List[Rule] = None,
-        groups: Dict[Callable, Selector] = None,
-        save_rules: Dict[Tuple[str, bool], Any] = None,
+        rules: Optional[List[Rule]] = None,
+        groups: Optional[Dict[Callable, Selector]] = None,
+        save_rules: Optional[Dict[Tuple[str, bool], Any]] = None,
         events: Optional[DefaultDict] = None,
         has_async: bool = False,
         requests: Optional[Deque] = None,  # only valid for BeautifulSoup4, lxml and Parsel backends
@@ -140,20 +140,20 @@ class ScraperBase(ABC):
 
     def select(
         self,
-        selector: str = None,
-        group: str = None,
+        selector: Optional[str] = None,
+        group: Optional[str] = None,
         setup: bool = False,
         navigate: bool = False,
         url_match: Union[str, Callable] = "*",
         priority: int = 100,
-        css: str = None,
-        xpath: str = None,
-        text: str = None,
-        regex: str = None,
-        group_css: str = None,
-        group_xpath: str = None,
-        group_text: str = None,
-        group_regex: str = None,
+        css: Optional[str] = None,
+        xpath: Optional[str] = None,
+        text: Optional[str] = None,
+        regex: Optional[str] = None,
+        group_css: Optional[str] = None,
+        group_xpath: Optional[str] = None,
+        group_text: Optional[str] = None,
+        group_regex: Optional[str] = None,
     ) -> Callable:
         """
         Decorator to register a handler function to a given selector.
@@ -198,11 +198,11 @@ class ScraperBase(ABC):
 
     def group(
         self,
-        selector: str = None,
-        css: str = None,
-        xpath: str = None,
-        text: str = None,
-        regex: str = None,
+        selector: Optional[str] = None,
+        css: Optional[str] = None,
+        xpath: Optional[str] = None,
+        text: Optional[str] = None,
+        regex: Optional[str] = None,
     ) -> Callable:
         """
         Decorator to register a handler function to a given group.
@@ -431,9 +431,9 @@ class ScraperBase(ABC):
 class ScraperAbstract(ScraperBase):
     def __init__(
         self,
-        rules: List[Rule] = None,
-        groups: Dict[Callable, Selector] = None,
-        save_rules: Dict[Tuple[str, bool], Any] = None,
+        rules: Optional[List[Rule]] = None,
+        groups: Optional[Dict[Callable, Selector]] = None,
+        save_rules: Optional[Dict[Tuple[str, bool], Any]] = None,
         events: Optional[DefaultDict] = None,
         has_async: bool = False,
         requests: Optional[Deque] = None,
