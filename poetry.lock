@@ -1449,18 +1449,18 @@ files = [
 
 [[package]]
 name = "pybrowsers"
-version = "0.5.1"
+version = "0.5.2"
 description = "Python library for detecting and launching browsers"
 category = "main"
 optional = true
 python-versions = ">=3.7,<4.0"
 files = [
-    {file = "pybrowsers-0.5.1-py3-none-any.whl", hash = "sha256:4f2fe7e3afbaa54af7c170a9fa2c04c1108baf29ed5988d483bf816a04e109cc"},
-    {file = "pybrowsers-0.5.1.tar.gz", hash = "sha256:58326ca65a5053676309443244df4fd1e1d62af05e8265602214894efb31c073"},
+    {file = "pybrowsers-0.5.2-py3-none-any.whl", hash = "sha256:2fb9682c6532dcfc883fea4fa877c1c55d72b267f6d61d572cf93251557b9d0e"},
+    {file = "pybrowsers-0.5.2.tar.gz", hash = "sha256:c9710d0397217609e4b413f83582e7099ff01a326112a791646fdcd5d6551c26"},
 ]
 
 [package.dependencies]
-pywin32 = {version = ">=303,<305", markers = "sys_platform == \"win32\""}
+pywin32 = {version = ">=303,<306", markers = "sys_platform == \"win32\""}
 pyxdg = {version = ">=0.27,<0.29", markers = "sys_platform == \"linux\""}
 
 [[package]]
