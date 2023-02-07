@@ -73,7 +73,7 @@ class SeleniumScraper(ScraperAbstract):
             **kwargs,
         )
 
-    def setup(self, driver: WebDriver = None) -> None:
+    def setup(self, driver: Optional[WebDriver] = None) -> None:
         """
         Executes setup handlers
 
@@ -89,7 +89,7 @@ class SeleniumScraper(ScraperAbstract):
 
         self.event_post_setup(driver)
 
-    async def setup_async(self, driver: WebDriver = None) -> None:
+    async def setup_async(self, driver: Optional[WebDriver] = None) -> None:
         """
         Executes setup handlers
 
@@ -108,7 +108,7 @@ class SeleniumScraper(ScraperAbstract):
 
         await self.event_post_setup_async(driver)
 
-    def navigate(self, driver: WebDriver = None) -> bool:
+    def navigate(self, driver: Optional[WebDriver] = None) -> bool:
         """
         Executes navigate handlers
 
@@ -122,7 +122,7 @@ class SeleniumScraper(ScraperAbstract):
                 return True
         return False
 
-    async def navigate_async(self, driver: WebDriver = None) -> bool:
+    async def navigate_async(self, driver: Optional[WebDriver] = None) -> bool:
         """
         Executes navigate handlers
 
@@ -262,7 +262,9 @@ class SeleniumScraper(ScraperAbstract):
 
         return driver
 
-    def collect_elements(self, driver: WebDriver = None) -> Iterable[Tuple[str, int, int, int, Any, Callable]]:
+    def collect_elements(
+        self, driver: Optional[WebDriver] = None
+    ) -> Iterable[Tuple[str, int, int, int, Any, Callable]]:
         """
         Collects all the elements and returns a generator of element-handler pair.
         """

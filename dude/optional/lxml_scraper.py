@@ -24,7 +24,7 @@ class LxmlScraper(ScraperAbstract, HTTPXMixin):
         self,
         urls: Sequence[str],
         pages: int = 1,
-        proxy: ProxiesTypes = None,
+        proxy: Optional[ProxiesTypes] = None,
         output: Optional[str] = None,
         format: str = "json",
         follow_urls: bool = False,
@@ -131,7 +131,7 @@ class LxmlScraper(ScraperAbstract, HTTPXMixin):
                     if i == pages or not await self.navigate_async():
                         break
 
-    def setup(self, tree: _ElementTree = None) -> None:
+    def setup(self, tree: Optional[_ElementTree] = None) -> None:
         """
         This will only call the pre-setup and post-setup events if extra actions are needed to the tree object.
         :param tree: _ElementTree object
@@ -140,7 +140,7 @@ class LxmlScraper(ScraperAbstract, HTTPXMixin):
         self.event_pre_setup(tree)
         self.event_post_setup(tree)
 
-    async def setup_async(self, tree: _ElementTree = None) -> None:
+    async def setup_async(self, tree: Optional[_ElementTree] = None) -> None:
         """
         This will only call the pre-setup and post-setup events if extra actions are needed to the tree object.
         :param tree: _ElementTree object
@@ -156,7 +156,7 @@ class LxmlScraper(ScraperAbstract, HTTPXMixin):
         return False
 
     def collect_elements(
-        self, tree: _Element = None, url: str = None
+        self, tree: Optional[_Element] = None, url: Optional[str] = None
     ) -> Iterable[Tuple[str, int, int, int, Any, Callable]]:
         assert tree is not None
         assert url is not None

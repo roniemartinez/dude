@@ -23,7 +23,7 @@ class ParselScraper(ScraperAbstract, HTTPXMixin):
         self,
         urls: Sequence[str],
         pages: int = 1,
-        proxy: ProxiesTypes = None,
+        proxy: Optional[ProxiesTypes] = None,
         output: Optional[str] = None,
         format: str = "json",
         follow_urls: bool = False,
@@ -129,7 +129,7 @@ class ParselScraper(ScraperAbstract, HTTPXMixin):
                     if i == pages or not await self.navigate_async():
                         break
 
-    def setup(self, selector: ParselSelector = None) -> None:
+    def setup(self, selector: Optional[ParselSelector] = None) -> None:
         """
         This will only call the pre-setup and post-setup events if extra actions are needed to the selector object.
         :param selector: Selector object
@@ -138,7 +138,7 @@ class ParselScraper(ScraperAbstract, HTTPXMixin):
         self.event_pre_setup(selector)
         self.event_post_setup(selector)
 
-    async def setup_async(self, selector: ParselSelector = None) -> None:
+    async def setup_async(self, selector: Optional[ParselSelector] = None) -> None:
         """
         This will only call the pre-setup and post-setup events if extra actions are needed to the selector object.
         :param selector: Selector object
@@ -154,7 +154,7 @@ class ParselScraper(ScraperAbstract, HTTPXMixin):
         return False
 
     def collect_elements(
-        self, selector: ParselSelector = None, url: str = None
+        self, selector: Optional[ParselSelector] = None, url: Optional[str] = None
     ) -> Iterable[Tuple[str, int, int, int, Any, Callable]]:
         assert selector is not None
         assert url is not None

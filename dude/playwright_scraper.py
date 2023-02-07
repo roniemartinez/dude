@@ -68,7 +68,7 @@ class PlaywrightScraper(ScraperAbstract):
         """
         yield from page_or_element.query_selector_all(selector)
 
-    def setup(self, page: sync_api.Page = None) -> None:
+    def setup(self, page: Optional[sync_api.Page] = None) -> None:
         """
         Executes setup handlers
 
@@ -84,7 +84,7 @@ class PlaywrightScraper(ScraperAbstract):
 
         self.event_post_setup(page)
 
-    async def setup_async(self, page: async_api.Page = None) -> None:
+    async def setup_async(self, page: Optional[async_api.Page] = None) -> None:
         """
         Executes setup handlers
 
@@ -100,7 +100,7 @@ class PlaywrightScraper(ScraperAbstract):
 
         await self.event_post_setup_async(page)
 
-    def navigate(self, page: sync_api.Page = None) -> bool:
+    def navigate(self, page: Optional[sync_api.Page] = None) -> bool:
         """
         Executes navigate handlers
 
@@ -114,7 +114,7 @@ class PlaywrightScraper(ScraperAbstract):
                 return True
         return False
 
-    async def navigate_async(self, page: async_api.Page = None) -> bool:
+    async def navigate_async(self, page: Optional[async_api.Page] = None) -> bool:
         """
         Executes navigate handlers
 
@@ -253,7 +253,9 @@ class PlaywrightScraper(ScraperAbstract):
 
             await browser.close()
 
-    def collect_elements(self, page: sync_api.Page = None) -> Iterable[Tuple[str, int, int, int, Any, Callable]]:
+    def collect_elements(
+        self, page: Optional[sync_api.Page] = None
+    ) -> Iterable[Tuple[str, int, int, int, Any, Callable]]:
         """
         Collects all the elements and returns a generator of element-handler pair.
         """
@@ -272,7 +274,7 @@ class PlaywrightScraper(ScraperAbstract):
                         yield page_url, group_index, id(group), element_index, element, rule.handler
 
     async def collect_elements_async(
-        self, page: async_api.Page = None
+        self, page: Optional[async_api.Page] = None
     ) -> AsyncIterable[Tuple[str, int, int, int, Any, Callable]]:
         """
         Collects all the elements and returns a generator of element-handler pair.
