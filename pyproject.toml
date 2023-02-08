@@ -34,16 +34,16 @@ dude = "dude:cli"
 
 [tool.poetry.dependencies]
 python = "^3.7"
-beautifulsoup4 = { version = "^4.10.0", optional = true }
+beautifulsoup4 = {version = "^4.11.2", optional = true}
 braveblock = "^0.5.0"
 cssselect = { version = "^1.1.0", optional = true }
-httpx = { version = ">=0.22,<0.24", optional = true }
+httpx = {version = "^0.23.3", optional = true}
 lxml = {version = "^4.9.2", optional = true}
-parsel = { version = "^1.6.0", optional = true }
+parsel = {version = "^1.6.0,<1.7.0", optional = true}
 playwright = "^1.30.0"
 pybrowsers = {version = ">=0.4.1,<0.6.0", optional = true}
 PyYAML = "^6.0"
-selenium-wire = { version = ">=4.6.2,<6.0.0", optional = true }
+selenium-wire = {version = ">=4.6.2,<6.0.0", optional = true}
 webdriver-manager = { version = "^3.7.0", optional = true }
 
 [tool.poetry.extras]
@@ -64,7 +64,7 @@ pytest = "^7.2.0"
 pytest-clarity = "^1.0.1"
 pytest-cov = "^4.0.0"
 respx = "^0.20.0"
-tabulate = { git = "https://github.com/astanin/python-tabulate" }
+tabulate = "^0.9.0"
 types-PyYAML = "^6.0.12"
 
 [tool.isort]
