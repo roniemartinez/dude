@@ -1340,20 +1340,20 @@ files = [
 
 [[package]]
 name = "parsel"
-version = "1.6.0"
+version = "1.7.0"
 description = "Parsel is a library to extract data from HTML and XML using XPath and CSS selectors"
 category = "main"
 optional = true
-python-versions = "*"
+python-versions = ">=3.7"
 files = [
-    {file = "parsel-1.6.0-py2.py3-none-any.whl", hash = "sha256:9e1fa8db1c0b4a878bf34b35c043d89c9d1cbebc23b4d34dbc3c0ec33f2e087d"},
-    {file = "parsel-1.6.0.tar.gz", hash = "sha256:70efef0b651a996cceebc69e55a85eb2233be0890959203ba7c3a03c72725c79"},
+    {file = "parsel-1.7.0-py2.py3-none-any.whl", hash = "sha256:80ba5797b2a4968cdcdbd51c355e596f4441d0acd7f6d70f63a9e441e7fe45df"},
+    {file = "parsel-1.7.0.tar.gz", hash = "sha256:0254133cb0304de13fcc4857bb8214ff70d698872761fa6be8374e1bbbd58192"},
 ]
 
 [package.dependencies]
 cssselect = ">=0.9"
 lxml = "*"
-six = ">=1.6.0"
+packaging = "*"
 w3lib = ">=1.19.0"
 
 [[package]]
@@ -2456,4 +2456,4 @@ selenium = ["selenium-wire", "webdriver-manager", "pybrowsers"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.7"
-content-hash = "7ee988db204b3f47ee8ba87959df5d304f780d40462d90e681b085fe3cb99b01"
+content-hash = "e5bca58270d1099d8fb39b552eba725338c469ac37feff2d117494ba6bb2f406"
