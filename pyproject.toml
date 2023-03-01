@@ -58,7 +58,7 @@ black = "^23.1"
 isort = "^5.11.5"
 mkdocs-material = "^9.0.11"
 mkdocstrings = { version = "^0.20.0", extras = ["python-legacy"] }
-mypy = "^0.982"
+mypy = ">=0.982,<1.1"
 pyproject-flake8 = "^3.9.2"
 pytest = "^7.2.0"
 pytest-clarity = "^1.0.1"
