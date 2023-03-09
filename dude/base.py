@@ -1,10 +1,12 @@
 import asyncio
 import collections
+import inspect
 import itertools
 import logging
 import time
 from abc import ABC, abstractmethod
 from pathlib import Path
+from types import GeneratorType
 from typing import (
     Any,
     AsyncIterable,
@@ -178,7 +180,7 @@ class ScraperBase(ABC):
             sel = Selector(selector=selector, css=css, xpath=xpath, text=text, regex=regex)
             assert sel, "Any of selector, css, xpath, text and regex params should be present."
 
-            if asyncio.iscoroutinefunction(func):
+            if asyncio.iscoroutinefunction(func) or inspect.isasyncgenfunction(func):
                 self.has_async = True
 
             rule = Rule(
@@ -536,6 +538,18 @@ class ScraperAbstract(ScraperBase):
         for page_url, group_index, group_id, element_index, element, handler in collected_elements:
             data = handler(element)
 
+            if isinstance(data, GeneratorType):
+                for index, d in enumerate(data):
+                    yield ScrapedData(
+                        page_number=page_number,
+                        page_url=page_url,
+                        group_id=group_id,
+                        group_index=group_index,
+                        element_index=index,
+                        data=d,
+                    )
+                return
+
             if not data:
                 continue
 
@@ -557,6 +571,20 @@ class ScraperAbstract(ScraperBase):
         collected_elements = [element async for element in self.collect_elements_async(**kwargs)]
 
         for page_url, group_index, group_id, element_index, element, handler in collected_elements:
+            if inspect.isasyncgenfunction(handler):
+                index = 0
+                async for data in handler(element):
+                    yield ScrapedData(
+                        page_number=page_number,
+                        page_url=page_url,
+                        group_id=group_id,
+                        group_index=group_index,
+                        element_index=index,
+                        data=data,
+                    )
+                    index += 1
+                return
+
             data = await handler(element)
 
             if not data:
