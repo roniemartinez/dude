@@ -548,12 +548,12 @@ class ScraperAbstract(ScraperBase):
                         element_index=index,
                         data=d,
                     )
-                return
+                continue
 
             if not data:
                 continue
 
-            scraped_data = ScrapedData(
+            yield ScrapedData(
                 page_number=page_number,
                 page_url=page_url,
                 group_id=group_id,
@@ -561,7 +561,6 @@ class ScraperAbstract(ScraperBase):
                 element_index=element_index,
                 data=data,
             )
-            yield scraped_data
 
     async def extract_all_async(self, page_number: int, **kwargs: Any) -> AsyncIterable[ScrapedData]:
         """
@@ -583,14 +582,14 @@ class ScraperAbstract(ScraperBase):
                         data=data,
                     )
                     index += 1
-                return
+                continue
 
             data = await handler(element)
 
             if not data:
                 continue
 
-            scraped_data = ScrapedData(
+            yield ScrapedData(
                 page_number=page_number,
                 page_url=page_url,
                 group_id=group_id,
@@ -598,7 +597,6 @@ class ScraperAbstract(ScraperBase):
                 element_index=element_index,
                 data=data,
             )
-            yield scraped_data
 
     def get_scraping_rules(self, url: str) -> Iterable[Rule]:
         return filter(rule_filter(url), self.rules)
