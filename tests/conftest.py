@@ -136,6 +136,40 @@ def expected_data(base_url: str) -> List[Dict]:
 
 
 @pytest.fixture()
+def expected_generator_data(base_url: str) -> List[Dict]:
+    is_integer = IsInteger()
+    return [
+        {
+            "_page_number": 1,
+            "_page_url": base_url,
+            "_group_id": is_integer,
+            "_group_index": 0,
+            "_element_index": 0,
+            "url": "url-1.html",
+            "title": "Title 1",
+        },
+        {
+            "_page_number": 1,
+            "_page_url": base_url,
+            "_group_id": is_integer,
+            "_group_index": 0,
+            "_element_index": 1,
+            "url": "url-2.html",
+            "title": "Title 2",
+        },
+        {
+            "_page_number": 1,
+            "_page_url": base_url,
+            "_group_id": is_integer,
+            "_group_index": 0,
+            "_element_index": 2,
+            "url": "url-3.html",
+            "title": "Title 3",
+        },
+    ]
+
+
+@pytest.fixture()
 def expected_browser_data(file_url: str) -> List[Dict]:
     is_integer = IsInteger()
     return [

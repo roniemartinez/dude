@@ -1,4 +1,4 @@
-from typing import Dict, List
+from typing import AsyncIterator, Dict, Iterator, List
 from unittest import mock
 from urllib.parse import urljoin
 
@@ -86,6 +86,30 @@ def parsel_regex(scraper_application: Scraper) -> None:
     @scraper_application.select(css=".url::attr(href)", group_css=".custom-group")
     def url(selector: parsel.Selector) -> Dict:
         return {"url": selector.get()}
+
+
+@pytest.fixture()
+def parsel_generator(scraper_application: Scraper) -> None:
+    @scraper_application.select(css="body")
+    def generator(selector: parsel.Selector) -> Iterator[Dict]:
+        group: parsel.Selector
+        for group in selector.css(".custom-group"):
+            yield {
+                "title": group.css(".title::text").get(),
+                "url": group.css(".url::attr(href)").get(),
+            }
+
+
+@pytest.fixture()
+def async_parsel_generator(scraper_application: Scraper) -> None:
+    @scraper_application.select(css="body")
+    async def generator(selector: parsel.Selector) -> AsyncIterator[Dict]:
+        group: parsel.Selector
+        for group in selector.css(".custom-group"):
+            yield {
+                "title": group.css(".title::text").get(),
+                "url": group.css(".url::attr(href)").get(),
+            }
 
 
 def test_full_flow_parsel(
@@ -224,3 +248,37 @@ def test_full_flow_parsel_regex(
     scraper_application.run(urls=[base_url], pages=2, format="custom", parser="parsel")
 
     mock_database.save.assert_called_with(expected_data)
+
+
+def test_full_flow_parsel_generator(
+    scraper_application: Scraper,
+    parsel_generator: None,
+    expected_generator_data: List[Dict],
+    base_url: str,
+    scraper_save: None,
+    mock_database: mock.MagicMock,
+    mock_httpx: Router,
+) -> None:
+    assert scraper_application.has_async is False
+    assert len(scraper_application.rules) == 1
+
+    scraper_application.run(urls=[base_url], pages=2, format="custom", parser="parsel")
+
+    mock_database.save.assert_called_with(expected_generator_data)
+
+
+def test_full_flow_parsel_async_generator(
+    scraper_application: Scraper,
+    async_parsel_generator: None,
+    expected_generator_data: List[Dict],
+    base_url: str,
+    scraper_save: None,
+    mock_database: mock.MagicMock,
+    mock_httpx: Router,
+) -> None:
+    assert len(scraper_application.rules) == 1
+    assert scraper_application.has_async is True
+
+    scraper_application.run(urls=[base_url], pages=2, format="custom", parser="parsel")
+
+    mock_database.save.assert_called_with(expected_generator_data)
