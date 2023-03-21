@@ -65,7 +65,11 @@ class ParselScraper(ScraperAbstract, HTTPXMixin):
         save_per_page: bool,
         **kwargs: Any,
     ) -> None:
-        with httpx.Client(proxies=proxy, event_hooks={"request": [self._block_httpx_request_if_needed]}) as client:
+        with httpx.Client(
+            proxies=proxy,
+            event_hooks={"request": [self._block_httpx_request_if_needed]},
+            follow_redirects=True,
+        ) as client:
             for request in self.iter_requests():
                 logger.info("Requesting url %s - %s", request.method, request.url)
                 for i in range(1, pages + 1):
