@@ -1258,14 +1258,14 @@ files = [
 
 [[package]]
 name = "mkdocstrings"
-version = "0.20.0"
+version = "0.21.1"
 description = "Automatic documentation from sources, for MkDocs."
 category = "dev"
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "mkdocstrings-0.20.0-py3-none-any.whl", hash = "sha256:f17fc2c4f760ec302b069075ef9e31045aa6372ca91d2f35ded3adba8e25a472"},
-    {file = "mkdocstrings-0.20.0.tar.gz", hash = "sha256:c757f4f646d4f939491d6bc9256bfe33e36c5f8026392f49eaa351d241c838e5"},
+    {file = "mkdocstrings-0.21.1-py3-none-any.whl", hash = "sha256:cf5a2d50bb0ee9c008e714a55ecce5acb7fa1ec9add5d8ad5bc2df6b2cdd3e21"},
+    {file = "mkdocstrings-0.21.1.tar.gz", hash = "sha256:68cb64b9c8e474f654856cd889371f321bed16dfe20f0922c7191efa60a94e5e"},
 ]
 
 [package.dependencies]
@@ -1276,6 +1276,7 @@ mkdocs = ">=1.2"
 mkdocs-autorefs = ">=0.3.1"
 mkdocstrings-python-legacy = {version = ">=0.2.1", optional = true, markers = "extra == \"python-legacy\""}
 pymdown-extensions = ">=6.3"
+typing-extensions = {version = ">=4.1", markers = "python_version < \"3.10\""}
 
 [package.extras]
 crystal = ["mkdocstrings-crystal (>=0.3.4)"]
@@ -2514,4 +2515,4 @@ selenium = ["selenium-wire", "webdriver-manager", "pybrowsers"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.7"
-content-hash = "8c73536b4fe35a7ba92a98e934a1465e2a43b5bb45900a81ab41ada794714def"
+content-hash = "7ca4c7e4ab5b2ec3b5ff624eabd999f85e35bb7b3e87172c9a1730c1a120e55e"
