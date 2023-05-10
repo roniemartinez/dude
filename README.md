@@ -203,7 +203,7 @@ Here is the summary of features supported by each parser backend.
     <td></td>
   </tr>
   <tr>
-    <td>Pyppeteer</td>
+    <td>Puppeteer</td>
     <td>🚫</td>
     <td>✅</td>
     <td>✅</td>
