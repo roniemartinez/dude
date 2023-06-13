@@ -1,5 +1,4 @@
 import json
-import sys
 from typing import Dict, List
 from unittest import mock
 
