@@ -150,7 +150,6 @@ def test_custom_save(
     mock_database.save.assert_called_with(expected_browser_data)
 
 
-@pytest.mark.skipif(sys.version_info < (3, 8), reason="AsyncMock is not supported.")
 def test_async_save(
     scraper_application: Scraper,
     async_playwright_select: None,
