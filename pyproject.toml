@@ -65,7 +65,6 @@ pytest-cov = "^4.0.0"
 respx = "^0.20.0"
 tabulate = "^0.9.0"
 types-PyYAML = "^6.0.12"
-virtualenv = "^20.23.1"
 
 [tool.isort]
 line_length = 120
