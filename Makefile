@@ -8,7 +8,6 @@ install:
 .PHONY: install-actions
 install-actions:
 	pip3 install pip setuptools poetry
-	poetry config virtualenvs.create false
 	poetry install -E bs4 -E parsel -E lxml -E selenium
 	poetry run playwright install
 	poetry run playwright install-deps
