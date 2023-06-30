@@ -29,10 +29,10 @@ jobs:
             poetry-cache: ~/.cache/pypoetry
           - os: macos-latest
             pip-cache: ~/Library/Caches/pip
-            poetry-cache: ~/Library/Caches/pypoetry
+            poetry-cache: ~/Library/Application\ Support/pypoetry
           - os: windows-latest
             pip-cache: ~\AppData\Local\pip\Cache
-            poetry-cache: ~\AppData\Local\pypoetry\Cache
+            poetry-cache: ~\AppData\Local\pypoetry
     steps:
       - uses: actions/checkout@v3
 
