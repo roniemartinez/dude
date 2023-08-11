@@ -15,7 +15,7 @@ from selenium.webdriver.remote.webelement import WebElement
 from seleniumwire.request import Request
 from seleniumwire.webdriver import Chrome, Firefox
 from webdriver_manager.chrome import ChromeDriverManager
-from webdriver_manager.core.utils import ChromeType
+from webdriver_manager.core.os_manager import ChromeType
 from webdriver_manager.firefox import GeckoDriverManager
 
 from ..base import ScraperAbstract
@@ -244,17 +244,19 @@ class SeleniumScraper(ScraperAbstract):
         if browser_type == "firefox":
             executable_path = GeckoDriverManager().install()
             firefox_options = FirefoxOptions()
-            firefox_options.headless = headless
+            if headless:
+                firefox_options.add_argument("--headless")
             firefox_options.set_preference("dom.webnotifications.enabled", False)
             firefox_options.set_preference("network.captive-portal-service.enabled", False)
             driver = Firefox(service=FirefoxService(executable_path=executable_path), options=firefox_options)
         else:
             chrome_options = ChromeOptions()
-            chrome_options.headless = headless
+            if headless:
+                chrome_options.add_argument("--headless")
             chrome_options.add_argument("--no-sandbox")
             chrome_options.add_argument("--disable-notifications")
             executable_path = ChromeDriverManager(
-                chrome_type=ChromeType.CHROMIUM, version=get_chromedriver_latest_release()
+                chrome_type=ChromeType.GOOGLE, latest_release_url=get_chromedriver_latest_release()
             ).install()
             driver = Chrome(service=ChromeService(executable_path=executable_path), options=chrome_options)
 
