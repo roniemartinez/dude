@@ -89,5 +89,5 @@ jobs:
           make test
 
       - name: Code Coverage
-        uses: codecov/codecov-action@v4.0.0
+        uses: codecov/codecov-action@v4.0.1
         if: ${{ success() }}
