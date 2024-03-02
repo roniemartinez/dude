@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "pydude"
-version = "0.27.0"
+version = "0.28.0"
 repository = "https://github.com/roniemartinez/dude"
 description = "dude uncomplicated data extraction"
 authors = ["Ronie Martinez <ronmarti18@gmail.com>"]
@@ -32,7 +32,7 @@ packages = [
 dude = "dude:cli"
 
 [tool.poetry.dependencies]
-python = "^3.8"
+python = "^3.8.1"
 braveblock = "^0.5.0"
 playwright = "^1.30.0"
 PyYAML = "^6.0"
@@ -52,13 +52,13 @@ parsel = ["parsel", "httpx"]
 selenium = ["selenium-wire", "webdriver-manager", "pybrowsers"]
 
 [tool.poetry.group.dev.dependencies]
-autoflake = "^1.7.8"
+autoflake = "^2.3.0"
 black = ">=23.1,<25.0"
 isort = "^5.11.5"
 mkdocs-material = "^9.0.11"
 mkdocstrings = { version = ">=0.20,<0.25", extras = ["python-legacy"] }
 mypy = ">=0.982,<1.9"
-pyproject-flake8 = ">=3.9.2,<6.0.0"
+pyproject-flake8 = "^6.1.0"
 pytest = ">=7.2,<9.0"
 pytest-clarity = "^1.0.1"
 pytest-cov = "^4.0.0"
