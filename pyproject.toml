@@ -53,13 +53,13 @@ selenium = ["selenium-wire", "webdriver-manager", "pybrowsers"]
 
 [tool.poetry.group.dev.dependencies]
 autoflake = "^2.3.0"
-black = ">=23.1,<25.0"
+black = "^24.4.2"
 isort = "^5.11.5"
 mkdocs-material = "^9.0.11"
 mkdocstrings = { version = ">=0.20,<0.25", extras = ["python-legacy"] }
 mypy = ">=0.982,<1.11"
 pyproject-flake8 = ">=6.1,<8.0"
-pytest = ">=7.2,<9.0"
+pytest = "^8.2.0"
 pytest-clarity = "^1.0.1"
 pytest-cov = ">=4,<6"
 respx = ">=0.20,<0.22"
