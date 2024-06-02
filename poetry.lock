@@ -1558,17 +1558,17 @@ files = [
 
 [[package]]
 name = "pybrowsers"
-version = "0.5.2"
+version = "0.6.0"
 description = "Python library for detecting and launching browsers"
 optional = true
-python-versions = ">=3.7,<4.0"
+python-versions = "<4.0.0,>=3.8.1"
 files = [
-    {file = "pybrowsers-0.5.2-py3-none-any.whl", hash = "sha256:2fb9682c6532dcfc883fea4fa877c1c55d72b267f6d61d572cf93251557b9d0e"},
-    {file = "pybrowsers-0.5.2.tar.gz", hash = "sha256:c9710d0397217609e4b413f83582e7099ff01a326112a791646fdcd5d6551c26"},
+    {file = "pybrowsers-0.6.0-py3-none-any.whl", hash = "sha256:2c672148462bf0daca0ff5fece24c1bfde7370277fecdadf313d5249f9b91ca6"},
+    {file = "pybrowsers-0.6.0.tar.gz", hash = "sha256:b683fd6fd308d07a285428da7cb025c6684922ef78c42b12dc4dd06b538b5473"},
 ]
 
 [package.dependencies]
-pywin32 = {version = ">=303,<306", markers = "sys_platform == \"win32\""}
+pywin32 = {version = ">=303,<307", markers = "sys_platform == \"win32\""}
 pyxdg = {version = ">=0.27,<0.29", markers = "sys_platform == \"linux\""}
 
 [[package]]
@@ -2479,4 +2479,4 @@ selenium = ["pybrowsers", "selenium-wire", "webdriver-manager"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.8.1"
-content-hash = "4f4340f6b7a8286bfb76e4df0d011499827a8adfb991d79d30ec804d63538f32"
+content-hash = "1e64a4cf8ff8649d6fa64e9b5ee8971b8cb183a605985947118a8cda3e392441"
