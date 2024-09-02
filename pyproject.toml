@@ -56,7 +56,7 @@ autoflake = "^2.3.0"
 black = "^24.4.2"
 isort = "^5.11.5"
 mkdocs-material = "^9.0.11"
-mkdocstrings = { version = ">=0.20,<0.26", extras = ["python-legacy"] }
+mkdocstrings = { version = ">=0.20,<0.27", extras = ["python-legacy"] }
 mypy = ">=0.982,<1.12"
 pyproject-flake8 = ">=6.1,<8.0"
 pytest = "^8.2.0"
